@@ -1,0 +1,129 @@
+<svg width="420" height="320" viewBox="0 0 420 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="checkGrad" x1="132" y1="98" x2="284" y2="16" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#20927C"/>
+      <stop offset="0.55" stop-color="#41A77F"/>
+      <stop offset="1" stop-color="#7BC26C"/>
+    </linearGradient>
+  </defs>
+
+  <path
+    d="M140 58L196 110L286 20"
+    stroke="url(#checkGrad)"
+    stroke-width="24"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M146 56L196 102L279 22"
+    stroke="#9DE3A1"
+    stroke-opacity="0.35"
+    stroke-width="6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <g transform="translate(0 2)">
+    <g transform="translate(164 94)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#5FAFDA"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#2C6FAE"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#3F8EC4"/>
+    </g>
+    <g transform="translate(256 94)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#DC679B"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#984075"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#C34D84"/>
+    </g>
+
+    <g transform="translate(130 126)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#61B2DE"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#2F74B2"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#4495CB"/>
+    </g>
+    <g transform="translate(210 126)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#B27FAF"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#4E6FA6"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#A04E89"/>
+    </g>
+    <g transform="translate(290 126)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#DD709F"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#A04379"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#C8568B"/>
+    </g>
+
+    <g transform="translate(96 158)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#5DAFD9"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#2B6FAB"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#3D8FC2"/>
+    </g>
+    <g transform="translate(176 158)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#9C89BB"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#4167A6"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#85518F"/>
+    </g>
+    <g transform="translate(244 158)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#DB6C9C"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#93437A"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#C05087"/>
+    </g>
+    <g transform="translate(324 158)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#D76093"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#96406F"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#BE4A7D"/>
+    </g>
+
+    <g transform="translate(96 190)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#4CA1CF"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#2B649E"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#3A83B7"/>
+    </g>
+    <g transform="translate(176 190)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#4A8FC1"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#2B5E98"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#367AAE"/>
+    </g>
+    <g transform="translate(244 190)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#DA5E93"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#964070"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#C24980"/>
+    </g>
+    <g transform="translate(324 190)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#D04C84"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#8E3667"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#B64176"/>
+    </g>
+
+    <g transform="translate(130 222)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#4A8EC0"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#295E98"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#387CB0"/>
+    </g>
+    <g transform="translate(210 222)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#B678AA"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#49639F"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#9A4F85"/>
+    </g>
+    <g transform="translate(290 222)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#D45689"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#903E6B"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#BA467A"/>
+    </g>
+
+    <g transform="translate(164 254)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#397CB2"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#25548D"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#2E70A8"/>
+    </g>
+    <g transform="translate(256 254)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#C6477C"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#823461"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#A83E70"/>
+    </g>
+
+    <g transform="translate(210 286)">
+      <polygon points="0,0 20,10 0,20 -20,10" fill="#8C5FA3"/>
+      <polygon points="-20,10 0,20 0,44 -20,34" fill="#3C518D"/>
+      <polygon points="20,10 0,20 0,44 20,34" fill="#744784"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VeriMarka | 디지털 자산 신뢰 시스템</title>
+    <link rel="stylesheet" href="./styles.css?v=202603072355" />
+  </head>
+  <body>
+    <div class="aurora aurora-a"></div>
+    <div class="aurora aurora-b"></div>
+    <div class="page-shell">
+      <header class="site-header">
+        <div class="topbar">
+          <a class="brand" href="#" aria-label="VeriMarka 홈">
+            <span class="brand-word">VeriMarka</span>
+          </a>
+          <nav class="tabs" aria-label="메인 메뉴">
+            <button class="tab is-active" data-tab="home">홈</button>
+            <button class="tab" data-tab="add">저작물 등록</button>
+            <button class="tab" data-tab="verify">저작물 검증</button>
+            <button class="tab" data-tab="history">분석 기록</button>
+          </nav>
+          <div class="auth-slot">
+            <div class="guest-actions" id="guestActions">
+              <button class="auth-text-btn" id="openLoginBtn" type="button">로그인</button>
+              <button class="auth-text-btn signup-link" id="openSignupBtn" type="button">
+                회원가입
+              </button>
+            </div>
+            <div class="user-session" id="userSession" hidden>
+              <span class="user-nickname" id="userNickname">게스트</span>
+              <button class="logout-btn" id="logoutBtn" type="button">로그아웃</button>
+            </div>
+            <div class="lang-switch lang-switch-header" data-lang-switch>
+              <button
+                class="lang-trigger"
+                id="headerLangTrigger"
+                type="button"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+              >
+                Languages
+                <span class="lang-caret">⌄</span>
+              </button>
+              <ul class="lang-menu" id="headerLangMenu" role="listbox" hidden>
+                <li><button class="lang-option is-active" type="button" data-lang="ko">한국어</button></li>
+                <li><button class="lang-option" type="button" data-lang="en">English</button></li>
+                <li><button class="lang-option" type="button" data-lang="ja">日本語</button></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section class="app-page is-active" id="page-home">
+          <section class="hero reveal">
+            <div class="hero-text">
+              <p class="headline-kicker">저작물 등록, 저작물 검증</p>
+              <h1>디지털 자산의 진위를 증명하세요.</h1>
+              <p class="hero-subtitle">
+                AI 유사도 분석과 블록체인 기반 신뢰 기록을 결합한 검증 시스템으로,
+                창작물의 출처와 신뢰도를 빠르게 확인합니다.
+              </p>
+              <div class="cta-row">
+                <button class="btn btn-primary" type="button" data-go-tab="add">
+                  저작물 등록하기
+                </button>
+                <button class="btn btn-secondary" type="button">저작물 검증하기</button>
+              </div>
+            </div>
+            <div class="hero-art" aria-hidden="true">
+              <img src="./assets/veri.png" alt="" />
+            </div>
+          </section>
+
+          <section class="dashboard">
+            <section class="activity reveal">
+              <h2>최근 활동</h2>
+              <div class="card-grid">
+                <article class="asset-card">
+                  <span class="badge badge-allow">ALLOW</span>
+                  <div class="thumb thumb-illustration"></div>
+                  <h3>일러스트_final.jpg</h3>
+                  <p>신규 등록 승인 완료 · 저작물 등록됨</p>
+                </article>
+
+                <article class="asset-card">
+                  <span class="badge badge-review">REVIEW</span>
+                  <div class="thumb thumb-owl"></div>
+                  <h3>캐릭터_A.png</h3>
+                  <p>투표 진행 중 · D-2</p>
+                  <div class="progress">
+                    <div class="bar" data-progress="82"></div>
+                  </div>
+                </article>
+
+                <article class="asset-card">
+                  <span class="badge badge-block">BLOCK</span>
+                  <div class="thumb thumb-window"></div>
+                  <h3>배경이미지_B.png</h3>
+                  <p>유사도 98%로 등록 차단됨</p>
+                </article>
+              </div>
+            </section>
+
+            <aside class="trust reveal">
+              <h2>VeriMarka 신뢰 시스템</h2>
+              <ul>
+                <li>
+                  <span class="icon">AI</span>
+                  <div>
+                    <strong>AI 의미 기반 유사도 분석</strong>
+                    <p>문맥 기반 특징 추출로 의미 유사도 측정</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="icon">PX</span>
+                  <div>
+                    <strong>픽셀 수준 정밀 비교</strong>
+                    <p>픽셀 단위 변형 감지로 위조 탐지 강화</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="icon">BC</span>
+                  <div>
+                    <strong>블록체인 기반 신뢰 기록</strong>
+                    <p>검증 이력의 불변성 보장 및 추적 가능</p>
+                  </div>
+                </li>
+              </ul>
+            </aside>
+          </section>
+        </section>
+
+        <section class="app-page" id="page-add" hidden>
+          <div class="register-layout">
+            <section class="register-card">
+              <header class="register-header">
+                <h2>원본 이미지를 등록하세요.</h2>
+                <p>이미지를 업로드하면 등록 절차가 시작됩니다.</p>
+              </header>
+
+              <div
+                class="upload-dropzone"
+                id="uploadDropzone"
+                role="button"
+                tabindex="0"
+                aria-label="이미지 업로드"
+              >
+                <input
+                  class="upload-input"
+                  id="uploadInput"
+                  type="file"
+                  accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                />
+
+                <div class="upload-empty" id="uploadEmpty">
+                  <div class="upload-icon">↑</div>
+                  <p class="upload-title">이미지를 드래그하거나 클릭하여 업로드하세요.</p>
+                  <p class="upload-desc">지원 포맷: JPG, PNG / 최대 20MB</p>
+                </div>
+
+                <div class="upload-preview" id="uploadPreview" hidden>
+                  <div class="upload-ready-view" id="uploadReadyView">
+                    <span class="upload-success-chip">Success</span>
+                    <h3 class="upload-success-title">이미지가 정상적으로 업로드되었습니다.</h3>
+                    <p class="upload-success-subtitle">등록 가능 여부를 확인하세요.</p>
+
+                    <div class="upload-result-layout">
+                      <article class="upload-preview-card">
+                        <button class="change-file-inline" id="changeFileBtn" type="button">
+                          다시 선택
+                        </button>
+                        <div class="upload-image-frame">
+                          <img id="uploadPreviewImage" alt="업로드 미리보기" />
+                        </div>
+                        <div class="upload-file-info">
+                          <strong id="uploadFileName">sample.png</strong>
+                          <span id="uploadFileMeta">0 KB · 준비 완료</span>
+                        </div>
+                      </article>
+
+                      <aside class="analysis-card">
+                        <h4>AI 유사도 분석을 시작하시겠습니까?</h4>
+                        <ul class="analysis-list">
+                          <li>의미 기반 임베딩 비교</li>
+                          <li>픽셀 수준 정밀 비교</li>
+                          <li>기존 등록된 유사 콘텐츠 탐색</li>
+                        </ul>
+                        <button
+                          class="btn btn-primary analysis-cta"
+                          id="startRegisterBtn"
+                          type="button"
+                        >
+                          등록 가능 여부 확인하기
+                        </button>
+                        <p class="analysis-tip">분석에는 수 초가 소요될 수 있습니다.</p>
+                      </aside>
+                    </div>
+
+                    <div class="upload-bottom-actions">
+                      <button class="btn btn-secondary" id="pickAnotherFileBtn" type="button">
+                        다른 이미지 선택
+                      </button>
+                      <button class="btn btn-secondary ghost" id="goHomeBtn" type="button">
+                        홈으로 이동
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="analysis-running-view" id="analysisRunningView" hidden>
+                    <h3 class="analysis-running-title">등록 가능 여부를 분석하고 있습니다.</h3>
+                    <p class="analysis-running-subtitle" id="analysisStatusLine">
+                      유사 콘텐츠 탐색 및 정밀 비교를 진행 중입니다.
+                    </p>
+
+                    <div class="analysis-running-layout">
+                      <article class="analysis-preview-card">
+                        <img id="analysisPreviewImage" alt="분석 이미지 미리보기" />
+                        <div class="analysis-progress-overlay">
+                          <div class="analysis-progress-ring" id="analysisProgressRing" style="--progress: 0">
+                            <span id="analysisProgressValue">0%</span>
+                          </div>
+                        </div>
+                      </article>
+
+                      <aside class="analysis-timeline-card">
+                        <ol class="analysis-step-list" id="analysisStepList">
+                          <li class="analysis-step" data-stage="embedding">
+                            <span class="analysis-step-dot" aria-hidden="true"></span>
+                            <p class="analysis-step-title">
+                              <strong class="analysis-step-state">[대기]</strong>
+                              의미 기반 임베딩 분석
+                            </p>
+                          </li>
+                          <li class="analysis-step" data-stage="pixel">
+                            <span class="analysis-step-dot" aria-hidden="true"></span>
+                            <p class="analysis-step-title">
+                              <strong class="analysis-step-state">[대기]</strong>
+                              픽셀 정밀 비교
+                            </p>
+                          </li>
+                          <li class="analysis-step" data-stage="search">
+                            <span class="analysis-step-dot" aria-hidden="true"></span>
+                            <p class="analysis-step-title">
+                              <strong class="analysis-step-state">[대기]</strong>
+                              기존 등록 콘텐츠 탐색
+                            </p>
+                          </li>
+                          <li class="analysis-step" data-stage="decision">
+                            <span class="analysis-step-dot" aria-hidden="true"></span>
+                            <p class="analysis-step-title">
+                              <strong class="analysis-step-state">[대기]</strong>
+                              최종 판정 생성
+                            </p>
+                          </li>
+                        </ol>
+                        <p class="analysis-running-note">분석에는 수 초가 소요될 수 있습니다.</p>
+                      </aside>
+                    </div>
+
+                    <div class="analysis-running-actions">
+                      <button class="btn btn-secondary" id="cancelAnalysisBtn" type="button">
+                        다른 이미지 선택
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="analysis-result-view" id="analysisResultView" hidden data-result="allow">
+                    <div class="analysis-result-stage">
+                      <aside class="result-mode-switch" aria-label="결과 화면 더미 토글">
+                        <p>결과 미리보기</p>
+                        <button class="result-mode-btn is-active" type="button" data-result-mode="allow">
+                          승인
+                        </button>
+                        <button class="result-mode-btn" type="button" data-result-mode="pending">
+                          보류
+                        </button>
+                        <button class="result-mode-btn" type="button" data-result-mode="reject">
+                          거절
+                        </button>
+                      </aside>
+
+                      <section class="analysis-result-body">
+                        <span class="result-badge" id="analysisResultBadge">ALLOW</span>
+                        <h3 class="result-title" id="analysisResultTitle">등록 가능한 콘텐츠입니다.</h3>
+                        <p class="result-subtitle" id="analysisResultSubtitle">
+                          유사한 콘텐츠가 발견되지 않았습니다.
+                        </p>
+
+                        <div class="analysis-result-layout">
+                          <article class="result-preview-card">
+                            <div class="result-image-frame">
+                              <img id="analysisResultImage" alt="분석 결과 이미지" />
+                            </div>
+                            <div class="result-file-row">
+                              <div>
+                                <strong id="analysisResultFileName">sample.png</strong>
+                                <p id="analysisResultFileMeta">0 KB · 2026.03.07 00:00</p>
+                              </div>
+                              <div class="result-similarity-box">
+                                <span class="similarity-label">Cosine Similarity</span>
+                                <strong id="analysisResultSimilarity">0.1243</strong>
+                                <p id="analysisResultSimilarityPercent">12.4%</p>
+                              </div>
+                            </div>
+                          </article>
+
+                          <aside class="result-summary-card">
+                            <h4>AI 분석 결과</h4>
+                            <ul class="result-check-list" id="analysisResultChecklist">
+                              <li>의미 기반 임베딩 비교 완료</li>
+                              <li>픽셀 정밀 비교 완료</li>
+                              <li>DB 후보 탐색 결과 없음</li>
+                            </ul>
+                            <div class="result-summary-actions">
+                              <button class="btn btn-primary result-primary-btn" id="resultPrimaryBtn" type="button">
+                                워터마크 삽입 진행하기
+                              </button>
+                              <button class="btn btn-secondary result-secondary-btn" id="resultSecondaryBtn" type="button">
+                                업로드 화면으로 돌아가기
+                              </button>
+                            </div>
+                          </aside>
+                        </div>
+
+                        <p class="result-note" id="analysisResultNote">
+                          워터마크 삽입 후 블록체인 기반 신뢰 기록이 생성됩니다.
+                        </p>
+                      </section>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <aside class="register-history">
+              <h3>최근 등록된 사진</h3>
+              <div class="history-scroll">
+                <article class="history-item">
+                  <div class="history-thumb thumb-illustration"></div>
+                  <div class="history-meta">
+                    <p>일러스트_A.jpg</p>
+                    <span>등록일자: 2026.03.07 · 등록자: ArtistUser1</span>
+                  </div>
+                </article>
+                <article class="history-item">
+                  <div class="history-thumb thumb-window"></div>
+                  <div class="history-meta">
+                    <p>도심풍경_B.png</p>
+                    <span>등록일자: 2026.03.06 · 등록자: TravelFan_3</span>
+                  </div>
+                </article>
+                <article class="history-item">
+                  <div class="history-thumb thumb-owl"></div>
+                  <div class="history-meta">
+                    <p>UX_가이드.png</p>
+                    <span>등록일자: 2026.03.05 · 등록자: UX.Design</span>
+                  </div>
+                </article>
+                <article class="history-item">
+                  <div class="history-thumb thumb-illustration"></div>
+                  <div class="history-meta">
+                    <p>concept_scene.jpg</p>
+                    <span>등록일자: 2026.03.04 · 등록자: StudioM</span>
+                  </div>
+                </article>
+                <article class="history-item">
+                  <div class="history-thumb thumb-window"></div>
+                  <div class="history-meta">
+                    <p>splash_screen.png</p>
+                    <span>등록일자: 2026.03.03 · 등록자: MobileTeam</span>
+                  </div>
+                </article>
+                <article class="history-item">
+                  <div class="history-thumb thumb-owl"></div>
+                  <div class="history-meta">
+                    <p>character_sheet.png</p>
+                    <span>등록일자: 2026.03.02 · 등록자: GameStudio</span>
+                  </div>
+                </article>
+              </div>
+            </aside>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <div class="footer-main">
+            <p class="footer-logo">VeriMarka Cloud</p>
+            <nav class="footer-links" aria-label="푸터 링크">
+              <a href="#">서비스 이용약관</a>
+              <a href="#">개인정보처리방침</a>
+              <a href="#">인재채용</a>
+              <a href="#">제휴 문의</a>
+            </nav>
+            <div class="footer-info">
+              <p>
+                사업자등록번호: 123-45-67890 <span>|</span> 통신판매업신고번호:
+                제2026-서울성동-0001 <span>|</span> 전화문의: 1544-5678
+              </p>
+              <p>주소: 서울특별시 성동구 예시로 100, VeriMarka 그린팩토리, 12345</p>
+            </div>
+            <p class="footer-copy">© VeriMarka Corp. All Rights Reserved.</p>
+          </div>
+          <div class="lang-switch lang-switch-footer" data-lang-switch>
+            <button
+              class="footer-lang"
+              id="footerLangTrigger"
+              type="button"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+            >
+              <span id="footerLangLabel">한국어</span>
+              <span class="lang-caret">⌄</span>
+            </button>
+            <ul class="lang-menu lang-menu-up" id="footerLangMenu" role="listbox" hidden>
+              <li><button class="lang-option is-active" type="button" data-lang="ko">한국어</button></li>
+              <li><button class="lang-option" type="button" data-lang="en">English</button></li>
+              <li><button class="lang-option" type="button" data-lang="ja">日本語</button></li>
+            </ul>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <div
+      class="login-modal-overlay"
+      id="loginModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="loginModalTitle"
+      hidden
+    >
+      <div class="login-modal">
+        <button class="login-modal-close" type="button" aria-label="로그인 팝업 닫기">
+          닫기
+        </button>
+
+        <section class="auth-panel is-active" id="loginPanel" aria-labelledby="loginModalTitle">
+          <img class="login-modal-logo" src="./assets/veri.png" alt="VeriMarka 로고" />
+          <h3 id="loginModalTitle">로그인</h3>
+          <div class="login-actions">
+            <button class="login-action login-google" type="button" data-provider="google">
+              Google로 계속하기
+            </button>
+            <button class="login-action login-apple" type="button" data-provider="apple">
+              Apple로 계속하기
+            </button>
+            <button class="login-action login-kakao" type="button" data-provider="kakao">
+              Kakao로 계속하기
+            </button>
+          </div>
+          <p class="login-note">최초 로그인 시 자동으로 회원가입이 진행됩니다.</p>
+          <p class="auth-switch-text">
+            회원이 아니신가요?
+            <button type="button" class="auth-switch-link" data-auth-target="signup">
+              회원가입
+            </button>
+          </p>
+        </section>
+
+        <section class="auth-panel" id="signupPanel" aria-labelledby="signupModalTitle">
+          <h3 id="signupModalTitle">회원가입</h3>
+          <form class="signup-form">
+            <label>
+              이메일
+              <input type="email" name="email" placeholder="example@verimarka.com" />
+            </label>
+            <label>
+              비밀번호
+              <input type="password" name="password" placeholder="8자 이상 입력" />
+            </label>
+            <label>
+              비밀번호 확인
+              <input type="password" name="passwordConfirm" placeholder="비밀번호를 다시 입력" />
+            </label>
+            <button class="signup-submit" type="button">회원가입 계속하기</button>
+          </form>
+          <p class="auth-switch-text">
+            이미 회원이신가요?
+            <button type="button" class="auth-switch-link" data-auth-target="login">
+              로그인
+            </button>
+          </p>
+          <p class="login-note">회원가입 정보는 데모 UI이며 서버 연동 전 상태입니다.</p>
+        </section>
+      </div>
+    </div>
+
+    <div class="login-toast" id="loginToast" role="status" aria-live="polite" hidden>
+      <p class="login-toast-text" id="loginToastText">로그인 완료했습니다.</p>
+      <div class="login-toast-progress">
+        <div class="login-toast-progress-bar" id="loginToastProgressBar"></div>
+      </div>
+    </div>
+
+    <script src="./app.js?v=202603072355"></script>
+  </body>
+</html>

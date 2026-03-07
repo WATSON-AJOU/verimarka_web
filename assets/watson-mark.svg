@@ -1,0 +1,26 @@
+<svg width="520" height="380" viewBox="0 0 520 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="birdGrad" x1="118" y1="80" x2="360" y2="312" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#35B4FF"/>
+      <stop offset="1" stop-color="#1E66D9"/>
+    </linearGradient>
+    <linearGradient id="beakGrad" x1="212" y1="152" x2="258" y2="180" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFC533"/>
+      <stop offset="1" stop-color="#FF8D19"/>
+    </linearGradient>
+  </defs>
+  <rect width="520" height="380" rx="36" fill="none"/>
+  <g opacity="0.2">
+    <ellipse cx="266" cy="190" rx="170" ry="120" fill="#2D86EA"/>
+    <ellipse cx="266" cy="205" rx="120" ry="78" fill="#1A63D1"/>
+  </g>
+  <path d="M108 197C132 147 169 119 224 112C297 102 352 144 360 198C367 246 335 286 278 292C190 300 136 250 108 197Z" fill="url(#birdGrad)"/>
+  <path d="M259 147C273 158 276 178 266 194C256 211 236 217 221 207C207 196 204 175 214 160C224 143 244 137 259 147Z" fill="#F4FBFF"/>
+  <path d="M249 166C255 171 257 181 253 188C249 196 240 200 233 196C227 191 225 181 229 174C233 167 242 163 249 166Z" fill="#142341"/>
+  <path d="M213 174C222 165 243 160 265 166C258 182 244 195 226 199C214 191 208 183 213 174Z" fill="url(#beakGrad)"/>
+  <path d="M164 80C172 50 207 32 245 34C284 36 321 54 334 83L311 88C302 70 277 58 247 57C216 56 187 67 177 87L164 80Z" fill="#152039"/>
+  <path d="M130 242C120 242 112 250 112 260C112 270 120 278 130 278C140 278 148 270 148 260C148 250 140 242 130 242Z" fill="#0F172A"/>
+  <path d="M132 258C146 224 181 196 220 188C248 182 276 187 300 202C307 206 310 214 306 222C302 229 294 232 287 227C268 216 246 212 224 217C194 223 167 244 156 270C154 276 149 280 143 281C136 281 130 277 127 272C124 267 124 262 126 258H132Z" fill="#0B1220"/>
+  <rect x="86" y="212" width="168" height="16" rx="8" transform="rotate(-24 86 212)" fill="#0B1220"/>
+  <circle cx="257" cy="196" r="132" stroke="#0B1220" stroke-width="20"/>
+</svg>
