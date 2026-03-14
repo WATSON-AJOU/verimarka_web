@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VeriMarka | 디지털 자산 신뢰 시스템</title>
-    <link rel="stylesheet" href="./styles.css?v=202603141605" />
+    <link rel="stylesheet" href="./styles.css?v=202603141810" />
   </head>
   <body>
     <div class="aurora aurora-a"></div>
@@ -425,6 +425,49 @@
           </div>
         </section>
 
+        <section class="app-page" id="page-history" hidden>
+          <section class="history-shell">
+            <div class="history-list-view" id="historyListView">
+              <header class="history-header">
+                <h2>분석 기록</h2>
+                <p>업로드 및 검증 이력을 확인하세요.</p>
+                <div class="history-filters" role="tablist" aria-label="분석 기록 필터">
+                  <button class="history-filter-btn is-active" type="button" data-history-filter="all">
+                    전체
+                  </button>
+                  <button class="history-filter-btn" type="button" data-history-filter="allow">
+                    ALLOW
+                  </button>
+                  <button class="history-filter-btn" type="button" data-history-filter="review">
+                    REVIEW
+                  </button>
+                </div>
+              </header>
+
+              <div class="history-list" id="historyList" aria-live="polite"></div>
+            </div>
+
+            <div class="history-detail-view" id="historyDetailView" hidden>
+              <header class="history-detail-head">
+                <span class="history-state-badge is-allow" id="historyDetailBadge">ALLOW</span>
+                <h2 id="historyDetailTitle">토큰 발행 상세 정보</h2>
+                <p id="historyDetailSubtitle">블록체인에 안전하게 저장된 자산 보호 기록입니다.</p>
+              </header>
+
+              <div class="history-detail-grid" id="historyDetailGrid"></div>
+
+              <div class="history-detail-actions">
+                <button class="btn btn-primary" id="historyDetailPrimaryBtn" type="button">
+                  블록체인 URL 복사
+                </button>
+                <button class="btn btn-secondary" id="historyBackToListBtn" type="button">
+                  기록으로 돌아가기
+                </button>
+              </div>
+            </div>
+          </section>
+        </section>
+
         <section class="app-page" id="page-mypage" hidden>
           <section class="mypage-shell">
             <header class="mypage-header reveal">
@@ -451,11 +494,11 @@
                 <article class="mypage-card">
                   <div class="mypage-card-head">
                     <h3>본인 인증</h3>
-                    <span class="mypage-chip is-pending">인증 필요</span>
+                    <span class="mypage-chip is-pending" id="mypageIdentityChip">인증 필요</span>
                   </div>
-                  <p>서비스 이용을 위해 휴대폰 인증을 진행해주세요.</p>
+                  <p id="mypageIdentityDescription">서비스 이용을 위해 휴대폰 인증을 진행해주세요.</p>
                   <div class="mypage-actions">
-                    <button class="btn btn-primary" type="button">인증하기</button>
+                    <button class="btn btn-primary" id="openIdentityModalBtn" type="button">인증하기</button>
                   </div>
                 </article>
 
@@ -603,6 +646,55 @@
       </div>
     </div>
 
+    <div
+      class="identity-modal-overlay"
+      id="identityModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="identityModalTitle"
+      hidden
+    >
+      <div class="identity-modal">
+        <button class="identity-modal-close" id="identityModalCloseBtn" type="button" aria-label="본인 인증 팝업 닫기">
+          닫기
+        </button>
+        <h3 id="identityModalTitle">본인 인증</h3>
+
+        <div class="identity-form-grid">
+          <label for="identityPhoneInput">전화번호</label>
+          <div class="identity-input-row">
+            <input
+              id="identityPhoneInput"
+              type="tel"
+              inputmode="numeric"
+              autocomplete="tel"
+              placeholder="01012345678"
+            />
+            <button class="btn btn-primary identity-send-btn" id="identitySendCodeBtn" type="button">
+              인증번호 전송
+            </button>
+          </div>
+
+          <label for="identityCodeInput">인증코드</label>
+          <div class="identity-input-row">
+            <input
+              id="identityCodeInput"
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              placeholder="6자리 입력"
+              maxlength="6"
+            />
+            <span class="identity-timer" id="identityTimer">03:00</span>
+          </div>
+        </div>
+
+        <button class="btn btn-primary identity-complete-btn" id="identityCompleteBtn" type="button">
+          인증 완료
+        </button>
+      </div>
+    </div>
+
     <div class="login-toast" id="loginToast" role="status" aria-live="polite" hidden>
       <p class="login-toast-text" id="loginToastText">로그인 완료했습니다.</p>
       <div class="login-toast-progress">
@@ -610,6 +702,6 @@
       </div>
     </div>
 
-    <script src="./app.js?v=202603141605"></script>
+    <script src="./app.js?v=202603141810"></script>
   </body>
 </html>

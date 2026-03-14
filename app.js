@@ -4,11 +4,12 @@ const pageByTab = {
   add: "page-add",
   mypage: "page-mypage",
   verify: "page-home",
-  history: "page-home"
+  history: "page-history"
 };
 const appPages = {
   home: document.getElementById("page-home"),
   add: document.getElementById("page-add"),
+  history: document.getElementById("page-history"),
   mypage: document.getElementById("page-mypage")
 };
 const quickTabButtons = document.querySelectorAll("[data-go-tab]");
@@ -31,6 +32,14 @@ function setActiveTab(tabName) {
   const mypageShortcut = document.getElementById("openMypageBtn");
   if (mypageShortcut) {
     mypageShortcut.classList.toggle("is-active", normalizedTab === "mypage");
+  }
+
+  if (normalizedTab === "history") {
+    closeHistoryDetail();
+    if (selectedHistoryRecordId) {
+      selectedHistoryRecordId = null;
+      renderHistoryList();
+    }
   }
 }
 
@@ -73,10 +82,20 @@ const mypageAvatar = document.getElementById("mypageAvatar");
 const mypageName = document.getElementById("mypageName");
 const mypageEmail = document.getElementById("mypageEmail");
 const mypagePhone = document.getElementById("mypagePhone");
+const mypageIdentityChip = document.getElementById("mypageIdentityChip");
+const mypageIdentityDescription = document.getElementById("mypageIdentityDescription");
+const openIdentityModalBtn = document.getElementById("openIdentityModalBtn");
 const mypageTokenCount = document.getElementById("mypageTokenCount");
 const mypageVoteStatusChip = document.getElementById("mypageVoteStatusChip");
 const mypageVoteStatusText = document.getElementById("mypageVoteStatusText");
 const logoutBtn = document.getElementById("logoutBtn");
+const identityModal = document.getElementById("identityModal");
+const identityModalCloseBtn = document.getElementById("identityModalCloseBtn");
+const identityPhoneInput = document.getElementById("identityPhoneInput");
+const identityCodeInput = document.getElementById("identityCodeInput");
+const identitySendCodeBtn = document.getElementById("identitySendCodeBtn");
+const identityTimer = document.getElementById("identityTimer");
+const identityCompleteBtn = document.getElementById("identityCompleteBtn");
 const loginToast = document.getElementById("loginToast");
 const loginToastText = document.getElementById("loginToastText");
 const loginToastProgressBar = document.getElementById("loginToastProgressBar");
@@ -126,6 +145,16 @@ const pickAnotherFileBtn = document.getElementById("pickAnotherFileBtn");
 const cancelAnalysisBtn = document.getElementById("cancelAnalysisBtn");
 const goHomeBtn = document.getElementById("goHomeBtn");
 const startRegisterBtn = document.getElementById("startRegisterBtn");
+const historyListView = document.getElementById("historyListView");
+const historyDetailView = document.getElementById("historyDetailView");
+const historyList = document.getElementById("historyList");
+const historyFilterButtons = document.querySelectorAll(".history-filter-btn[data-history-filter]");
+const historyDetailBadge = document.getElementById("historyDetailBadge");
+const historyDetailTitle = document.getElementById("historyDetailTitle");
+const historyDetailSubtitle = document.getElementById("historyDetailSubtitle");
+const historyDetailGrid = document.getElementById("historyDetailGrid");
+const historyDetailPrimaryBtn = document.getElementById("historyDetailPrimaryBtn");
+const historyBackToListBtn = document.getElementById("historyBackToListBtn");
 const footerLangLabel = document.getElementById("footerLangLabel");
 const langOptions = document.querySelectorAll(".lang-option");
 const langSwitches = Array.from(document.querySelectorAll("[data-lang-switch]")).map((root) => ({
@@ -143,6 +172,13 @@ let currentLanguage = "ko";
 let currentResultMode = "allow";
 let mockCandidateImageUrl = "";
 let isLoggedIn = false;
+let isIdentityVerified = false;
+let hasIdentityCodeSent = false;
+let identityRemainingSeconds = 0;
+let identityCountdownTimer = null;
+let currentHistoryFilter = "all";
+let selectedHistoryRecordId = null;
+let currentHistoryDetailId = null;
 const defaultMypagePhone = "010-1234-5678";
 const defaultMypageEmail = "user@verimarka.com";
 const defaultMypageNickname = "VeriMarka 사용자";
@@ -163,6 +199,188 @@ const htmlLangMap = {
   en: "en",
   ja: "ja"
 };
+const historyRecords = [
+  {
+    id: "82401",
+    type: "allow",
+    fileName: "풍경_최종.png",
+    summary: "워터마크 삽입 완료 (토큰 #82401)",
+    timestamp: "2026.02.26 14:30",
+    thumbClass: "history-thumb-landscape",
+    analysis: {
+      cosine: "0.1243 (12.4%)",
+      phash: "Distance 5 / Threshold 8",
+      decision: "중복 후보 없음"
+    },
+    blockchain: {
+      network: "Polygon",
+      tokenId: "#82401",
+      contentHash: "0x9a8b...7c6d",
+      txHash: "0x1f2e...3d4c",
+      mintedAt: "2026.02.26 14:30:12 UTC",
+      explorerUrl: "https://polygonscan.com/tx/0x1f2e3d4c"
+    },
+    watermark: {
+      model: "WAM (Watson AI Model)",
+      version: "v2.1.0",
+      status: "성공 (100% 일치)"
+    }
+  },
+  {
+    id: "82396",
+    type: "review",
+    fileName: "캐릭터_시안A.jpg",
+    summary: "투표 진행 중 · D-1",
+    timestamp: "2026.02.25 09:15",
+    thumbClass: "history-thumb-character",
+    analysis: {
+      cosine: "0.7421 (74.2%)",
+      phash: "Distance 8 / Threshold 8",
+      decision: "경계값 탐지 · 수동 검토 필요"
+    },
+    review: {
+      progress: 68,
+      due: "2026.02.26 18:00",
+      votes: "찬성 14 · 반대 6",
+      participants: "참여자 20명"
+    }
+  },
+  {
+    id: "82374",
+    type: "allow",
+    fileName: "도시풍경_B.png",
+    summary: "저작물 등록 승인 완료 (토큰 #82374)",
+    timestamp: "2026.02.24 11:20",
+    thumbClass: "history-thumb-city",
+    analysis: {
+      cosine: "0.1832 (18.3%)",
+      phash: "Distance 12 / Threshold 8",
+      decision: "중복 가능성 낮음"
+    },
+    blockchain: {
+      network: "Polygon",
+      tokenId: "#82374",
+      contentHash: "0x7cd1...23af",
+      txHash: "0x8a3b...11dc",
+      mintedAt: "2026.02.24 11:20:45 UTC",
+      explorerUrl: "https://polygonscan.com/tx/0x8a3b11dc"
+    },
+    watermark: {
+      model: "WAM (Watson AI Model)",
+      version: "v2.1.0",
+      status: "성공 (99.6% 일치)"
+    }
+  },
+  {
+    id: "82358",
+    type: "review",
+    fileName: "포스터_컨셉C.png",
+    summary: "투표 진행 중 · D-2",
+    timestamp: "2026.02.23 16:45",
+    thumbClass: "history-thumb-landscape",
+    analysis: {
+      cosine: "0.7593 (75.9%)",
+      phash: "Distance 7 / Threshold 8",
+      decision: "유사 후보 존재 · 추가 확인 진행"
+    },
+    review: {
+      progress: 41,
+      due: "2026.02.25 18:00",
+      votes: "찬성 6 · 반대 4",
+      participants: "참여자 10명"
+    }
+  },
+  {
+    id: "82341",
+    type: "allow",
+    fileName: "브랜드배너_메인_v2.png",
+    summary: "저작물 등록 승인 완료 (토큰 #82341)",
+    timestamp: "2026.02.22 12:10",
+    thumbClass: "history-thumb-city",
+    analysis: {
+      cosine: "0.2017 (20.2%)",
+      phash: "Distance 10 / Threshold 8",
+      decision: "중복 후보 없음"
+    },
+    blockchain: {
+      network: "Polygon",
+      tokenId: "#82341",
+      contentHash: "0x67fa...92cd",
+      txHash: "0x30bc...8a11",
+      mintedAt: "2026.02.22 12:10:33 UTC",
+      explorerUrl: "https://polygonscan.com/tx/0x30bc8a11"
+    },
+    watermark: {
+      model: "WAM (Watson AI Model)",
+      version: "v2.1.0",
+      status: "성공 (99.3% 일치)"
+    }
+  },
+  {
+    id: "82322",
+    type: "review",
+    fileName: "상세페이지_시안_긴파일명_테스트A.png",
+    summary: "투표 진행 중 · D-3",
+    timestamp: "2026.02.21 15:40",
+    thumbClass: "history-thumb-character",
+    analysis: {
+      cosine: "0.7315 (73.1%)",
+      phash: "Distance 8 / Threshold 8",
+      decision: "경계 구간 진입 · 검토 필요"
+    },
+    review: {
+      progress: 35,
+      due: "2026.02.24 18:00",
+      votes: "찬성 5 · 반대 3",
+      participants: "참여자 8명"
+    }
+  },
+  {
+    id: "82305",
+    type: "allow",
+    fileName: "일러스트_완성본_수정3.jpg",
+    summary: "워터마크 삽입 완료 (토큰 #82305)",
+    timestamp: "2026.02.20 10:05",
+    thumbClass: "history-thumb-landscape",
+    analysis: {
+      cosine: "0.1549 (15.5%)",
+      phash: "Distance 11 / Threshold 8",
+      decision: "중복 가능성 낮음"
+    },
+    blockchain: {
+      network: "Polygon",
+      tokenId: "#82305",
+      contentHash: "0xaa21...7bb0",
+      txHash: "0x128f...4de3",
+      mintedAt: "2026.02.20 10:05:27 UTC",
+      explorerUrl: "https://polygonscan.com/tx/0x128f4de3"
+    },
+    watermark: {
+      model: "WAM (Watson AI Model)",
+      version: "v2.1.0",
+      status: "성공 (98.9% 일치)"
+    }
+  },
+  {
+    id: "82298",
+    type: "review",
+    fileName: "홍보카드뉴스_2안.png",
+    summary: "투표 진행 중 · D-1",
+    timestamp: "2026.02.19 18:12",
+    thumbClass: "history-thumb-city",
+    analysis: {
+      cosine: "0.7681 (76.8%)",
+      phash: "Distance 7 / Threshold 8",
+      decision: "유사 후보 다수 탐지"
+    },
+    review: {
+      progress: 77,
+      due: "2026.02.20 18:00",
+      votes: "찬성 17 · 반대 5",
+      participants: "참여자 22명"
+    }
+  }
+];
 const analysisStageConfig = [
   { key: "embedding", label: "의미 기반 임베딩 분석", start: 0, end: 28 },
   { key: "pixel", label: "픽셀 정밀 비교", start: 28, end: 57 },
@@ -227,6 +445,270 @@ const resultModeConfig = {
     primaryToast: "다른 이미지를 선택해주세요."
   }
 };
+
+function getHistoryStatusLabel(type) {
+  return type === "allow" ? "ALLOW" : "REVIEW";
+}
+
+function getHistoryStatusClass(type) {
+  return type === "allow" ? "is-allow" : "is-review";
+}
+
+function getHistoryRecordById(id) {
+  return historyRecords.find((record) => record.id === id) || null;
+}
+
+function getFilteredHistoryRecords(filter = "all") {
+  if (filter === "all") return historyRecords;
+  return historyRecords.filter((record) => record.type === filter);
+}
+
+function buildAllowExpandHtml(record) {
+  return `
+    <div class="history-expand-card">
+      <h4>AI 분석 결과</h4>
+      <ul class="history-expand-list">
+        <li>의미 기반 유사도: ${record.analysis.cosine}</li>
+        <li>pHash 비교: ${record.analysis.phash}</li>
+        <li>판정: ${record.analysis.decision}</li>
+      </ul>
+    </div>
+    <div class="history-expand-card">
+      <h4>블록체인 기록</h4>
+      <ul class="history-expand-list">
+        <li>Token ID: ${record.blockchain.tokenId}</li>
+        <li>Content Hash: ${record.blockchain.contentHash}</li>
+        <li>Transaction: ${record.blockchain.txHash}</li>
+      </ul>
+      <div class="history-expand-actions">
+        <button class="btn btn-primary" type="button" data-history-open-detail="${record.id}">
+          토큰 발행 상세 보기
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function buildReviewExpandHtml(record) {
+  return `
+    <div class="history-expand-card">
+      <h4>AI 분석 결과</h4>
+      <ul class="history-expand-list">
+        <li>의미 기반 유사도: ${record.analysis.cosine}</li>
+        <li>pHash 비교: ${record.analysis.phash}</li>
+        <li>판정: ${record.analysis.decision}</li>
+      </ul>
+    </div>
+    <div class="history-expand-card">
+      <h4>검토 진행 현황</h4>
+      <ul class="history-expand-list">
+        <li>마감 예정: ${record.review.due}</li>
+        <li>투표 현황: ${record.review.votes}</li>
+        <li>${record.review.participants}</li>
+      </ul>
+      <div class="history-review-progress">
+        <span>진행률 ${record.review.progress}%</span>
+        <div class="line" style="--review-progress:${record.review.progress}%"></div>
+      </div>
+      <div class="history-expand-actions">
+        <button class="btn btn-primary" type="button" data-history-open-detail="${record.id}">
+          검토 상세 보기
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function buildHistoryExpandedRow(record) {
+  if (record.type === "allow") return buildAllowExpandHtml(record);
+  return buildReviewExpandHtml(record);
+}
+
+function renderHistoryList() {
+  if (!historyList) return;
+  const filteredRecords = getFilteredHistoryRecords(currentHistoryFilter);
+
+  if (!filteredRecords.length) {
+    historyList.innerHTML = '<p class="history-empty">조건에 맞는 기록이 없습니다.</p>';
+    return;
+  }
+
+  if (selectedHistoryRecordId && !filteredRecords.some((record) => record.id === selectedHistoryRecordId)) {
+    selectedHistoryRecordId = null;
+  }
+
+  historyList.innerHTML = filteredRecords
+    .map((record) => {
+      const statusClass = getHistoryStatusClass(record.type);
+      const statusLabel = getHistoryStatusLabel(record.type);
+      const isSelected = record.id === selectedHistoryRecordId;
+      const expandedRow = isSelected
+        ? `<div class="history-log-expand">${buildHistoryExpandedRow(record)}</div>`
+        : "";
+
+      return `
+        <article class="history-log-item">
+          <button class="history-log-main" type="button" data-history-select="${record.id}">
+            <div class="history-log-left">
+              <div class="history-log-thumb ${record.thumbClass}" aria-hidden="true"></div>
+              <div>
+                <div class="history-log-title">
+                  <strong>${record.fileName}</strong>
+                  <span class="history-state-badge ${statusClass}">${statusLabel}</span>
+                </div>
+                <p class="history-log-desc">${record.summary}</p>
+              </div>
+            </div>
+            <span class="history-log-time">${record.timestamp}</span>
+          </button>
+          ${expandedRow}
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function buildAllowDetailHtml(record) {
+  return `
+    <article class="history-detail-card">
+      <h3>저작물 정보</h3>
+      <div class="history-detail-media">
+        <div class="history-detail-image ${record.thumbClass}" aria-hidden="true"></div>
+      </div>
+      <div class="history-detail-meta">
+        <div class="history-meta-row"><span>파일명</span><strong>${record.fileName}</strong></div>
+        <div class="history-meta-row"><span>등록 일시</span><strong>${record.timestamp}:00</strong></div>
+        <div class="history-meta-row"><span>워터마크 모델</span><strong>${record.watermark.model}</strong></div>
+        <div class="history-meta-row"><span>워터마크 버전</span><strong>${record.watermark.version}</strong></div>
+        <div class="history-meta-row"><span>검증 상태</span><strong>${record.watermark.status}</strong></div>
+      </div>
+    </article>
+    <article class="history-detail-card">
+      <h3>블록체인 기록 데이터</h3>
+      <div class="history-detail-meta">
+        <div class="history-meta-row"><span>네트워크</span><strong>${record.blockchain.network}</strong></div>
+        <div class="history-meta-row"><span>Token ID</span><strong>${record.blockchain.tokenId}</strong></div>
+        <div class="history-meta-row"><span>Content Hash</span><strong>${record.blockchain.contentHash}</strong></div>
+        <div class="history-meta-row"><span>Tx Hash</span><strong>${record.blockchain.txHash}</strong></div>
+        <div class="history-meta-row"><span>발행 시각</span><strong>${record.blockchain.mintedAt}</strong></div>
+      </div>
+    </article>
+  `;
+}
+
+function buildReviewDetailHtml(record) {
+  return `
+    <article class="history-detail-card">
+      <h3>검토 대상 정보</h3>
+      <div class="history-detail-media">
+        <div class="history-detail-image ${record.thumbClass}" aria-hidden="true"></div>
+      </div>
+      <div class="history-detail-meta">
+        <div class="history-meta-row"><span>파일명</span><strong>${record.fileName}</strong></div>
+        <div class="history-meta-row"><span>접수 일시</span><strong>${record.timestamp}:00</strong></div>
+        <div class="history-meta-row"><span>의미 유사도</span><strong>${record.analysis.cosine}</strong></div>
+        <div class="history-meta-row"><span>pHash 비교</span><strong>${record.analysis.phash}</strong></div>
+      </div>
+    </article>
+    <article class="history-detail-card">
+      <h3>투표/검토 진행 현황</h3>
+      <div class="history-detail-meta">
+        <div class="history-meta-row"><span>현재 상태</span><strong>검토 진행 중</strong></div>
+        <div class="history-meta-row"><span>마감 예정</span><strong>${record.review.due}</strong></div>
+        <div class="history-meta-row"><span>투표 현황</span><strong>${record.review.votes}</strong></div>
+        <div class="history-meta-row"><span>참여 인원</span><strong>${record.review.participants}</strong></div>
+      </div>
+      <div class="history-review-progress">
+        <span>진행률 ${record.review.progress}%</span>
+        <div class="line" style="--review-progress:${record.review.progress}%"></div>
+      </div>
+    </article>
+  `;
+}
+
+function renderHistoryDetail(record) {
+  if (!historyDetailBadge || !historyDetailTitle || !historyDetailSubtitle || !historyDetailGrid) return;
+  const isAllow = record.type === "allow";
+
+  historyDetailBadge.textContent = isAllow ? "ALLOW" : "REVIEW";
+  historyDetailBadge.classList.toggle("is-allow", isAllow);
+  historyDetailBadge.classList.toggle("is-review", !isAllow);
+  historyDetailTitle.textContent = isAllow ? "토큰 발행 상세 정보" : "보류 검토 상세 정보";
+  historyDetailSubtitle.textContent = isAllow
+    ? "블록체인에 안전하게 저장된 자산 보호 기록입니다."
+    : "경계 유사도 케이스로 수동 검토 및 투표가 진행 중입니다.";
+  historyDetailGrid.innerHTML = isAllow ? buildAllowDetailHtml(record) : buildReviewDetailHtml(record);
+
+  if (historyDetailPrimaryBtn) {
+    historyDetailPrimaryBtn.textContent = isAllow ? "블록체인 URL 복사" : "검토 현황 새로고침";
+  }
+}
+
+function openHistoryDetail(recordId) {
+  const record = getHistoryRecordById(recordId);
+  if (!record) return;
+  currentHistoryDetailId = record.id;
+  renderHistoryDetail(record);
+  if (historyListView) historyListView.hidden = true;
+  if (historyDetailView) historyDetailView.hidden = false;
+}
+
+function closeHistoryDetail() {
+  currentHistoryDetailId = null;
+  if (historyDetailView) historyDetailView.hidden = true;
+  if (historyListView) historyListView.hidden = false;
+}
+
+function handleHistoryPrimaryAction() {
+  const record = getHistoryRecordById(currentHistoryDetailId);
+  if (!record) return;
+
+  if (record.type === "allow") {
+    const explorerUrl = record.blockchain.explorerUrl;
+    if (navigator.clipboard?.writeText && explorerUrl) {
+      navigator.clipboard.writeText(explorerUrl).catch(() => {});
+    }
+    showLoginToast("블록체인 URL을 복사했습니다.", 1600);
+    return;
+  }
+
+  showLoginToast("검토 현황을 새로고침했습니다.", 1600);
+}
+
+function setupHistoryEvents() {
+  historyFilterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      currentHistoryFilter = button.dataset.historyFilter || "all";
+      historyFilterButtons.forEach((node) => {
+        node.classList.toggle("is-active", node === button);
+      });
+      selectedHistoryRecordId = null;
+      renderHistoryList();
+    });
+  });
+
+  historyList?.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    const detailButton = target.closest("[data-history-open-detail]");
+    if (detailButton) {
+      const recordId = detailButton.getAttribute("data-history-open-detail");
+      if (recordId) openHistoryDetail(recordId);
+      return;
+    }
+
+    const selectButton = target.closest("[data-history-select]");
+    if (!selectButton) return;
+    const recordId = selectButton.getAttribute("data-history-select");
+    if (!recordId) return;
+    selectedHistoryRecordId = selectedHistoryRecordId === recordId ? null : recordId;
+    renderHistoryList();
+  });
+
+  historyBackToListBtn?.addEventListener("click", closeHistoryDetail);
+  historyDetailPrimaryBtn?.addEventListener("click", handleHistoryPrimaryAction);
+}
 
 function formatFileSize(bytes) {
   if (bytes < 1024) return `${bytes} B`;
@@ -476,6 +958,20 @@ window.applyTokenPortfolio = (payload) => {
   updateTokenGate(tokenCount);
 };
 
+window.applyIdentityVerification = (payload) => {
+  const verified = Boolean(payload?.verified ?? payload?.isVerified ?? payload);
+  const phone = payload?.phone;
+  isIdentityVerified = verified;
+  hasIdentityCodeSent = false;
+  stopIdentityTimer();
+  identityRemainingSeconds = 0;
+  renderIdentityTimer();
+  if (verified && phone && mypagePhone) {
+    mypagePhone.textContent = formatPhoneNumber(phone);
+  }
+  updateIdentityStatus(verified);
+};
+
 function setUploadState(file) {
   if (!uploadDropzone || !uploadPreview || !uploadEmpty) return;
   if (!file) {
@@ -581,6 +1077,78 @@ function setMypageProfile({ nickname, email, phone }) {
   if (mypagePhone) mypagePhone.textContent = displayPhone;
 }
 
+function normalizePhoneNumber(value) {
+  return String(value || "").replace(/\D/g, "").slice(0, 11);
+}
+
+function formatPhoneNumber(value) {
+  const digits = normalizePhoneNumber(value);
+  if (digits.length === 11) {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
+  }
+  if (digits.length === 10) {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+  return digits;
+}
+
+function updateIdentityStatus(verified = false) {
+  if (mypageIdentityChip) {
+    mypageIdentityChip.textContent = verified ? "인증 완료" : "인증 필요";
+    mypageIdentityChip.classList.toggle("is-verified", verified);
+    mypageIdentityChip.classList.toggle("is-pending", !verified);
+  }
+
+  if (mypageIdentityDescription) {
+    mypageIdentityDescription.textContent = verified
+      ? "휴대폰 본인 인증이 완료되었습니다."
+      : "서비스 이용을 위해 휴대폰 인증을 진행해주세요.";
+  }
+
+  if (openIdentityModalBtn) {
+    openIdentityModalBtn.textContent = verified ? "인증 완료" : "인증하기";
+    openIdentityModalBtn.disabled = verified;
+    openIdentityModalBtn.classList.toggle("is-static", verified);
+    openIdentityModalBtn.setAttribute("aria-disabled", verified ? "true" : "false");
+  }
+}
+
+function renderIdentityTimer() {
+  if (!identityTimer) return;
+  const safeValue = Math.max(0, identityRemainingSeconds);
+  const minute = String(Math.floor(safeValue / 60)).padStart(2, "0");
+  const second = String(safeValue % 60).padStart(2, "0");
+  identityTimer.textContent = `${minute}:${second}`;
+}
+
+function stopIdentityTimer() {
+  if (identityCountdownTimer) {
+    clearInterval(identityCountdownTimer);
+    identityCountdownTimer = null;
+  }
+}
+
+function startIdentityTimer(seconds = 180) {
+  stopIdentityTimer();
+  identityRemainingSeconds = seconds;
+  renderIdentityTimer();
+  identityCountdownTimer = setInterval(() => {
+    identityRemainingSeconds = Math.max(0, identityRemainingSeconds - 1);
+    renderIdentityTimer();
+    if (identityRemainingSeconds === 0) {
+      stopIdentityTimer();
+      hasIdentityCodeSent = false;
+    }
+  }, 1000);
+}
+
+function syncBodyModalLock() {
+  const hasOpenModal = Boolean(
+    (loginModal && !loginModal.hidden) || (identityModal && !identityModal.hidden)
+  );
+  document.body.classList.toggle("modal-open", hasOpenModal);
+}
+
 function updateTokenGate(tokenCount = 0) {
   const safeCount = Math.max(0, Number(tokenCount) || 0);
   currentTokenCount = safeCount;
@@ -636,11 +1204,17 @@ function setLoggedInUI(nickname, profile = {}) {
   if (userNickname) userNickname.textContent = `${safeNickname}님`;
   if (userSession) userSession.hidden = false;
   if (guestActions) guestActions.hidden = true;
+  isIdentityVerified = false;
+  hasIdentityCodeSent = false;
+  stopIdentityTimer();
+  identityRemainingSeconds = 0;
+  renderIdentityTimer();
   setMypageProfile({
     nickname: safeNickname,
     email: safeEmail,
     phone: safePhone
   });
+  updateIdentityStatus(false);
   updateTokenGate(currentTokenCount);
 }
 
@@ -649,11 +1223,17 @@ function setLoggedOutUI() {
   if (userSession) userSession.hidden = true;
   if (guestActions) guestActions.hidden = false;
   if (userNickname) userNickname.textContent = "게스트";
+  isIdentityVerified = false;
+  hasIdentityCodeSent = false;
+  stopIdentityTimer();
+  identityRemainingSeconds = 0;
+  renderIdentityTimer();
   setMypageProfile({
     nickname: defaultMypageNickname,
     email: defaultMypageEmail,
     phone: defaultMypagePhone
   });
+  updateIdentityStatus(false);
   updateTokenGate(0);
 }
 
@@ -664,6 +1244,86 @@ function openMypage() {
     return;
   }
   setActiveTab("mypage");
+}
+
+function openIdentityModal() {
+  if (!isLoggedIn) {
+    showLoginToast("로그인 후 이용 가능합니다.", 1800);
+    openLoginModal();
+    return;
+  }
+  if (!identityModal) return;
+  lastFocusedElement = document.activeElement;
+  closeAllLanguageMenus();
+
+  if (identityPhoneInput) {
+    identityPhoneInput.value = normalizePhoneNumber(mypagePhone?.textContent || "");
+  }
+  if (identityCodeInput) {
+    identityCodeInput.value = "";
+  }
+  if (!hasIdentityCodeSent) {
+    identityRemainingSeconds = 0;
+    renderIdentityTimer();
+  }
+
+  identityModal.hidden = false;
+  syncBodyModalLock();
+  identityPhoneInput?.focus();
+}
+
+function closeIdentityModal() {
+  if (!identityModal) return;
+  identityModal.hidden = true;
+  syncBodyModalLock();
+  if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
+    lastFocusedElement.focus();
+  }
+}
+
+function sendIdentityCode() {
+  const rawPhone = identityPhoneInput?.value || "";
+  const phoneDigits = normalizePhoneNumber(rawPhone);
+  const isValidPhone = /^01\d{8,9}$/.test(phoneDigits);
+
+  if (!isValidPhone) {
+    alert("휴대폰 번호를 정확히 입력해주세요.");
+    identityPhoneInput?.focus();
+    return;
+  }
+
+  if (identityPhoneInput) {
+    identityPhoneInput.value = formatPhoneNumber(phoneDigits);
+  }
+
+  hasIdentityCodeSent = true;
+  startIdentityTimer(180);
+  showLoginToast("인증번호를 전송했습니다.", 1600);
+  identityCodeInput?.focus();
+}
+
+function completeIdentityVerification() {
+  const code = String(identityCodeInput?.value || "").trim();
+  if (!hasIdentityCodeSent || identityRemainingSeconds <= 0) {
+    alert("인증번호를 먼저 전송하거나, 재전송 후 다시 시도해주세요.");
+    return;
+  }
+  if (!/^\d{6}$/.test(code)) {
+    alert("인증코드 6자리를 입력해주세요.");
+    identityCodeInput?.focus();
+    return;
+  }
+
+  const verifiedPhone = formatPhoneNumber(identityPhoneInput?.value || "");
+  isIdentityVerified = true;
+  hasIdentityCodeSent = false;
+  stopIdentityTimer();
+  identityRemainingSeconds = 0;
+  renderIdentityTimer();
+  if (mypagePhone && verifiedPhone) mypagePhone.textContent = verifiedPhone;
+  updateIdentityStatus(true);
+  closeIdentityModal();
+  showLoginToast("본인 인증이 완료되었습니다.", 1800);
 }
 
 function showLoginToast(message = "로그인 완료했습니다.", duration = 2000) {
@@ -692,7 +1352,7 @@ function openAuthModal(target = "login") {
   closeAllLanguageMenus();
   showAuthPanel(target);
   loginModal.hidden = false;
-  document.body.classList.add("modal-open");
+  syncBodyModalLock();
   loginCloseBtn?.focus();
 }
 
@@ -707,7 +1367,7 @@ function openSignupModal() {
 function closeLoginModal() {
   if (!loginModal) return;
   loginModal.hidden = true;
-  document.body.classList.remove("modal-open");
+  syncBodyModalLock();
   if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
     lastFocusedElement.focus();
   }
@@ -883,6 +1543,16 @@ logoutBtn?.addEventListener("click", () => {
 });
 
 openMypageBtn?.addEventListener("click", openMypage);
+openIdentityModalBtn?.addEventListener("click", openIdentityModal);
+identityModalCloseBtn?.addEventListener("click", closeIdentityModal);
+identitySendCodeBtn?.addEventListener("click", sendIdentityCode);
+identityCompleteBtn?.addEventListener("click", completeIdentityVerification);
+identityCodeInput?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    completeIdentityVerification();
+  }
+});
 
 loginModal?.addEventListener("click", (event) => {
   if (event.target === loginModal) {
@@ -890,10 +1560,19 @@ loginModal?.addEventListener("click", (event) => {
   }
 });
 
+identityModal?.addEventListener("click", (event) => {
+  if (event.target === identityModal) {
+    closeIdentityModal();
+  }
+});
+
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     if (loginModal && !loginModal.hidden) {
       closeLoginModal();
+    }
+    if (identityModal && !identityModal.hidden) {
+      closeIdentityModal();
     }
     closeAllLanguageMenus();
   }
@@ -911,5 +1590,8 @@ document.addEventListener("click", (event) => {
 
 setLoggedOutUI();
 setLanguage(currentLanguage);
+setupHistoryEvents();
+renderHistoryList();
+closeHistoryDetail();
 setResultMode("allow");
 setActiveTab("home");
