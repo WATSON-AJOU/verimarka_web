@@ -71,6 +71,9 @@ const uploadPreview = document.getElementById("uploadPreview");
 const uploadReadyView = document.getElementById("uploadReadyView");
 const analysisRunningView = document.getElementById("analysisRunningView");
 const analysisResultView = document.getElementById("analysisResultView");
+const analysisResultLayout = document.querySelector(".analysis-result-layout");
+const resultRejectSpotlight = document.getElementById("resultRejectSpotlight");
+const resultRejectMetrics = document.getElementById("resultRejectMetrics");
 const uploadPreviewImage = document.getElementById("uploadPreviewImage");
 const analysisPreviewImage = document.getElementById("analysisPreviewImage");
 const analysisProgressRing = document.getElementById("analysisProgressRing");
@@ -78,6 +81,16 @@ const analysisProgressValue = document.getElementById("analysisProgressValue");
 const analysisStatusLine = document.getElementById("analysisStatusLine");
 const analysisSteps = Array.from(document.querySelectorAll(".analysis-step"));
 const analysisResultImage = document.getElementById("analysisResultImage");
+const analysisResultOriginImage = document.getElementById("analysisResultOriginImage");
+const analysisResultCandidateImage = document.getElementById("analysisResultCandidateImage");
+const analysisRejectSourceLabel = document.getElementById("analysisRejectSourceLabel");
+const analysisRejectCandidateLabel = document.getElementById("analysisRejectCandidateLabel");
+const analysisRejectSimilarity = document.getElementById("analysisRejectSimilarity");
+const analysisRejectThreshold = document.getElementById("analysisRejectThreshold");
+const analysisRejectDeltaLabel = document.getElementById("analysisRejectDeltaLabel");
+const analysisRejectDelta = document.getElementById("analysisRejectDelta");
+const analysisRejectPhashDistance = document.getElementById("analysisRejectPhashDistance");
+const analysisRejectPhashThreshold = document.getElementById("analysisRejectPhashThreshold");
 const analysisResultBadge = document.getElementById("analysisResultBadge");
 const analysisResultTitle = document.getElementById("analysisResultTitle");
 const analysisResultSubtitle = document.getElementById("analysisResultSubtitle");
@@ -112,6 +125,7 @@ let analysisTimer = null;
 let analysisProgressValueInternal = 0;
 let currentLanguage = "ko";
 let currentResultMode = "allow";
+let mockCandidateImageUrl = "";
 const providerNicknameMap = {
   google: "구글사용자",
   apple: "애플사용자",
@@ -153,9 +167,13 @@ const resultModeConfig = {
   pending: {
     badge: "REVIEW",
     title: "보류 판정입니다.",
-    subtitle: "유사 후보가 감지되어 추가 검토가 필요합니다.",
+    subtitle: "유사 후보가 감지되어 수동 검토가 필요합니다.",
     similarity: "0.7421",
     similarityPercent: "74.2%",
+    threshold: "0.7500",
+    phashDistance: 8,
+    phashThreshold: 8,
+    candidateName: "concept_scene.jpg",
     checklist: [
       "의미 기반 임베딩 비교 완료",
       "픽셀 정밀 비교 완료",
@@ -172,6 +190,10 @@ const resultModeConfig = {
     subtitle: "유사도가 임계치를 초과했습니다.",
     similarity: "0.9628",
     similarityPercent: "96.3%",
+    threshold: "0.8500",
+    phashDistance: 4,
+    phashThreshold: 8,
+    candidateName: "concept_scene.jpg",
     checklist: [
       "의미 기반 임베딩 비교 완료",
       "픽셀 정밀 비교 완료",
@@ -220,16 +242,42 @@ function setResultMode(mode = "allow") {
   const normalizedMode = resultModeConfig[mode] ? mode : "allow";
   currentResultMode = normalizedMode;
   const config = resultModeConfig[normalizedMode];
+  const isComparisonMode = normalizedMode === "pending" || normalizedMode === "reject";
 
   if (analysisResultView) {
     analysisResultView.dataset.result = normalizedMode;
   }
+  if (analysisResultLayout) analysisResultLayout.hidden = isComparisonMode;
+  if (resultRejectSpotlight) resultRejectSpotlight.hidden = !isComparisonMode;
+  if (resultRejectMetrics) resultRejectMetrics.hidden = !isComparisonMode;
   if (analysisResultBadge) analysisResultBadge.textContent = config.badge;
   if (analysisResultTitle) analysisResultTitle.textContent = config.title;
   if (analysisResultSubtitle) analysisResultSubtitle.textContent = config.subtitle;
   if (analysisResultSimilarity) analysisResultSimilarity.textContent = config.similarity;
   if (analysisResultSimilarityPercent) {
     analysisResultSimilarityPercent.textContent = config.similarityPercent;
+  }
+  if (analysisRejectSimilarity) analysisRejectSimilarity.textContent = config.similarity;
+  const thresholdValue = Number(config.threshold || 0.85);
+  const similarityValue = Number(config.similarity || 0);
+  const deltaValue = similarityValue - thresholdValue;
+  if (analysisRejectThreshold) analysisRejectThreshold.textContent = thresholdValue.toFixed(4);
+  if (analysisRejectDeltaLabel) {
+    analysisRejectDeltaLabel.textContent = deltaValue >= 0 ? "초과값" : "임계값 차이";
+  }
+  if (analysisRejectDelta) {
+    const signed = deltaValue >= 0 ? `+${deltaValue.toFixed(4)}` : deltaValue.toFixed(4);
+    analysisRejectDelta.textContent = signed;
+  }
+  if (analysisRejectPhashDistance) {
+    analysisRejectPhashDistance.textContent = String(config.phashDistance ?? 4);
+  }
+  if (analysisRejectPhashThreshold) {
+    analysisRejectPhashThreshold.textContent = `기준 ≤ ${config.phashThreshold ?? 8}`;
+  }
+  if (analysisRejectCandidateLabel) {
+    const candidateName = config.candidateName || "candidate_image.jpg";
+    analysisRejectCandidateLabel.textContent = `유사 후보 · ${candidateName}`;
   }
   if (analysisResultNote) analysisResultNote.textContent = config.note;
   if (resultPrimaryBtn) resultPrimaryBtn.textContent = config.primaryLabel;
@@ -246,6 +294,15 @@ function showAnalysisResult(mode = "allow") {
   setUploadPreviewMode("result");
   if (uploadPreviewImage?.src && analysisResultImage) {
     analysisResultImage.src = uploadPreviewImage.src;
+  }
+  if (uploadPreviewImage?.src && analysisResultOriginImage) {
+    analysisResultOriginImage.src = uploadPreviewImage.src;
+  }
+  if (analysisResultCandidateImage) {
+    analysisResultCandidateImage.src = mockCandidateImageUrl || uploadPreviewImage?.src || "";
+  }
+  if (analysisRejectSourceLabel && analysisResultFileName) {
+    analysisRejectSourceLabel.textContent = `업로드 원본 · ${analysisResultFileName.textContent}`;
   }
 }
 
@@ -352,6 +409,44 @@ window.applyRegistrationAnalysis = applyAnalysisProgress;
 window.applyRegistrationResult = (mode) => {
   showAnalysisResult(mode);
 };
+window.applyRegistrationCandidate = (candidate) => {
+  if (!candidate) return;
+  const candidateUrl = candidate.imageUrl || candidate.url || "";
+  const candidateName = candidate.fileName || candidate.name || "";
+  const phashDistance = candidate.phashDistance;
+  const phashThreshold = candidate.phashThreshold;
+  if (candidateUrl) {
+    mockCandidateImageUrl = candidateUrl;
+    if (analysisResultCandidateImage) analysisResultCandidateImage.src = candidateUrl;
+  }
+  if (candidateName && analysisRejectCandidateLabel) {
+    analysisRejectCandidateLabel.textContent = `유사 후보 · ${candidateName}`;
+  }
+  if (candidateName && resultModeConfig.reject) {
+    resultModeConfig.reject.candidateName = candidateName;
+  }
+  if (candidateName && resultModeConfig.pending) {
+    resultModeConfig.pending.candidateName = candidateName;
+  }
+  if (Number.isFinite(phashDistance) && resultModeConfig.reject) {
+    resultModeConfig.reject.phashDistance = phashDistance;
+  }
+  if (Number.isFinite(phashDistance) && resultModeConfig.pending) {
+    resultModeConfig.pending.phashDistance = phashDistance;
+  }
+  if (Number.isFinite(phashThreshold) && resultModeConfig.reject) {
+    resultModeConfig.reject.phashThreshold = phashThreshold;
+  }
+  if (Number.isFinite(phashThreshold) && resultModeConfig.pending) {
+    resultModeConfig.pending.phashThreshold = phashThreshold;
+  }
+  if (currentResultMode === "reject") {
+    setResultMode("reject");
+  }
+  if (currentResultMode === "pending") {
+    setResultMode("pending");
+  }
+};
 
 function setUploadState(file) {
   if (!uploadDropzone || !uploadPreview || !uploadEmpty) return;
@@ -366,10 +461,18 @@ function setUploadState(file) {
     if (uploadPreviewImage) uploadPreviewImage.removeAttribute("src");
     if (analysisPreviewImage) analysisPreviewImage.removeAttribute("src");
     if (analysisResultImage) analysisResultImage.removeAttribute("src");
+    if (analysisResultOriginImage) analysisResultOriginImage.removeAttribute("src");
+    if (analysisResultCandidateImage) analysisResultCandidateImage.removeAttribute("src");
     if (uploadFileName) uploadFileName.textContent = "sample.png";
     if (uploadFileMeta) uploadFileMeta.textContent = "0 KB · 준비 완료";
     if (analysisResultFileName) analysisResultFileName.textContent = "sample.png";
     if (analysisResultFileMeta) analysisResultFileMeta.textContent = "0 KB · 2026.03.07 00:00";
+    if (analysisRejectSourceLabel) analysisRejectSourceLabel.textContent = "업로드 원본 · sample.png";
+    if (analysisRejectCandidateLabel) {
+      analysisRejectCandidateLabel.textContent = "유사 후보 · concept_scene.jpg";
+    }
+    if (resultModeConfig.reject) resultModeConfig.reject.candidateName = "concept_scene.jpg";
+    mockCandidateImageUrl = "";
     return;
   }
 
@@ -394,6 +497,10 @@ function setUploadState(file) {
   if (uploadPreviewImage) uploadPreviewImage.src = uploadPreviewUrl;
   if (analysisPreviewImage) analysisPreviewImage.src = uploadPreviewUrl;
   if (analysisResultImage) analysisResultImage.src = uploadPreviewUrl;
+  if (analysisResultOriginImage) analysisResultOriginImage.src = uploadPreviewUrl;
+  if (analysisResultCandidateImage) {
+    analysisResultCandidateImage.src = mockCandidateImageUrl || uploadPreviewUrl;
+  }
   if (uploadFileName) uploadFileName.textContent = file.name;
   if (uploadFileMeta) {
     uploadFileMeta.textContent = `${formatFileSize(file.size)} · ${formatKoreanDateTime(new Date())}`;
@@ -402,6 +509,7 @@ function setUploadState(file) {
   if (analysisResultFileMeta && uploadFileMeta) {
     analysisResultFileMeta.textContent = uploadFileMeta.textContent;
   }
+  if (analysisRejectSourceLabel) analysisRejectSourceLabel.textContent = `업로드 원본 · ${file.name}`;
   showLoginToast("이미지 업로드가 완료되었습니다.", 1600);
 
   uploadDropzone.classList.add("has-file");

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VeriMarka | 디지털 자산 신뢰 시스템</title>
-    <link rel="stylesheet" href="./styles.css?v=202603072355" />
+    <link rel="stylesheet" href="./styles.css?v=202603131900" />
   </head>
   <body>
     <div class="aurora aurora-a"></div>
@@ -290,6 +290,41 @@
                           유사한 콘텐츠가 발견되지 않았습니다.
                         </p>
 
+                        <div class="result-reject-spotlight" id="resultRejectSpotlight" hidden>
+                          <figure class="reject-image-panel">
+                            <figcaption id="analysisRejectSourceLabel">업로드 원본 · sample.png</figcaption>
+                            <div class="reject-image-frame">
+                              <img id="analysisResultOriginImage" alt="업로드 원본 이미지" />
+                            </div>
+                          </figure>
+                          <figure class="reject-image-panel">
+                            <figcaption id="analysisRejectCandidateLabel">유사 후보 · concept_scene.jpg</figcaption>
+                            <div class="reject-image-frame">
+                              <img id="analysisResultCandidateImage" alt="유사 후보 이미지" />
+                            </div>
+                          </figure>
+                        </div>
+
+                        <div class="result-reject-metrics" id="resultRejectMetrics" hidden>
+                          <div class="reject-metric">
+                            <span>Cosine Similarity</span>
+                            <strong id="analysisRejectSimilarity">0.9628</strong>
+                          </div>
+                          <div class="reject-metric">
+                            <span>pHash Distance</span>
+                            <strong id="analysisRejectPhashDistance">4</strong>
+                            <p id="analysisRejectPhashThreshold">기준 ≤ 8</p>
+                          </div>
+                          <div class="reject-metric">
+                            <span>임계값</span>
+                            <strong id="analysisRejectThreshold">0.8500</strong>
+                          </div>
+                          <div class="reject-metric is-alert">
+                            <span id="analysisRejectDeltaLabel">초과값</span>
+                            <strong id="analysisRejectDelta">+0.1128</strong>
+                          </div>
+                        </div>
+
                         <div class="analysis-result-layout">
                           <article class="result-preview-card">
                             <div class="result-image-frame">
@@ -315,15 +350,16 @@
                               <li>픽셀 정밀 비교 완료</li>
                               <li>DB 후보 탐색 결과 없음</li>
                             </ul>
-                            <div class="result-summary-actions">
-                              <button class="btn btn-primary result-primary-btn" id="resultPrimaryBtn" type="button">
-                                워터마크 삽입 진행하기
-                              </button>
-                              <button class="btn btn-secondary result-secondary-btn" id="resultSecondaryBtn" type="button">
-                                업로드 화면으로 돌아가기
-                              </button>
-                            </div>
                           </aside>
+                        </div>
+
+                        <div class="result-summary-actions">
+                          <button class="btn btn-primary result-primary-btn" id="resultPrimaryBtn" type="button">
+                            워터마크 삽입 진행하기
+                          </button>
+                          <button class="btn btn-secondary result-secondary-btn" id="resultSecondaryBtn" type="button">
+                            업로드 화면으로 돌아가기
+                          </button>
                         </div>
 
                         <p class="result-note" id="analysisResultNote">
@@ -390,13 +426,15 @@
       <footer class="site-footer">
         <div class="footer-inner">
           <div class="footer-main">
-            <p class="footer-logo">VeriMarka Cloud</p>
-            <nav class="footer-links" aria-label="푸터 링크">
-              <a href="#">서비스 이용약관</a>
-              <a href="#">개인정보처리방침</a>
-              <a href="#">인재채용</a>
-              <a href="#">제휴 문의</a>
-            </nav>
+            <div class="footer-topline">
+              <p class="footer-logo">VeriMarka</p>
+              <nav class="footer-links" aria-label="푸터 링크">
+                <a href="#">서비스 이용약관</a>
+                <a href="#">개인정보처리방침</a>
+                <a href="#">인재채용</a>
+                <a href="#">제휴 문의</a>
+              </nav>
+            </div>
             <div class="footer-info">
               <p>
                 사업자등록번호: 123-45-67890 <span>|</span> 통신판매업신고번호:
@@ -498,6 +536,6 @@
       </div>
     </div>
 
-    <script src="./app.js?v=202603072355"></script>
+    <script src="./app.js?v=202603131900"></script>
   </body>
 </html>
