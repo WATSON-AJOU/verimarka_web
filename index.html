@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VeriMarka | 디지털 자산 신뢰 시스템</title>
-    <link rel="stylesheet" href="./styles.css?v=202603131900" />
+    <link rel="stylesheet" href="./styles.css?v=202603141605" />
   </head>
   <body>
     <div class="aurora aurora-a"></div>
@@ -30,6 +30,9 @@
             </div>
             <div class="user-session" id="userSession" hidden>
               <span class="user-nickname" id="userNickname">게스트</span>
+              <button class="profile-shortcut" id="openMypageBtn" type="button" aria-label="마이페이지 이동">
+                <span class="profile-shortcut-circle" id="headerProfileInitial">V</span>
+              </button>
               <button class="logout-btn" id="logoutBtn" type="button">로그아웃</button>
             </div>
             <div class="lang-switch lang-switch-header" data-lang-switch>
@@ -421,6 +424,77 @@
             </aside>
           </div>
         </section>
+
+        <section class="app-page" id="page-mypage" hidden>
+          <section class="mypage-shell">
+            <header class="mypage-header reveal">
+              <h2>마이페이지</h2>
+              <p>인증 상태와 계정 정보를 한 번에 관리하세요.</p>
+            </header>
+
+            <div class="mypage-layout">
+              <aside class="mypage-profile-card reveal">
+                <div class="mypage-avatar" id="mypageAvatar">V</div>
+                <h3 id="mypageName">VeriMarka 사용자</h3>
+                <p id="mypageEmail">user@verimarka.com</p>
+                <p id="mypagePhone">010-1234-5678</p>
+                <button class="btn btn-secondary mypage-edit-btn" type="button">프로필 수정</button>
+                <ul class="mypage-quick-links">
+                  <li><a href="#">로그아웃</a></li>
+                  <li><a href="#">이용약관</a></li>
+                  <li><a href="#">개인정보처리방침</a></li>
+                  <li><a href="#">고객센터</a></li>
+                </ul>
+              </aside>
+
+              <div class="mypage-content reveal">
+                <article class="mypage-card">
+                  <div class="mypage-card-head">
+                    <h3>본인 인증</h3>
+                    <span class="mypage-chip is-pending">인증 필요</span>
+                  </div>
+                  <p>서비스 이용을 위해 휴대폰 인증을 진행해주세요.</p>
+                  <div class="mypage-actions">
+                    <button class="btn btn-primary" type="button">인증하기</button>
+                  </div>
+                </article>
+
+                <article class="mypage-card token-status-card">
+                  <div class="mypage-card-head">
+                    <h3>보유 토큰</h3>
+                    <span class="mypage-chip" id="mypageVoteStatusChip">대기</span>
+                  </div>
+                  <p>NFT 보유 수량을 기준으로 블록체인 투표 참여 권한이 결정됩니다.</p>
+                  <div class="token-status-row">
+                    <div class="token-count-box">
+                      <span>현재 보유 수량</span>
+                      <strong><em id="mypageTokenCount">2</em> NFT</strong>
+                    </div>
+                    <div class="token-count-box">
+                      <span>투표 최소 조건</span>
+                      <strong>3 NFT</strong>
+                    </div>
+                  </div>
+                  <p class="token-status-note" id="mypageVoteStatusText">
+                    현재 1 NFT 부족하여 투표 권한이 활성화되지 않았습니다.
+                  </p>
+                </article>
+
+                <article class="mypage-card">
+                  <div class="mypage-card-head">
+                    <h3>지갑 연결</h3>
+                    <span class="mypage-chip">선택</span>
+                  </div>
+                  <p>검증 기록 토큰 확인을 위해 지갑을 연결할 수 있습니다.</p>
+                  <div class="mypage-actions wallet-actions">
+                    <button class="btn btn-secondary" type="button">Web3Auth 연결</button>
+                    <button class="btn btn-secondary" type="button">Privy 연결</button>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
+        </section>
       </main>
 
       <footer class="site-footer">
@@ -536,6 +610,6 @@
       </div>
     </div>
 
-    <script src="./app.js?v=202603131900"></script>
+    <script src="./app.js?v=202603141605"></script>
   </body>
 </html>

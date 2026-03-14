@@ -166,7 +166,7 @@ body {
 .user-session {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -181,6 +181,42 @@ body {
   font-size: 0.92rem;
   font-weight: 800;
   white-space: nowrap;
+}
+
+.profile-shortcut {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #d4def0;
+  border-radius: 999px;
+  background: #fff;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.profile-shortcut:hover {
+  transform: translateY(-1px);
+  border-color: #b8c7e8;
+  box-shadow: 0 6px 12px rgba(32, 59, 103, 0.1);
+}
+
+.profile-shortcut.is-active {
+  border-color: #7f9fd8;
+  box-shadow: 0 0 0 3px rgba(63, 95, 178, 0.14);
+}
+
+.profile-shortcut-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.76rem;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #3f67bb, #aa4a80);
 }
 
 .logout-btn {
@@ -277,6 +313,218 @@ main {
 
 .app-page.is-active {
   display: block;
+}
+
+.mypage-shell {
+  display: grid;
+  gap: 16px;
+}
+
+.mypage-header {
+  padding: 4px 0 0;
+}
+
+.mypage-header h2 {
+  margin: 0;
+  color: #1a2a47;
+  font-size: 2.04rem;
+  line-height: 1.2;
+}
+
+.mypage-header p {
+  margin: 6px 0 0;
+  color: #667591;
+  font-size: 1rem;
+}
+
+.mypage-layout {
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.mypage-profile-card {
+  border: 1px solid #dce5f4;
+  border-radius: 16px;
+  background: #fff;
+  padding: 18px 16px;
+  box-shadow: 0 10px 22px rgba(13, 28, 52, 0.06);
+}
+
+.mypage-avatar {
+  width: 86px;
+  height: 86px;
+  margin: 0 auto 12px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #3d66bc, #ab4b80);
+  box-shadow: 0 10px 22px rgba(56, 80, 145, 0.24);
+}
+
+.mypage-profile-card h3 {
+  margin: 0;
+  text-align: center;
+  color: #1f3154;
+  font-size: 1.24rem;
+}
+
+.mypage-profile-card p {
+  margin: 4px 0 0;
+  text-align: center;
+  color: #60708d;
+  font-size: 0.92rem;
+}
+
+.mypage-edit-btn {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.mypage-quick-links {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid #e5ebf7;
+  display: grid;
+  gap: 8px;
+}
+
+.mypage-quick-links a {
+  color: #465a81;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mypage-quick-links a:hover {
+  color: #2f57a6;
+}
+
+.mypage-content {
+  display: grid;
+  gap: 12px;
+}
+
+.mypage-card {
+  border: 1px solid #dce5f4;
+  border-radius: 16px;
+  background: #fff;
+  padding: 16px;
+  box-shadow: 0 10px 22px rgba(13, 28, 52, 0.05);
+}
+
+.mypage-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mypage-card-head h3 {
+  margin: 0;
+  color: #1f3154;
+  font-size: 1.45rem;
+  line-height: 1.2;
+}
+
+.mypage-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  border-radius: 999px;
+  padding: 0 12px;
+  background: #edf3ff;
+  color: #355ea9;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.mypage-chip.is-pending {
+  background: #fff1e4;
+  color: #c77721;
+}
+
+.mypage-card p {
+  margin: 8px 0 0;
+  color: #697995;
+  font-size: 0.96rem;
+}
+
+.mypage-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mypage-actions .btn {
+  min-width: 160px;
+}
+
+.wallet-actions .btn {
+  flex: 1 1 220px;
+}
+
+.token-status-card {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.token-status-row {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.token-count-box {
+  border: 1px solid #dce6f5;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
+
+.token-count-box span {
+  display: block;
+  color: #6f7f9b;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.token-count-box strong {
+  margin-top: 6px;
+  display: block;
+  color: #243b67;
+  font-size: 1.16rem;
+  line-height: 1.1;
+}
+
+.token-count-box em {
+  font-style: normal;
+  color: #2f5fb5;
+  font-size: 1.42rem;
+  font-weight: 900;
+}
+
+.token-status-note {
+  margin: 10px 0 0;
+  color: #5d6f90;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.mypage-chip.is-eligible {
+  background: #e6f8ed;
+  color: #20824a;
+}
+
+.mypage-chip.is-ineligible {
+  background: #fff2e8;
+  color: #c56f1f;
 }
 
 .hero {
@@ -1894,6 +2142,22 @@ h2 {
     gap: 20px;
   }
 
+  .mypage-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .mypage-profile-card {
+    padding: 16px 14px;
+  }
+
+  .mypage-actions .btn {
+    flex: 1 1 220px;
+  }
+
+  .token-status-row {
+    grid-template-columns: 1fr;
+  }
+
   .card-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1944,6 +2208,17 @@ h2 {
     gap: 10px;
   }
 
+  .profile-shortcut {
+    width: 32px;
+    height: 32px;
+  }
+
+  .profile-shortcut-circle {
+    width: 22px;
+    height: 22px;
+    font-size: 0.72rem;
+  }
+
   .user-nickname {
     font-size: 0.86rem;
   }
@@ -1978,6 +2253,53 @@ h2 {
   .register-card {
     padding: 14px;
     border-radius: 16px;
+  }
+
+  .mypage-header h2 {
+    font-size: 1.6rem;
+  }
+
+  .mypage-header p {
+    font-size: 0.9rem;
+  }
+
+  .mypage-card {
+    padding: 12px;
+  }
+
+  .mypage-card-head h3 {
+    font-size: 1.14rem;
+  }
+
+  .mypage-card p {
+    font-size: 0.88rem;
+  }
+
+  .mypage-chip {
+    height: 25px;
+    padding: 0 9px;
+    font-size: 0.75rem;
+  }
+
+  .mypage-actions {
+    margin-top: 10px;
+  }
+
+  .mypage-actions .btn {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .token-count-box strong {
+    font-size: 1.02rem;
+  }
+
+  .token-count-box em {
+    font-size: 1.26rem;
+  }
+
+  .token-status-note {
+    font-size: 0.84rem;
   }
 
   .register-header h2 {

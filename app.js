@@ -2,12 +2,14 @@ const tabs = document.querySelectorAll(".tab");
 const pageByTab = {
   home: "page-home",
   add: "page-add",
+  mypage: "page-mypage",
   verify: "page-home",
   history: "page-home"
 };
 const appPages = {
   home: document.getElementById("page-home"),
-  add: document.getElementById("page-add")
+  add: document.getElementById("page-add"),
+  mypage: document.getElementById("page-mypage")
 };
 const quickTabButtons = document.querySelectorAll("[data-go-tab]");
 
@@ -25,6 +27,11 @@ function setActiveTab(tabName) {
     page.hidden = !isTarget;
     page.classList.toggle("is-active", isTarget);
   });
+
+  const mypageShortcut = document.getElementById("openMypageBtn");
+  if (mypageShortcut) {
+    mypageShortcut.classList.toggle("is-active", normalizedTab === "mypage");
+  }
 }
 
 tabs.forEach((tab) => {
@@ -60,6 +67,15 @@ const signupForm = document.querySelector(".signup-form");
 const socialLoginBtns = document.querySelectorAll(".login-action[data-provider]");
 const userSession = document.getElementById("userSession");
 const userNickname = document.getElementById("userNickname");
+const openMypageBtn = document.getElementById("openMypageBtn");
+const headerProfileInitial = document.getElementById("headerProfileInitial");
+const mypageAvatar = document.getElementById("mypageAvatar");
+const mypageName = document.getElementById("mypageName");
+const mypageEmail = document.getElementById("mypageEmail");
+const mypagePhone = document.getElementById("mypagePhone");
+const mypageTokenCount = document.getElementById("mypageTokenCount");
+const mypageVoteStatusChip = document.getElementById("mypageVoteStatusChip");
+const mypageVoteStatusText = document.getElementById("mypageVoteStatusText");
 const logoutBtn = document.getElementById("logoutBtn");
 const loginToast = document.getElementById("loginToast");
 const loginToastText = document.getElementById("loginToastText");
@@ -126,6 +142,12 @@ let analysisProgressValueInternal = 0;
 let currentLanguage = "ko";
 let currentResultMode = "allow";
 let mockCandidateImageUrl = "";
+let isLoggedIn = false;
+const defaultMypagePhone = "010-1234-5678";
+const defaultMypageEmail = "user@verimarka.com";
+const defaultMypageNickname = "VeriMarka 사용자";
+const minimumVoteTokenCount = 3;
+let currentTokenCount = 2;
 const providerNicknameMap = {
   google: "구글사용자",
   apple: "애플사용자",
@@ -448,6 +470,12 @@ window.applyRegistrationCandidate = (candidate) => {
   }
 };
 
+window.applyTokenPortfolio = (payload) => {
+  const tokenCount = Number(payload?.nftCount ?? payload?.tokenCount ?? payload);
+  if (!Number.isFinite(tokenCount)) return;
+  updateTokenGate(tokenCount);
+};
+
 function setUploadState(file) {
   if (!uploadDropzone || !uploadPreview || !uploadEmpty) return;
   if (!file) {
@@ -526,6 +554,55 @@ function showAuthPanel(target) {
   signupPanel?.classList.toggle("is-active", isSignup);
 }
 
+function getProfileInitial(name) {
+  const text = String(name || "").trim();
+  if (!text) return "V";
+  return text[0].toUpperCase();
+}
+
+function toEmailAlias(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]/g, "")
+    .slice(0, 20);
+}
+
+function setMypageProfile({ nickname, email, phone }) {
+  const displayName = nickname?.trim() ? `${nickname.trim()}님` : defaultMypageNickname;
+  const displayEmail = email?.trim() || defaultMypageEmail;
+  const displayPhone = phone?.trim() || defaultMypagePhone;
+  const profileInitial = getProfileInitial(nickname || "V");
+
+  if (headerProfileInitial) headerProfileInitial.textContent = profileInitial;
+  if (mypageAvatar) mypageAvatar.textContent = profileInitial;
+  if (mypageName) mypageName.textContent = displayName;
+  if (mypageEmail) mypageEmail.textContent = displayEmail;
+  if (mypagePhone) mypagePhone.textContent = displayPhone;
+}
+
+function updateTokenGate(tokenCount = 0) {
+  const safeCount = Math.max(0, Number(tokenCount) || 0);
+  currentTokenCount = safeCount;
+
+  if (mypageTokenCount) mypageTokenCount.textContent = String(safeCount);
+
+  const isEligible = safeCount >= minimumVoteTokenCount;
+  if (mypageVoteStatusChip) {
+    mypageVoteStatusChip.textContent = isEligible ? "투표 가능" : "대기";
+    mypageVoteStatusChip.classList.toggle("is-eligible", isEligible);
+    mypageVoteStatusChip.classList.toggle("is-ineligible", !isEligible);
+  }
+  if (mypageVoteStatusText) {
+    if (isEligible) {
+      mypageVoteStatusText.textContent = "조건을 충족하여 블록체인 투표 참여가 가능합니다.";
+    } else {
+      const gap = minimumVoteTokenCount - safeCount;
+      mypageVoteStatusText.textContent = `현재 ${gap} NFT 부족하여 투표 권한이 활성화되지 않았습니다.`;
+    }
+  }
+}
+
 function closeAllLanguageMenus() {
   langSwitches.forEach(({ root, trigger, menu }) => {
     root.classList.remove("is-open");
@@ -549,17 +626,44 @@ function setLanguage(lang) {
   document.documentElement.lang = htmlLangMap[normalizedLang] || "ko";
 }
 
-function setLoggedInUI(nickname) {
+function setLoggedInUI(nickname, profile = {}) {
   const safeNickname = nickname?.trim() ? nickname.trim() : "사용자";
+  const generatedAlias = toEmailAlias(safeNickname) || "user";
+  const safeEmail = profile.email?.trim() || `${generatedAlias}@verimarka.com`;
+  const safePhone = profile.phone?.trim() || defaultMypagePhone;
+
+  isLoggedIn = true;
   if (userNickname) userNickname.textContent = `${safeNickname}님`;
   if (userSession) userSession.hidden = false;
   if (guestActions) guestActions.hidden = true;
+  setMypageProfile({
+    nickname: safeNickname,
+    email: safeEmail,
+    phone: safePhone
+  });
+  updateTokenGate(currentTokenCount);
 }
 
 function setLoggedOutUI() {
+  isLoggedIn = false;
   if (userSession) userSession.hidden = true;
   if (guestActions) guestActions.hidden = false;
   if (userNickname) userNickname.textContent = "게스트";
+  setMypageProfile({
+    nickname: defaultMypageNickname,
+    email: defaultMypageEmail,
+    phone: defaultMypagePhone
+  });
+  updateTokenGate(0);
+}
+
+function openMypage() {
+  if (!isLoggedIn) {
+    showLoginToast("로그인 후 이용 가능합니다.", 1800);
+    openLoginModal();
+    return;
+  }
+  setActiveTab("mypage");
 }
 
 function showLoginToast(message = "로그인 완료했습니다.", duration = 2000) {
@@ -733,7 +837,9 @@ socialLoginBtns.forEach((button) => {
   button.addEventListener("click", () => {
     const provider = button.dataset.provider || "";
     const nickname = providerNicknameMap[provider] || "소셜사용자";
-    setLoggedInUI(nickname);
+    setLoggedInUI(nickname, {
+      email: `${provider || "social"}.user@verimarka.com`
+    });
     closeLoginModal();
     showLoginToast("로그인 완료했습니다.", 2000);
   });
@@ -764,7 +870,7 @@ signupSubmitBtn?.addEventListener("click", () => {
   }
 
   const nicknameFromEmail = email.split("@")[0] || "신규회원";
-  setLoggedInUI(nicknameFromEmail);
+  setLoggedInUI(nicknameFromEmail, { email });
   signupForm?.reset();
   closeLoginModal();
   showLoginToast("로그인 완료했습니다.", 2000);
@@ -772,7 +878,11 @@ signupSubmitBtn?.addEventListener("click", () => {
 
 logoutBtn?.addEventListener("click", () => {
   setLoggedOutUI();
+  setActiveTab("home");
+  showLoginToast("로그아웃 되었습니다.", 1600);
 });
+
+openMypageBtn?.addEventListener("click", openMypage);
 
 loginModal?.addEventListener("click", (event) => {
   if (event.target === loginModal) {
