@@ -41,6 +41,12 @@ function setActiveTab(tabName) {
       renderHistoryList();
     }
   }
+
+  if (normalizedTab !== "add") {
+    stopAnalysisSimulation();
+    stopWatermarkSimulation();
+    stopMintSimulation();
+  }
 }
 
 tabs.forEach((tab) => {
@@ -106,6 +112,10 @@ const uploadPreview = document.getElementById("uploadPreview");
 const uploadReadyView = document.getElementById("uploadReadyView");
 const analysisRunningView = document.getElementById("analysisRunningView");
 const analysisResultView = document.getElementById("analysisResultView");
+const watermarkRunningView = document.getElementById("watermarkRunningView");
+const watermarkCompleteView = document.getElementById("watermarkCompleteView");
+const mintRunningView = document.getElementById("mintRunningView");
+const mintCompleteView = document.getElementById("mintCompleteView");
 const analysisResultLayout = document.querySelector(".analysis-result-layout");
 const resultRejectSpotlight = document.getElementById("resultRejectSpotlight");
 const resultRejectMetrics = document.getElementById("resultRejectMetrics");
@@ -115,6 +125,18 @@ const analysisProgressRing = document.getElementById("analysisProgressRing");
 const analysisProgressValue = document.getElementById("analysisProgressValue");
 const analysisStatusLine = document.getElementById("analysisStatusLine");
 const analysisSteps = Array.from(document.querySelectorAll(".analysis-step"));
+const watermarkRunningImage = document.getElementById("watermarkRunningImage");
+const watermarkProgressRing = document.getElementById("watermarkProgressRing");
+const watermarkProgressValue = document.getElementById("watermarkProgressValue");
+const watermarkStatusLine = document.getElementById("watermarkStatusLine");
+const watermarkSteps = Array.from(document.querySelectorAll(".watermark-step"));
+const mintRunningImage = document.getElementById("mintRunningImage");
+const mintProgressRing = document.getElementById("mintProgressRing");
+const mintProgressValue = document.getElementById("mintProgressValue");
+const mintStatusLine = document.getElementById("mintStatusLine");
+const mintSteps = Array.from(document.querySelectorAll(".mint-step"));
+const watermarkOriginalCard = document.getElementById("watermarkOriginalCard");
+const watermarkResultCard = document.getElementById("watermarkResultCard");
 const analysisResultImage = document.getElementById("analysisResultImage");
 const analysisResultOriginImage = document.getElementById("analysisResultOriginImage");
 const analysisResultCandidateImage = document.getElementById("analysisResultCandidateImage");
@@ -145,6 +167,26 @@ const pickAnotherFileBtn = document.getElementById("pickAnotherFileBtn");
 const cancelAnalysisBtn = document.getElementById("cancelAnalysisBtn");
 const goHomeBtn = document.getElementById("goHomeBtn");
 const startRegisterBtn = document.getElementById("startRegisterBtn");
+const watermarkCompleteOriginalImage = document.getElementById("watermarkCompleteOriginalImage");
+const watermarkCompleteResultImage = document.getElementById("watermarkCompleteResultImage");
+const watermarkCompleteFileName = document.getElementById("watermarkCompleteFileName");
+const watermarkCompleteFileMeta = document.getElementById("watermarkCompleteFileMeta");
+const startMintBtn = document.getElementById("startMintBtn");
+const watermarkDownloadBtn = document.getElementById("watermarkDownloadBtn");
+const watermarkCompleteHistoryBtn = document.getElementById("watermarkCompleteHistoryBtn");
+const watermarkCompleteUploadBtn = document.getElementById("watermarkCompleteUploadBtn");
+const mintCompleteImage = document.getElementById("mintCompleteImage");
+const mintFileName = document.getElementById("mintFileName");
+const mintCreatedAt = document.getElementById("mintCreatedAt");
+const mintNetwork = document.getElementById("mintNetwork");
+const mintTokenId = document.getElementById("mintTokenId");
+const mintContentHash = document.getElementById("mintContentHash");
+const mintTxHash = document.getElementById("mintTxHash");
+const mintWallet = document.getElementById("mintWallet");
+const mintMintedAt = document.getElementById("mintMintedAt");
+const mintCopyUrlBtn = document.getElementById("mintCopyUrlBtn");
+const mintGoHistoryBtn = document.getElementById("mintGoHistoryBtn");
+const mintUploadAgainBtn = document.getElementById("mintUploadAgainBtn");
 const historyListView = document.getElementById("historyListView");
 const historyDetailView = document.getElementById("historyDetailView");
 const historyList = document.getElementById("historyList");
@@ -168,6 +210,14 @@ let toastHideTimer = null;
 let uploadPreviewUrl = null;
 let analysisTimer = null;
 let analysisProgressValueInternal = 0;
+let watermarkTimer = null;
+let watermarkProgressValueInternal = 0;
+let mintTimer = null;
+let mintProgressValueInternal = 0;
+let watermarkRenderedUrl = "";
+let watermarkDownloadName = "sample_watermarked.png";
+let watermarkBuildToken = 0;
+let currentMintRecord = null;
 let currentLanguage = "ko";
 let currentResultMode = "allow";
 let mockCandidateImageUrl = "";
@@ -386,6 +436,16 @@ const analysisStageConfig = [
   { key: "pixel", label: "픽셀 정밀 비교", start: 28, end: 57 },
   { key: "search", label: "기존 등록 콘텐츠 탐색", start: 57, end: 84 },
   { key: "decision", label: "최종 판정 생성", start: 84, end: 100 }
+];
+const watermarkStageConfig = [
+  { key: "wm-embed", label: "워터마크 삽입", start: 0, end: 44 },
+  { key: "wm-hash", label: "해시 생성", start: 44, end: 78 },
+  { key: "wm-token", label: "토큰 발행 준비", start: 78, end: 100 }
+];
+const mintStageConfig = [
+  { key: "mint-meta", label: "메타데이터 구성", start: 0, end: 30 },
+  { key: "mint-contract", label: "스마트컨트랙트 호출", start: 30, end: 74 },
+  { key: "mint-confirm", label: "트랜잭션 확정 대기", start: 74, end: 100 }
 ];
 const resultModeConfig = {
   allow: {
@@ -726,10 +786,160 @@ function formatKoreanDateTime(value) {
   return `${year}.${month}.${day} ${hour}:${minute}`;
 }
 
+function randomHex(length = 12) {
+  const chars = "0123456789abcdef";
+  let result = "";
+  for (let i = 0; i < length; i += 1) {
+    result += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return result;
+}
+
+function createMockMintRecord(fileName = "sample.png") {
+  const now = new Date();
+  const tokenId = `#${Math.floor(82000 + Math.random() * 1200)}`;
+  const txCore = randomHex(64);
+  return {
+    fileName,
+    createdAt: formatKoreanDateTime(now),
+    network: "Polygon",
+    tokenId,
+    contentHash: `0x${randomHex(8)}...${randomHex(4)}`,
+    txHash: `0x${txCore.slice(0, 6)}...${txCore.slice(-4)}`,
+    wallet: `0x${randomHex(4)}...${randomHex(4)}`,
+    mintedAt: `${formatKoreanDateTime(now)} UTC`,
+    explorerUrl: `https://polygonscan.com/tx/0x${txCore}`
+  };
+}
+
+function revokeWatermarkRenderedUrl() {
+  if (!watermarkRenderedUrl) return;
+  if (watermarkRenderedUrl.startsWith("blob:")) {
+    URL.revokeObjectURL(watermarkRenderedUrl);
+  }
+  watermarkRenderedUrl = "";
+}
+
+function toWatermarkedFileName(fileName) {
+  const normalized = String(fileName || "image").trim();
+  const dotIndex = normalized.lastIndexOf(".");
+  const stem = dotIndex > 0 ? normalized.slice(0, dotIndex) : normalized;
+  return `${stem}_watermarked.png`;
+}
+
+function setWatermarkCardLayoutByRatio(ratio) {
+  const safeRatio = Number(ratio) || 1;
+  const mode = safeRatio < 0.85 ? "portrait" : safeRatio > 1.15 ? "landscape" : "square";
+  const cards = [watermarkOriginalCard, watermarkResultCard];
+
+  cards.forEach((card) => {
+    if (!card) return;
+    card.classList.remove("is-portrait", "is-landscape", "is-square");
+    card.classList.add(`is-${mode}`);
+  });
+}
+
+function loadImageFromUrl(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("이미지 로딩 실패"));
+    img.src = url;
+  });
+}
+
+async function buildWatermarkedAsset(sourceUrl, fileName) {
+  if (!sourceUrl) return;
+  const token = ++watermarkBuildToken;
+  try {
+    const image = await loadImageFromUrl(sourceUrl);
+    if (token !== watermarkBuildToken) return;
+
+    const width = image.naturalWidth || image.width;
+    const height = image.naturalHeight || image.height;
+    if (!width || !height) return;
+    setWatermarkCardLayoutByRatio(width / height);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.drawImage(image, 0, 0, width, height);
+
+    const minEdge = Math.min(width, height);
+    const fontSize = Math.max(22, Math.round(minEdge * 0.065));
+    const stepX = Math.max(180, Math.round(fontSize * 5.6));
+    const stepY = Math.max(120, Math.round(fontSize * 2.5));
+
+    ctx.save();
+    ctx.translate(width * 0.5, height * 0.5);
+    ctx.rotate(-Math.PI / 8);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `700 ${fontSize}px "Pretendard Variable", "Noto Sans KR", sans-serif`;
+    for (let y = -height; y <= height; y += stepY) {
+      for (let x = -width; x <= width; x += stepX) {
+        ctx.fillStyle = "rgba(255, 255, 255, 0.16)";
+        ctx.fillText("VeriMarka", x, y);
+      }
+    }
+    ctx.restore();
+
+    const badgeWidth = Math.max(164, Math.round(width * 0.24));
+    const badgeHeight = Math.max(42, Math.round(height * 0.08));
+    const badgeX = width - badgeWidth - Math.max(16, Math.round(width * 0.02));
+    const badgeY = height - badgeHeight - Math.max(16, Math.round(height * 0.02));
+
+    const gradient = ctx.createLinearGradient(badgeX, badgeY, badgeX + badgeWidth, badgeY + badgeHeight);
+    gradient.addColorStop(0, "rgba(47, 103, 194, 0.84)");
+    gradient.addColorStop(1, "rgba(174, 68, 122, 0.84)");
+    ctx.fillStyle = gradient;
+    const radius = Math.max(10, Math.round(badgeHeight * 0.36));
+    if (typeof ctx.roundRect === "function") {
+      ctx.beginPath();
+      ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, radius);
+      ctx.fill();
+    } else {
+      ctx.fillRect(badgeX, badgeY, badgeWidth, badgeHeight);
+    }
+
+    ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `700 ${Math.max(14, Math.round(badgeHeight * 0.38))}px "Pretendard Variable", "Noto Sans KR", sans-serif`;
+    ctx.fillText("VeriMarka Watermark", badgeX + badgeWidth / 2, badgeY + badgeHeight / 2);
+
+    const blob = await new Promise((resolve, reject) => {
+      canvas.toBlob((value) => {
+        if (value) resolve(value);
+        else reject(new Error("워터마크 이미지 생성 실패"));
+      }, "image/png");
+    });
+    if (token !== watermarkBuildToken) return;
+
+    revokeWatermarkRenderedUrl();
+    watermarkRenderedUrl = URL.createObjectURL(blob);
+    watermarkDownloadName = toWatermarkedFileName(fileName);
+    if (watermarkCompleteResultImage) {
+      watermarkCompleteResultImage.src = watermarkRenderedUrl;
+    }
+  } catch {
+    if (token !== watermarkBuildToken) return;
+    revokeWatermarkRenderedUrl();
+    watermarkDownloadName = toWatermarkedFileName(fileName);
+  }
+}
+
 function setUploadPreviewMode(mode = "ready") {
   if (uploadReadyView) uploadReadyView.hidden = mode !== "ready";
   if (analysisRunningView) analysisRunningView.hidden = mode !== "running";
   if (analysisResultView) analysisResultView.hidden = mode !== "result";
+  if (watermarkRunningView) watermarkRunningView.hidden = mode !== "wm-running";
+  if (watermarkCompleteView) watermarkCompleteView.hidden = mode !== "wm-complete";
+  if (mintRunningView) mintRunningView.hidden = mode !== "mint-running";
+  if (mintCompleteView) mintCompleteView.hidden = mode !== "mint-complete";
 }
 
 function renderResultChecklist(items) {
@@ -828,6 +1038,189 @@ function stopAnalysisSimulation() {
   analysisTimer = null;
 }
 
+function stopWatermarkSimulation() {
+  if (!watermarkTimer) return;
+  clearInterval(watermarkTimer);
+  watermarkTimer = null;
+}
+
+function renderWatermarkState(progress, forcedStatusMap = null) {
+  const clampedProgress = Math.max(0, Math.min(100, Number(progress) || 0));
+  watermarkProgressValueInternal = clampedProgress;
+
+  if (watermarkProgressRing) {
+    watermarkProgressRing.style.setProperty("--progress", clampedProgress.toFixed(2));
+  }
+  if (watermarkProgressValue) {
+    watermarkProgressValue.textContent = `${Math.round(clampedProgress)}%`;
+  }
+
+  let currentStageLabel = "워터마크 작업 대기 중입니다.";
+
+  watermarkSteps.forEach((step, index) => {
+    const stage = watermarkStageConfig[index];
+    if (!stage) return;
+
+    const forcedStatus = forcedStatusMap?.[stage.key];
+    const status = forcedStatus || getStageStatus(clampedProgress, stage);
+
+    step.classList.toggle("is-done", status === "done");
+    step.classList.toggle("is-running", status === "running");
+    step.classList.toggle("is-pending", status === "pending");
+
+    const stateNode = step.querySelector(".watermark-step-state");
+    if (stateNode) stateNode.textContent = `[${getStageStatusLabel(status)}]`;
+
+    if (status === "running") currentStageLabel = `${stage.label}을(를) 진행 중입니다.`;
+  });
+
+  if (clampedProgress >= 100) {
+    currentStageLabel = "워터마크 삽입 및 토큰 발행 준비가 완료되었습니다.";
+  }
+
+  if (watermarkStatusLine) {
+    watermarkStatusLine.textContent = currentStageLabel;
+  }
+}
+
+function showWatermarkCompleteView() {
+  setUploadPreviewMode("wm-complete");
+
+  if (uploadPreviewImage?.src && watermarkCompleteOriginalImage) {
+    watermarkCompleteOriginalImage.src = uploadPreviewImage.src;
+  }
+  if (watermarkCompleteResultImage) {
+    watermarkCompleteResultImage.src = watermarkRenderedUrl || uploadPreviewImage?.src || "";
+  }
+
+  const fileNameText = analysisResultFileName?.textContent || uploadFileName?.textContent || "sample.png";
+  const fileMetaText = analysisResultFileMeta?.textContent || uploadFileMeta?.textContent || "0 KB · 준비 완료";
+
+  if (watermarkCompleteFileName) watermarkCompleteFileName.textContent = fileNameText;
+  if (watermarkCompleteFileMeta) watermarkCompleteFileMeta.textContent = fileMetaText;
+}
+
+function startWatermarkSimulation() {
+  if (!uploadDropzone?.classList.contains("has-file")) return;
+  stopWatermarkSimulation();
+  setUploadPreviewMode("wm-running");
+  renderWatermarkState(0);
+
+  const totalDurationMs = 7600;
+  const tickMs = 160;
+  const baseStep = 100 / (totalDurationMs / tickMs);
+  watermarkProgressValueInternal = 0;
+
+  watermarkTimer = setInterval(() => {
+    const jitter = Math.random() * 1.1;
+    watermarkProgressValueInternal = Math.min(100, watermarkProgressValueInternal + baseStep + jitter);
+    renderWatermarkState(watermarkProgressValueInternal);
+
+    if (watermarkProgressValueInternal >= 100) {
+      stopWatermarkSimulation();
+      showWatermarkCompleteView();
+      showLoginToast("워터마크 삽입이 완료되었습니다.", 1900);
+    }
+  }, tickMs);
+}
+
+function stopMintSimulation() {
+  if (!mintTimer) return;
+  clearInterval(mintTimer);
+  mintTimer = null;
+}
+
+function renderMintState(progress, forcedStatusMap = null) {
+  const clampedProgress = Math.max(0, Math.min(100, Number(progress) || 0));
+  mintProgressValueInternal = clampedProgress;
+
+  if (mintProgressRing) {
+    mintProgressRing.style.setProperty("--progress", clampedProgress.toFixed(2));
+  }
+  if (mintProgressValue) {
+    mintProgressValue.textContent = `${Math.round(clampedProgress)}%`;
+  }
+
+  let currentStageLabel = "토큰 발행 작업 대기 중입니다.";
+
+  mintSteps.forEach((step, index) => {
+    const stage = mintStageConfig[index];
+    if (!stage) return;
+
+    const forcedStatus = forcedStatusMap?.[stage.key];
+    const status = forcedStatus || getStageStatus(clampedProgress, stage);
+
+    step.classList.toggle("is-done", status === "done");
+    step.classList.toggle("is-running", status === "running");
+    step.classList.toggle("is-pending", status === "pending");
+
+    const stateNode = step.querySelector(".mint-step-state");
+    if (stateNode) stateNode.textContent = `[${getStageStatusLabel(status)}]`;
+
+    if (status === "running") currentStageLabel = `${stage.label}을(를) 진행 중입니다.`;
+  });
+
+  if (clampedProgress >= 100) {
+    currentStageLabel = "토큰 발행이 완료되었습니다.";
+  }
+
+  if (mintStatusLine) {
+    mintStatusLine.textContent = currentStageLabel;
+  }
+}
+
+function showMintCompleteView() {
+  const fallbackName = analysisResultFileName?.textContent || uploadFileName?.textContent || "sample.png";
+  if (!currentMintRecord) {
+    currentMintRecord = createMockMintRecord(fallbackName);
+  }
+
+  setUploadPreviewMode("mint-complete");
+
+  if (mintCompleteImage) {
+    mintCompleteImage.src = watermarkRenderedUrl || uploadPreviewImage?.src || "";
+  }
+  if (mintFileName) mintFileName.textContent = currentMintRecord.fileName;
+  if (mintCreatedAt) mintCreatedAt.textContent = currentMintRecord.createdAt;
+  if (mintNetwork) mintNetwork.textContent = currentMintRecord.network;
+  if (mintTokenId) mintTokenId.textContent = currentMintRecord.tokenId;
+  if (mintContentHash) mintContentHash.textContent = currentMintRecord.contentHash;
+  if (mintTxHash) mintTxHash.textContent = currentMintRecord.txHash;
+  if (mintWallet) mintWallet.textContent = currentMintRecord.wallet;
+  if (mintMintedAt) mintMintedAt.textContent = currentMintRecord.mintedAt;
+}
+
+function startMintSimulation() {
+  if (!uploadDropzone?.classList.contains("has-file")) return;
+  stopMintSimulation();
+  currentMintRecord = createMockMintRecord(
+    watermarkCompleteFileName?.textContent || analysisResultFileName?.textContent || "sample.png"
+  );
+  setUploadPreviewMode("mint-running");
+  renderMintState(0);
+
+  if (mintRunningImage) {
+    mintRunningImage.src = watermarkRenderedUrl || uploadPreviewImage?.src || "";
+  }
+
+  const totalDurationMs = 7000;
+  const tickMs = 170;
+  const baseStep = 100 / (totalDurationMs / tickMs);
+  mintProgressValueInternal = 0;
+
+  mintTimer = setInterval(() => {
+    const jitter = Math.random() * 1.2;
+    mintProgressValueInternal = Math.min(100, mintProgressValueInternal + baseStep + jitter);
+    renderMintState(mintProgressValueInternal);
+
+    if (mintProgressValueInternal >= 100) {
+      stopMintSimulation();
+      showMintCompleteView();
+      showLoginToast("NFT 토큰 발행이 완료되었습니다.", 2000);
+    }
+  }, tickMs);
+}
+
 function renderAnalysisState(progress, forcedStatusMap = null) {
   const clampedProgress = Math.max(0, Math.min(100, Number(progress) || 0));
   analysisProgressValueInternal = clampedProgress;
@@ -913,6 +1306,57 @@ window.applyRegistrationAnalysis = applyAnalysisProgress;
 window.applyRegistrationResult = (mode) => {
   showAnalysisResult(mode);
 };
+
+window.applyWatermarkProgress = (payload) => {
+  const progress = Number(payload?.progress);
+  if (!Number.isFinite(progress)) return;
+  stopWatermarkSimulation();
+  const isFinished = progress >= 100 || payload?.phase === "result";
+
+  if (isFinished) {
+    renderWatermarkState(100, payload?.stageStatus ?? null);
+    showWatermarkCompleteView();
+    return;
+  }
+
+  setUploadPreviewMode("wm-running");
+  renderWatermarkState(progress, payload?.stageStatus ?? null);
+};
+
+window.applyWatermarkResult = () => {
+  stopWatermarkSimulation();
+  renderWatermarkState(100);
+  showWatermarkCompleteView();
+};
+
+window.applyMintProgress = (payload) => {
+  const progress = Number(payload?.progress);
+  if (!Number.isFinite(progress)) return;
+  stopMintSimulation();
+  const isFinished = progress >= 100 || payload?.phase === "result";
+
+  if (payload?.record && typeof payload.record === "object") {
+    currentMintRecord = { ...currentMintRecord, ...payload.record };
+  }
+
+  if (isFinished) {
+    renderMintState(100, payload?.stageStatus ?? null);
+    showMintCompleteView();
+    return;
+  }
+
+  setUploadPreviewMode("mint-running");
+  renderMintState(progress, payload?.stageStatus ?? null);
+};
+
+window.applyMintResult = (record = null) => {
+  stopMintSimulation();
+  if (record && typeof record === "object") {
+    currentMintRecord = { ...currentMintRecord, ...record };
+  }
+  renderMintState(100);
+  showMintCompleteView();
+};
 window.applyRegistrationCandidate = (candidate) => {
   if (!candidate) return;
   const candidateUrl = candidate.imageUrl || candidate.url || "";
@@ -976,6 +1420,12 @@ function setUploadState(file) {
   if (!uploadDropzone || !uploadPreview || !uploadEmpty) return;
   if (!file) {
     stopAnalysisSimulation();
+    stopWatermarkSimulation();
+    stopMintSimulation();
+    watermarkBuildToken += 1;
+    revokeWatermarkRenderedUrl();
+    watermarkDownloadName = "sample_watermarked.png";
+    currentMintRecord = null;
     uploadDropzone.classList.remove("has-file");
     uploadEmpty.hidden = false;
     uploadPreview.hidden = true;
@@ -987,15 +1437,33 @@ function setUploadState(file) {
     if (analysisResultImage) analysisResultImage.removeAttribute("src");
     if (analysisResultOriginImage) analysisResultOriginImage.removeAttribute("src");
     if (analysisResultCandidateImage) analysisResultCandidateImage.removeAttribute("src");
+    if (watermarkRunningImage) watermarkRunningImage.removeAttribute("src");
+    if (watermarkCompleteOriginalImage) watermarkCompleteOriginalImage.removeAttribute("src");
+    if (watermarkCompleteResultImage) watermarkCompleteResultImage.removeAttribute("src");
+    if (mintRunningImage) mintRunningImage.removeAttribute("src");
+    if (mintCompleteImage) mintCompleteImage.removeAttribute("src");
     if (uploadFileName) uploadFileName.textContent = "sample.png";
     if (uploadFileMeta) uploadFileMeta.textContent = "0 KB · 준비 완료";
     if (analysisResultFileName) analysisResultFileName.textContent = "sample.png";
     if (analysisResultFileMeta) analysisResultFileMeta.textContent = "0 KB · 2026.03.07 00:00";
+    if (watermarkCompleteFileName) watermarkCompleteFileName.textContent = "sample.png";
+    if (watermarkCompleteFileMeta) watermarkCompleteFileMeta.textContent = "0 KB · 준비 완료";
+    if (mintFileName) mintFileName.textContent = "sample.png";
+    if (mintCreatedAt) mintCreatedAt.textContent = "2026.03.17 00:00";
+    if (mintNetwork) mintNetwork.textContent = "Polygon";
+    if (mintTokenId) mintTokenId.textContent = "#82401";
+    if (mintContentHash) mintContentHash.textContent = "0x9a8b...7c6d";
+    if (mintTxHash) mintTxHash.textContent = "0x1f2e...3d4c";
+    if (mintWallet) mintWallet.textContent = "0xAb58...E12a";
+    if (mintMintedAt) mintMintedAt.textContent = "2026.03.17 00:00 UTC";
     if (analysisRejectSourceLabel) analysisRejectSourceLabel.textContent = "업로드 원본 · sample.png";
     if (analysisRejectCandidateLabel) {
       analysisRejectCandidateLabel.textContent = "유사 후보 · concept_scene.jpg";
     }
     if (resultModeConfig.reject) resultModeConfig.reject.candidateName = "concept_scene.jpg";
+    renderWatermarkState(0);
+    renderMintState(0);
+    setWatermarkCardLayoutByRatio(1);
     mockCandidateImageUrl = "";
     return;
   }
@@ -1017,11 +1485,22 @@ function setUploadState(file) {
   }
 
   uploadPreviewUrl = URL.createObjectURL(file);
+  watermarkBuildToken += 1;
+  revokeWatermarkRenderedUrl();
+  watermarkDownloadName = toWatermarkedFileName(file.name);
   stopAnalysisSimulation();
+  stopWatermarkSimulation();
+  stopMintSimulation();
+  currentMintRecord = null;
   if (uploadPreviewImage) uploadPreviewImage.src = uploadPreviewUrl;
   if (analysisPreviewImage) analysisPreviewImage.src = uploadPreviewUrl;
   if (analysisResultImage) analysisResultImage.src = uploadPreviewUrl;
   if (analysisResultOriginImage) analysisResultOriginImage.src = uploadPreviewUrl;
+  if (watermarkRunningImage) watermarkRunningImage.src = uploadPreviewUrl;
+  if (watermarkCompleteOriginalImage) watermarkCompleteOriginalImage.src = uploadPreviewUrl;
+  if (watermarkCompleteResultImage) watermarkCompleteResultImage.src = uploadPreviewUrl;
+  if (mintRunningImage) mintRunningImage.src = uploadPreviewUrl;
+  if (mintCompleteImage) mintCompleteImage.src = uploadPreviewUrl;
   if (analysisResultCandidateImage) {
     analysisResultCandidateImage.src = mockCandidateImageUrl || uploadPreviewUrl;
   }
@@ -1033,6 +1512,12 @@ function setUploadState(file) {
   if (analysisResultFileMeta && uploadFileMeta) {
     analysisResultFileMeta.textContent = uploadFileMeta.textContent;
   }
+  if (watermarkCompleteFileName) watermarkCompleteFileName.textContent = file.name;
+  if (watermarkCompleteFileMeta && uploadFileMeta) {
+    watermarkCompleteFileMeta.textContent = uploadFileMeta.textContent;
+  }
+  if (mintFileName) mintFileName.textContent = file.name;
+  if (mintCreatedAt) mintCreatedAt.textContent = formatKoreanDateTime(new Date());
   if (analysisRejectSourceLabel) analysisRejectSourceLabel.textContent = `업로드 원본 · ${file.name}`;
   showLoginToast("이미지 업로드가 완료되었습니다.", 1600);
 
@@ -1042,6 +1527,9 @@ function setUploadState(file) {
   setResultMode("allow");
   setUploadPreviewMode("ready");
   renderAnalysisState(0);
+  renderWatermarkState(0);
+  renderMintState(0);
+  buildWatermarkedAsset(uploadPreviewUrl, file.name);
 }
 
 function showAuthPanel(target) {
@@ -1418,11 +1906,15 @@ uploadInput?.addEventListener("change", () => {
 
 changeFileBtn?.addEventListener("click", () => {
   stopAnalysisSimulation();
+  stopWatermarkSimulation();
+  stopMintSimulation();
   uploadInput?.click();
 });
 
 pickAnotherFileBtn?.addEventListener("click", () => {
   stopAnalysisSimulation();
+  stopWatermarkSimulation();
+  stopMintSimulation();
   uploadInput?.click();
 });
 
@@ -1431,18 +1923,24 @@ startRegisterBtn?.addEventListener("click", () => {
     alert("먼저 업로드할 이미지를 선택해주세요.");
     return;
   }
+  stopWatermarkSimulation();
+  stopMintSimulation();
   showLoginToast("저작물 등록 요청이 접수되었습니다.", 2200);
   startAnalysisSimulation();
 });
 
 cancelAnalysisBtn?.addEventListener("click", () => {
   stopAnalysisSimulation();
+  stopWatermarkSimulation();
+  stopMintSimulation();
   setUploadPreviewMode("ready");
   uploadInput?.click();
 });
 
 goHomeBtn?.addEventListener("click", () => {
   stopAnalysisSimulation();
+  stopWatermarkSimulation();
+  stopMintSimulation();
   setActiveTab("home");
 });
 
@@ -1454,7 +1952,13 @@ resultModeButtons.forEach((button) => {
 
 resultPrimaryBtn?.addEventListener("click", () => {
   const config = resultModeConfig[currentResultMode] || resultModeConfig.allow;
+  if (currentResultMode === "allow") {
+    showLoginToast(config.primaryToast, 1500);
+    startWatermarkSimulation();
+    return;
+  }
   if (currentResultMode === "reject") {
+    stopWatermarkSimulation();
     setUploadPreviewMode("ready");
     uploadInput?.click();
     showLoginToast(config.primaryToast, 1800);
@@ -1464,7 +1968,70 @@ resultPrimaryBtn?.addEventListener("click", () => {
 });
 
 resultSecondaryBtn?.addEventListener("click", () => {
+  stopWatermarkSimulation();
+  stopMintSimulation();
   setUploadPreviewMode("ready");
+});
+
+startMintBtn?.addEventListener("click", () => {
+  if (!uploadDropzone?.classList.contains("has-file")) {
+    showLoginToast("먼저 이미지를 업로드해주세요.", 1500);
+    return;
+  }
+  showLoginToast("NFT 토큰 발행을 시작합니다.", 1500);
+  startMintSimulation();
+});
+
+watermarkDownloadBtn?.addEventListener("click", () => {
+  const downloadUrl = watermarkRenderedUrl || watermarkCompleteResultImage?.src || uploadPreviewImage?.src;
+  if (!downloadUrl) {
+    showLoginToast("다운로드할 이미지가 없습니다.", 1500);
+    return;
+  }
+
+  const anchor = document.createElement("a");
+  anchor.href = downloadUrl;
+  anchor.download = watermarkDownloadName || "watermarked_image.png";
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+  showLoginToast("워터마크 이미지를 다운로드했습니다.", 1700);
+});
+
+watermarkCompleteHistoryBtn?.addEventListener("click", () => {
+  stopWatermarkSimulation();
+  stopMintSimulation();
+  setActiveTab("history");
+});
+
+watermarkCompleteUploadBtn?.addEventListener("click", () => {
+  stopWatermarkSimulation();
+  stopMintSimulation();
+  setUploadPreviewMode("ready");
+  uploadInput?.click();
+});
+
+mintCopyUrlBtn?.addEventListener("click", () => {
+  const explorerUrl = currentMintRecord?.explorerUrl;
+  if (!explorerUrl) {
+    showLoginToast("복사할 블록체인 URL이 없습니다.", 1500);
+    return;
+  }
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(explorerUrl).catch(() => {});
+  }
+  showLoginToast("블록체인 URL을 복사했습니다.", 1700);
+});
+
+mintGoHistoryBtn?.addEventListener("click", () => {
+  stopMintSimulation();
+  setActiveTab("history");
+});
+
+mintUploadAgainBtn?.addEventListener("click", () => {
+  stopMintSimulation();
+  setUploadPreviewMode("ready");
+  uploadInput?.click();
 });
 
 langSwitches.forEach(({ root, trigger, menu }) => {
@@ -1586,6 +2153,17 @@ document.addEventListener("click", (event) => {
   if (!clickedInsideSwitch) {
     closeAllLanguageMenus();
   }
+});
+
+window.addEventListener("beforeunload", () => {
+  stopAnalysisSimulation();
+  stopWatermarkSimulation();
+  stopMintSimulation();
+  if (uploadPreviewUrl) {
+    URL.revokeObjectURL(uploadPreviewUrl);
+    uploadPreviewUrl = null;
+  }
+  revokeWatermarkRenderedUrl();
 });
 
 setLoggedOutUI();

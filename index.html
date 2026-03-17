@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VeriMarka | 디지털 자산 신뢰 시스템</title>
-    <link rel="stylesheet" href="./styles.css?v=202603141810" />
+    <link rel="stylesheet" href="./styles.css?v=202603171730" />
   </head>
   <body>
     <div class="aurora aurora-a"></div>
@@ -371,6 +371,194 @@
                       </section>
                     </div>
                   </div>
+
+                  <div class="watermark-running-view" id="watermarkRunningView" hidden>
+                    <h3 class="watermark-running-title">워터마크를 삽입하고 있습니다.</h3>
+                    <p class="watermark-running-subtitle" id="watermarkStatusLine">
+                      해시 생성 및 토큰 발행 준비를 진행 중입니다.
+                    </p>
+
+                    <div class="watermark-running-layout">
+                      <article class="watermark-preview-card">
+                        <img id="watermarkRunningImage" alt="워터마크 처리 중 이미지" />
+                        <div class="watermark-progress-overlay">
+                          <div class="watermark-progress-ring" id="watermarkProgressRing" style="--progress: 0">
+                            <span id="watermarkProgressValue">0%</span>
+                          </div>
+                        </div>
+                      </article>
+
+                      <aside class="watermark-timeline-card">
+                        <ol class="watermark-step-list">
+                          <li class="watermark-step" data-stage="wm-embed">
+                            <span class="watermark-step-dot" aria-hidden="true"></span>
+                            <p class="watermark-step-title">
+                              <strong class="watermark-step-state">[대기]</strong>
+                              워터마크 삽입 완료
+                            </p>
+                          </li>
+                          <li class="watermark-step" data-stage="wm-hash">
+                            <span class="watermark-step-dot" aria-hidden="true"></span>
+                            <p class="watermark-step-title">
+                              <strong class="watermark-step-state">[대기]</strong>
+                              해시 생성
+                            </p>
+                          </li>
+                          <li class="watermark-step" data-stage="wm-token">
+                            <span class="watermark-step-dot" aria-hidden="true"></span>
+                            <p class="watermark-step-title">
+                              <strong class="watermark-step-state">[대기]</strong>
+                              토큰 발행 준비
+                            </p>
+                          </li>
+                        </ol>
+                        <p class="watermark-running-note">
+                          처리가 완료되면 결과 화면으로 자동 전환됩니다.
+                        </p>
+                      </aside>
+                    </div>
+                  </div>
+
+                  <div class="watermark-complete-view" id="watermarkCompleteView" hidden>
+                    <span class="watermark-complete-chip">COMPLETE</span>
+                    <h3 class="watermark-complete-title">워터마크 삽입이 완료되었습니다.</h3>
+                    <p class="watermark-complete-subtitle">원본과 삽입 결과를 좌우로 비교해보세요.</p>
+
+                    <div class="watermark-compare-layout">
+                      <article class="watermark-compare-card" id="watermarkOriginalCard">
+                        <div class="watermark-compare-head">
+                          <h4>원본 이미지</h4>
+                          <span class="watermark-pill">Original</span>
+                        </div>
+                        <div class="watermark-compare-frame">
+                          <img id="watermarkCompleteOriginalImage" alt="원본 이미지" />
+                        </div>
+                      </article>
+
+                      <article class="watermark-compare-card is-result" id="watermarkResultCard">
+                        <div class="watermark-compare-head">
+                          <h4>워터마크 삽입 결과</h4>
+                          <span class="watermark-pill is-result">Watermarked</span>
+                        </div>
+                        <div class="watermark-compare-frame">
+                          <img id="watermarkCompleteResultImage" alt="워터마크 삽입 이미지" />
+                          <span class="watermark-overlay-tag">VeriMarka Watermark</span>
+                        </div>
+                      </article>
+                    </div>
+
+                    <div class="watermark-complete-meta">
+                      <strong id="watermarkCompleteFileName">sample.png</strong>
+                      <span id="watermarkCompleteFileMeta">0 KB · 준비 완료</span>
+                    </div>
+
+                    <div class="watermark-complete-actions">
+                      <button class="btn btn-primary" id="startMintBtn" type="button">
+                        NFT 토큰 발행하기
+                      </button>
+                      <button class="btn btn-primary" id="watermarkDownloadBtn" type="button">
+                        워터마크 이미지 다운로드
+                      </button>
+                      <button class="btn btn-secondary" id="watermarkCompleteHistoryBtn" type="button">
+                        분석 기록 보기
+                      </button>
+                      <button class="btn btn-secondary" id="watermarkCompleteUploadBtn" type="button">
+                        다른 이미지 업로드
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="mint-running-view" id="mintRunningView" hidden>
+                    <h3 class="mint-running-title">NFT 토큰 발행을 진행하고 있습니다.</h3>
+                    <p class="mint-running-subtitle" id="mintStatusLine">
+                      블록체인 네트워크에 기록을 저장하는 중입니다.
+                    </p>
+
+                    <div class="mint-running-layout">
+                      <article class="mint-preview-card">
+                        <img id="mintRunningImage" alt="토큰 발행 처리 중 이미지" />
+                        <div class="mint-progress-overlay">
+                          <div class="mint-progress-ring" id="mintProgressRing" style="--progress: 0">
+                            <span id="mintProgressValue">0%</span>
+                          </div>
+                        </div>
+                      </article>
+
+                      <aside class="mint-timeline-card">
+                        <ol class="mint-step-list">
+                          <li class="mint-step">
+                            <span class="mint-step-dot" aria-hidden="true"></span>
+                            <p class="mint-step-title">
+                              <strong class="mint-step-state">[대기]</strong>
+                              메타데이터 구성
+                            </p>
+                          </li>
+                          <li class="mint-step">
+                            <span class="mint-step-dot" aria-hidden="true"></span>
+                            <p class="mint-step-title">
+                              <strong class="mint-step-state">[대기]</strong>
+                              스마트컨트랙트 호출
+                            </p>
+                          </li>
+                          <li class="mint-step">
+                            <span class="mint-step-dot" aria-hidden="true"></span>
+                            <p class="mint-step-title">
+                              <strong class="mint-step-state">[대기]</strong>
+                              트랜잭션 확정 대기
+                            </p>
+                          </li>
+                        </ol>
+                        <p class="mint-running-note">
+                          네트워크 상태에 따라 소요 시간이 달라질 수 있습니다.
+                        </p>
+                      </aside>
+                    </div>
+                  </div>
+
+                  <div class="mint-complete-view" id="mintCompleteView" hidden>
+                    <span class="mint-complete-chip">MINTED</span>
+                    <h3 class="mint-complete-title">토큰 발행이 완료되었습니다.</h3>
+                    <p class="mint-complete-subtitle">콘텐츠가 블록체인에 안전하게 기록되었습니다.</p>
+
+                    <div class="mint-complete-grid">
+                      <article class="mint-complete-card">
+                        <h4>저작물 정보</h4>
+                        <div class="mint-image-frame">
+                          <img id="mintCompleteImage" alt="발행 완료 이미지" />
+                        </div>
+                        <div class="mint-meta-list">
+                          <div><span>파일명</span><strong id="mintFileName">sample.png</strong></div>
+                          <div><span>등록 일시</span><strong id="mintCreatedAt">2026.03.17 00:00</strong></div>
+                          <div><span>워터마크 모델</span><strong>WAM (Watson AI Model)</strong></div>
+                          <div><span>워터마크 버전</span><strong>v2.1.0</strong></div>
+                        </div>
+                      </article>
+
+                      <article class="mint-complete-card">
+                        <h4>블록체인 기록 데이터</h4>
+                        <div class="mint-meta-list">
+                          <div><span>네트워크명</span><strong id="mintNetwork">Polygon</strong></div>
+                          <div><span>Token ID</span><strong id="mintTokenId">#82401</strong></div>
+                          <div><span>Content Hash</span><strong id="mintContentHash">0x9a8b...7c6d</strong></div>
+                          <div><span>Transaction Hash</span><strong id="mintTxHash">0x1f2e...3d4c</strong></div>
+                          <div><span>지갑 주소</span><strong id="mintWallet">0xAb58...E12a</strong></div>
+                          <div><span>발행 일시</span><strong id="mintMintedAt">2026.03.17 00:00 UTC</strong></div>
+                        </div>
+
+                        <div class="mint-complete-actions">
+                          <button class="btn btn-primary" id="mintCopyUrlBtn" type="button">
+                            블록체인 URL 복사
+                          </button>
+                          <button class="btn btn-secondary" id="mintGoHistoryBtn" type="button">
+                            기록으로 돌아가기
+                          </button>
+                          <button class="btn btn-secondary" id="mintUploadAgainBtn" type="button">
+                            다른 이미지 업로드
+                          </button>
+                        </div>
+                      </article>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -702,6 +890,6 @@
       </div>
     </div>
 
-    <script src="./app.js?v=202603141810"></script>
+    <script src="./app.js?v=202603171730"></script>
   </body>
 </html>
