@@ -4,13 +4,15 @@ const pageByTab = {
   add: "page-add",
   mypage: "page-mypage",
   verify: "page-home",
-  history: "page-history"
+  history: "page-history",
+  admin: "page-admin"
 };
 const appPages = {
   home: document.getElementById("page-home"),
   add: document.getElementById("page-add"),
   history: document.getElementById("page-history"),
-  mypage: document.getElementById("page-mypage")
+  mypage: document.getElementById("page-mypage"),
+  admin: document.getElementById("page-admin")
 };
 const quickTabButtons = document.querySelectorAll("[data-go-tab]");
 
@@ -47,6 +49,8 @@ function setActiveTab(tabName) {
     stopWatermarkSimulation();
     stopMintSimulation();
   }
+
+  document.body.classList.toggle("admin-mode", normalizedTab === "admin");
 }
 
 tabs.forEach((tab) => {
@@ -130,6 +134,7 @@ const watermarkProgressRing = document.getElementById("watermarkProgressRing");
 const watermarkProgressValue = document.getElementById("watermarkProgressValue");
 const watermarkStatusLine = document.getElementById("watermarkStatusLine");
 const watermarkSteps = Array.from(document.querySelectorAll(".watermark-step"));
+const watermarkCompareLayout = document.getElementById("watermarkCompareLayout");
 const mintRunningImage = document.getElementById("mintRunningImage");
 const mintProgressRing = document.getElementById("mintProgressRing");
 const mintProgressValue = document.getElementById("mintProgressValue");
@@ -197,6 +202,47 @@ const historyDetailSubtitle = document.getElementById("historyDetailSubtitle");
 const historyDetailGrid = document.getElementById("historyDetailGrid");
 const historyDetailPrimaryBtn = document.getElementById("historyDetailPrimaryBtn");
 const historyBackToListBtn = document.getElementById("historyBackToListBtn");
+const adminViewTitle = document.getElementById("adminViewTitle");
+const adminViewButtons = document.querySelectorAll("[data-admin-view]");
+const adminSoonButtons = document.querySelectorAll("[data-admin-soon]");
+const adminViews = {
+  dashboard: document.getElementById("admin-dashboard-view"),
+  users: document.getElementById("admin-users-view"),
+  userDetail: document.getElementById("admin-user-detail-view"),
+  images: document.getElementById("admin-images-view"),
+  imageDetail: document.getElementById("admin-image-detail-view")
+};
+const adminUserSearchInput = document.getElementById("adminUserSearchInput");
+const adminUserSearchBtn = document.getElementById("adminUserSearchBtn");
+const adminUserTableBody = document.getElementById("adminUserTableBody");
+const adminBackToUsersBtn = document.getElementById("adminBackToUsersBtn");
+const adminUserDetailEmail = document.getElementById("adminUserDetailEmail");
+const adminUserDetailStatus = document.getElementById("adminUserDetailStatus");
+const adminUserBasicInfo = document.getElementById("adminUserBasicInfo");
+const adminUserAuthInfo = document.getElementById("adminUserAuthInfo");
+const adminUserWalletInfo = document.getElementById("adminUserWalletInfo");
+const adminUserLogTable = document.getElementById("adminUserLogTable");
+const adminImageSearchInput = document.getElementById("adminImageSearchInput");
+const adminImageStatusFilter = document.getElementById("adminImageStatusFilter");
+const adminImageSearchBtn = document.getElementById("adminImageSearchBtn");
+const adminImageTableBody = document.getElementById("adminImageTableBody");
+const adminBackToImagesBtn = document.getElementById("adminBackToImagesBtn");
+const adminImageDetailName = document.getElementById("adminImageDetailName");
+const adminImageDetailStatus = document.getElementById("adminImageDetailStatus");
+const adminImageOriginalThumb = document.getElementById("adminImageOriginalThumb");
+const adminImageWatermarkedThumb = document.getElementById("adminImageWatermarkedThumb");
+const adminImageMetrics = document.getElementById("adminImageMetrics");
+const adminImageVoteInfo = document.getElementById("adminImageVoteInfo");
+const adminImageChainInfo = document.getElementById("adminImageChainInfo");
+const adminActivityFeed = document.getElementById("adminActivityFeed");
+const adminTotalUsers = document.getElementById("adminTotalUsers");
+const adminVerifiedUsers = document.getElementById("adminVerifiedUsers");
+const adminEligibleUsers = document.getElementById("adminEligibleUsers");
+const adminTotalImages = document.getElementById("adminTotalImages");
+const adminTodayUploads = document.getElementById("adminTodayUploads");
+const adminVotingActive = document.getElementById("adminVotingActive");
+const adminVotingClosed = document.getElementById("adminVotingClosed");
+const adminPendingReview = document.getElementById("adminPendingReview");
 const footerLangLabel = document.getElementById("footerLangLabel");
 const langOptions = document.querySelectorAll(".lang-option");
 const langSwitches = Array.from(document.querySelectorAll("[data-lang-switch]")).map((root) => ({
@@ -229,6 +275,12 @@ let identityCountdownTimer = null;
 let currentHistoryFilter = "all";
 let selectedHistoryRecordId = null;
 let currentHistoryDetailId = null;
+let currentAdminView = "dashboard";
+let selectedAdminUserId = null;
+let selectedAdminImageId = null;
+let adminUserKeyword = "";
+let adminImageKeyword = "";
+let adminImageFilter = "all";
 const defaultMypagePhone = "010-1234-5678";
 const defaultMypageEmail = "user@verimarka.com";
 const defaultMypageNickname = "VeriMarka 사용자";
@@ -430,6 +482,181 @@ const historyRecords = [
       participants: "참여자 22명"
     }
   }
+];
+const adminUsers = [
+  {
+    id: "1",
+    email: "test@watson.com",
+    nickname: "유저",
+    role: "일반회원",
+    verified: true,
+    nftCount: 5,
+    joinedAt: "2022-10-08 14:27",
+    lastLogin: "2026-03-18 09:15",
+    status: "정상",
+    ip: "192.168.1.x",
+    wallet: "0x9d4f...a9D65E",
+    walletType: "Web3Auth",
+    walletLinkedAt: "2024-04-23",
+    voteEligible: true
+  },
+  {
+    id: "2",
+    email: "junari@watson.com",
+    nickname: "전라이",
+    role: "일반회원",
+    verified: true,
+    nftCount: 2,
+    joinedAt: "2022-10-29 13:11",
+    lastLogin: "2026-03-18 08:41",
+    status: "정상",
+    ip: "172.31.25.x",
+    wallet: "0xAB58...E12a",
+    walletType: "Privy",
+    walletLinkedAt: "2024-05-01",
+    voteEligible: false
+  },
+  {
+    id: "3",
+    email: "artist@watson.com",
+    nickname: "표시명",
+    role: "일반회원",
+    verified: true,
+    nftCount: 7,
+    joinedAt: "2022-10-18 11:02",
+    lastLogin: "2026-03-18 08:31",
+    status: "정상",
+    ip: "10.31.4.x",
+    wallet: "0x12ee...2B91",
+    walletType: "Web3Auth",
+    walletLinkedAt: "2024-04-20",
+    voteEligible: true
+  },
+  {
+    id: "4",
+    email: "blocked@watson.com",
+    nickname: "이미지",
+    role: "일반회원",
+    verified: false,
+    nftCount: 0,
+    joinedAt: "2022-10-18 08:35",
+    lastLogin: "2026-03-12 12:56",
+    status: "정지",
+    ip: "211.204.31.x",
+    wallet: "-",
+    walletType: "-",
+    walletLinkedAt: "-",
+    voteEligible: false
+  },
+  {
+    id: "5",
+    email: "review@watson.com",
+    nickname: "표시명",
+    role: "일반회원",
+    verified: true,
+    nftCount: 3,
+    joinedAt: "2022-03-19 16:20",
+    lastLogin: "2026-03-17 16:53",
+    status: "정상",
+    ip: "172.22.9.x",
+    wallet: "0x98ad...12f3",
+    walletType: "Privy",
+    walletLinkedAt: "2024-05-13",
+    voteEligible: true
+  },
+  {
+    id: "6",
+    email: "admin@watson.com",
+    nickname: "관리자",
+    role: "관리자",
+    verified: true,
+    nftCount: 12,
+    joinedAt: "2022-06-19 09:03",
+    lastLogin: "2026-03-17 17:53",
+    status: "정상",
+    ip: "10.11.90.x",
+    wallet: "0x77a1...9f4d",
+    walletType: "Web3Auth",
+    walletLinkedAt: "2024-03-02",
+    voteEligible: true
+  }
+];
+const adminImages = [
+  {
+    id: "82401",
+    fileName: "풍경_최종.png",
+    uploader: "test@watson.com",
+    uploadedAt: "2026-02-26",
+    status: "allow",
+    voteStatus: "진행중",
+    thumbClass: "thumb-illustration",
+    metrics: { embedding: 12, phash: 5, threshold: 85, decision: "등록 가능" },
+    vote: { state: "진행 중", id: "VOTE-82401", yes: 60, no: 40, remain: "D-2" },
+    chain: {
+      tokenId: "#82401",
+      txHash: "0x9a8b...7c6d",
+      blockNumber: "18402931",
+      mintedAt: "2026-02-26 14:35"
+    }
+  },
+  {
+    id: "82396",
+    fileName: "캐릭터_A.png",
+    uploader: "user@example.com",
+    uploadedAt: "2026-02-24",
+    status: "review",
+    voteStatus: "진행중",
+    thumbClass: "thumb-owl",
+    metrics: { embedding: 74, phash: 41, threshold: 85, decision: "검토 필요" },
+    vote: { state: "진행 중", id: "VOTE-82396", yes: 47, no: 53, remain: "D-1" },
+    chain: {
+      tokenId: "미발행",
+      txHash: "-",
+      blockNumber: "-",
+      mintedAt: "-"
+    }
+  },
+  {
+    id: "82374",
+    fileName: "배경이미지.jpg",
+    uploader: "admin@watson.com",
+    uploadedAt: "2026-02-23",
+    status: "block",
+    voteStatus: "종료",
+    thumbClass: "thumb-window",
+    metrics: { embedding: 96, phash: 85, threshold: 85, decision: "등록 차단" },
+    vote: { state: "종료", id: "VOTE-82374", yes: 12, no: 88, remain: "종료" },
+    chain: {
+      tokenId: "차단",
+      txHash: "-",
+      blockNumber: "-",
+      mintedAt: "-"
+    }
+  },
+  {
+    id: "82358",
+    fileName: "자연풍경.png",
+    uploader: "test@watson.com",
+    uploadedAt: "2026-02-22",
+    status: "allow",
+    voteStatus: "진행중",
+    thumbClass: "thumb-illustration",
+    metrics: { embedding: 16, phash: 11, threshold: 85, decision: "등록 가능" },
+    vote: { state: "진행 중", id: "VOTE-82358", yes: 71, no: 29, remain: "D-2" },
+    chain: {
+      tokenId: "#82358",
+      txHash: "0x8f12...ab31",
+      blockNumber: "18401291",
+      mintedAt: "2026-02-22 13:18"
+    }
+  }
+];
+const adminFeedRecords = [
+  "1분 전 · 유저 test@watson.com 소속 인증 승인",
+  "5분 전 · 새 이미지 투표 개시 (VOTE-82401)",
+  "7분 전 · 블록체인 토큰 발행 완료 (#82401)",
+  "10분 전 · 보류 이미지 검토 요청 접수 (캐릭터_A.png)",
+  "14분 전 · 관리자 admin@watson.com 설정 변경"
 ];
 const analysisStageConfig = [
   { key: "embedding", label: "의미 기반 임베딩 분석", start: 0, end: 28 },
@@ -770,6 +997,394 @@ function setupHistoryEvents() {
   historyDetailPrimaryBtn?.addEventListener("click", handleHistoryPrimaryAction);
 }
 
+function formatCount(value = 0) {
+  return Number(value || 0).toLocaleString("ko-KR");
+}
+
+function escapeHtml(value = "") {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function getAdminStatusClass(status = "") {
+  if (status === "allow" || status === "ALLOW") return "allow";
+  if (status === "review" || status === "REVIEW") return "review";
+  if (status === "block" || status === "BLOCK") return "block";
+  if (status === "정상" || status === "활성") return "success";
+  return "pending";
+}
+
+function getAdminStatusLabel(status = "") {
+  if (status === "allow") return "ALLOW";
+  if (status === "review") return "REVIEW";
+  if (status === "block") return "BLOCK";
+  return status || "대기";
+}
+
+function renderDefinitionList(container, rows) {
+  if (!container) return;
+  container.innerHTML = rows
+    .map(
+      (row) => `
+        <div>
+          <dt>${escapeHtml(row.label)}</dt>
+          <dd>${escapeHtml(row.value)}</dd>
+        </div>
+      `
+    )
+    .join("");
+}
+
+function applyThumbClass(element, thumbClass) {
+  if (!element) return;
+  element.classList.remove("thumb-illustration", "thumb-owl", "thumb-window");
+  element.classList.add(thumbClass || "thumb-illustration");
+}
+
+function renderAdminDashboard() {
+  if (adminTotalUsers) adminTotalUsers.textContent = formatCount(28451);
+  if (adminVerifiedUsers) adminVerifiedUsers.textContent = `${formatCount(21890)}명`;
+  if (adminEligibleUsers) adminEligibleUsers.textContent = `${formatCount(12300)}명`;
+  if (adminTotalImages) adminTotalImages.textContent = formatCount(1250911);
+  if (adminTodayUploads) adminTodayUploads.textContent = `${formatCount(18940)}장`;
+  if (adminVotingActive) adminVotingActive.textContent = `${formatCount(21)}건`;
+  if (adminVotingClosed) adminVotingClosed.textContent = `${formatCount(5)}건`;
+  if (adminPendingReview) adminPendingReview.textContent = `${formatCount(18)}건`;
+
+  if (adminActivityFeed) {
+    adminActivityFeed.innerHTML = adminFeedRecords.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  }
+}
+
+function getFilteredAdminUsers() {
+  const keyword = adminUserKeyword.trim().toLowerCase();
+  if (!keyword) return adminUsers;
+  return adminUsers.filter((user) => {
+    return [user.id, user.email, user.nickname, user.role].some((value) =>
+      String(value).toLowerCase().includes(keyword)
+    );
+  });
+}
+
+function renderAdminUserTable() {
+  if (!adminUserTableBody) return;
+  const rows = getFilteredAdminUsers();
+
+  if (!rows.length) {
+    adminUserTableBody.innerHTML =
+      '<tr><td colspan="10" style="text-align:center;color:#6b7d9d;">검색 결과가 없습니다.</td></tr>';
+    return;
+  }
+
+  adminUserTableBody.innerHTML = rows
+    .map((user) => {
+      const verifiedText = user.verified ? "완료" : "미인증";
+      const verifiedClass = user.verified ? "success" : "pending";
+      const userStatusClass = user.status === "정지" ? "block" : "success";
+      return `
+        <tr>
+          <td>${escapeHtml(user.id)}</td>
+          <td>${escapeHtml(user.email)}</td>
+          <td>${escapeHtml(user.nickname)}</td>
+          <td><span class="admin-status-pill ${user.role === "관리자" ? "admin" : "member"}">${escapeHtml(user.role || "일반회원")}</span></td>
+          <td><span class="admin-status-pill ${verifiedClass}">${verifiedText}</span></td>
+          <td>${escapeHtml(String(user.nftCount))}</td>
+          <td>${escapeHtml(user.joinedAt)}</td>
+          <td>${escapeHtml(user.lastLogin)}</td>
+          <td><span class="admin-status-pill ${userStatusClass}">${escapeHtml(user.status)}</span></td>
+          <td><button class="admin-row-btn" type="button" data-admin-open-user="${escapeHtml(user.id)}">보기</button></td>
+        </tr>
+      `;
+    })
+    .join("");
+}
+
+function renderAdminUserDetail(userId) {
+  const user = adminUsers.find((item) => item.id === String(userId)) || adminUsers[0];
+  if (!user) return;
+  selectedAdminUserId = user.id;
+
+  if (adminUserDetailEmail) adminUserDetailEmail.textContent = user.email;
+  if (adminUserDetailStatus) {
+    adminUserDetailStatus.textContent = user.status === "정지" ? "정지" : "활성";
+    adminUserDetailStatus.classList.remove("success", "block", "pending");
+    adminUserDetailStatus.classList.add(user.status === "정지" ? "block" : "success");
+  }
+
+  renderDefinitionList(adminUserBasicInfo, [
+    { label: "이메일", value: user.email },
+    { label: "표시명", value: user.nickname },
+    { label: "권한", value: user.role || "일반회원" },
+    { label: "유저 ID", value: user.id },
+    { label: "가입일", value: user.joinedAt },
+    { label: "마지막 로그인", value: user.lastLogin },
+    { label: "최근 로그인 IP", value: user.ip }
+  ]);
+
+  renderDefinitionList(adminUserAuthInfo, [
+    { label: "본인인증", value: user.verified ? "완료" : "미인증" },
+    { label: "보유 NFT", value: `${user.nftCount}개` },
+    { label: "투표 권한", value: user.voteEligible ? "활성" : "대기" },
+    { label: "계정 상태", value: user.status }
+  ]);
+
+  renderDefinitionList(adminUserWalletInfo, [
+    { label: "지갑 주소", value: user.wallet },
+    { label: "연결 방식", value: user.walletType },
+    { label: "연결일", value: user.walletLinkedAt }
+  ]);
+
+  const relatedLogs = adminImages
+    .filter((image) => image.uploader === user.email)
+    .slice(0, 4)
+    .map(
+      (image) => `
+        <tr>
+          <td>${escapeHtml(image.fileName)}</td>
+          <td>${escapeHtml(getAdminStatusLabel(image.status))}</td>
+          <td>${escapeHtml(image.uploadedAt)}</td>
+        </tr>
+      `
+    )
+    .join("");
+
+  if (adminUserLogTable) {
+    adminUserLogTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>파일명</th>
+            <th>상태</th>
+            <th>날짜</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${
+            relatedLogs ||
+            '<tr><td colspan="3" style="color:#6b7d9d;">최근 로그가 없습니다.</td></tr>'
+          }
+        </tbody>
+      </table>
+    `;
+  }
+}
+
+function getFilteredAdminImages() {
+  const keyword = adminImageKeyword.trim().toLowerCase();
+  return adminImages.filter((image) => {
+    const matchKeyword = !keyword
+      ? true
+      : [image.fileName, image.uploader].some((value) => String(value).toLowerCase().includes(keyword));
+    const matchFilter = adminImageFilter === "all" ? true : image.status === adminImageFilter;
+    return matchKeyword && matchFilter;
+  });
+}
+
+function renderAdminImageTable() {
+  if (!adminImageTableBody) return;
+  const rows = getFilteredAdminImages();
+
+  if (!rows.length) {
+    adminImageTableBody.innerHTML =
+      '<tr><td colspan="7" style="text-align:center;color:#6b7d9d;">검색 결과가 없습니다.</td></tr>';
+    return;
+  }
+
+  adminImageTableBody.innerHTML = rows
+    .map((image) => {
+      const voteClass = image.voteStatus === "진행중" ? "allow" : "pending";
+      return `
+        <tr>
+          <td><div class="admin-thumb ${escapeHtml(image.thumbClass)}" aria-hidden="true"></div></td>
+          <td>${escapeHtml(image.fileName)}</td>
+          <td>${escapeHtml(image.uploader)}</td>
+          <td>${escapeHtml(image.uploadedAt)}</td>
+          <td><span class="admin-status-pill ${getAdminStatusClass(image.status)}">${getAdminStatusLabel(image.status)}</span></td>
+          <td><span class="admin-status-pill ${voteClass}">${escapeHtml(image.voteStatus)}</span></td>
+          <td><button class="admin-row-btn" type="button" data-admin-open-image="${escapeHtml(image.id)}">보기</button></td>
+        </tr>
+      `;
+    })
+    .join("");
+}
+
+function renderAdminImageMetrics(metrics) {
+  if (!adminImageMetrics) return;
+  const rows = [
+    { label: "Embedding 유사도", value: `${metrics.embedding}%`, key: "embedding", className: "" },
+    { label: "pHash 유사도", value: `${metrics.phash}%`, key: "phash", className: "" },
+    { label: "Threshold 결과", value: `${metrics.threshold}%`, key: "threshold", className: "threshold" }
+  ];
+
+  adminImageMetrics.innerHTML = rows
+    .map(
+      (row) => `
+        <div class="admin-metric-row">
+          <span>${row.label}</span>
+          <div class="admin-metric-track ${row.className}"><i style="--value:${row.value}"></i></div>
+          <strong>${row.value}</strong>
+        </div>
+      `
+    )
+    .join("");
+}
+
+function renderAdminImageDetail(imageId) {
+  const image = adminImages.find((item) => item.id === String(imageId)) || adminImages[0];
+  if (!image) return;
+  selectedAdminImageId = image.id;
+
+  if (adminImageDetailName) adminImageDetailName.textContent = image.fileName;
+  if (adminImageDetailStatus) {
+    adminImageDetailStatus.textContent = getAdminStatusLabel(image.status);
+    adminImageDetailStatus.classList.remove("allow", "review", "block");
+    adminImageDetailStatus.classList.add(getAdminStatusClass(image.status));
+  }
+
+  applyThumbClass(adminImageOriginalThumb, image.thumbClass);
+  applyThumbClass(adminImageWatermarkedThumb, image.thumbClass);
+  renderAdminImageMetrics(image.metrics);
+
+  renderDefinitionList(adminImageVoteInfo, [
+    { label: "투표 상태", value: image.vote.state },
+    { label: "투표 ID", value: image.vote.id },
+    { label: "찬성 비율", value: `${image.vote.yes}%` },
+    { label: "반대 비율", value: `${image.vote.no}%` },
+    { label: "남은 기간", value: image.vote.remain }
+  ]);
+
+  renderDefinitionList(adminImageChainInfo, [
+    { label: "Token ID", value: image.chain.tokenId },
+    { label: "Transaction Hash", value: image.chain.txHash },
+    { label: "블록 번호", value: image.chain.blockNumber },
+    { label: "발행일", value: image.chain.mintedAt },
+    { label: "AI 판정", value: image.metrics.decision }
+  ]);
+}
+
+function setAdminView(view) {
+  const viewMap = {
+    dashboard: "dashboard",
+    users: "users",
+    userDetail: "userDetail",
+    images: "images",
+    imageDetail: "imageDetail"
+  };
+  const safeView = viewMap[view] ? view : "dashboard";
+  currentAdminView = safeView;
+
+  Object.entries(adminViews).forEach(([key, node]) => {
+    if (!node) return;
+    const isTarget = key === safeView;
+    node.hidden = !isTarget;
+    node.classList.toggle("is-active", isTarget);
+  });
+
+  const navFocus = safeView === "userDetail" ? "users" : safeView === "imageDetail" ? "images" : safeView;
+  adminViewButtons.forEach((button) => {
+    if (!button.classList.contains("admin-nav-btn")) return;
+    button.classList.toggle("is-active", button.dataset.adminView === navFocus);
+  });
+
+  const titleMap = {
+    dashboard: "운영 현황",
+    users: "유저 관리",
+    userDetail: "유저 상세",
+    images: "이미지 관리",
+    imageDetail: "이미지 상세"
+  };
+  if (adminViewTitle) adminViewTitle.textContent = titleMap[safeView] || "관리자";
+}
+
+function setupAdminEvents() {
+  adminViewButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const target = button.dataset.adminView || "dashboard";
+      if (target === "userDetail") {
+        renderAdminUserDetail(selectedAdminUserId || adminUsers[0]?.id);
+      }
+      if (target === "imageDetail") {
+        renderAdminImageDetail(selectedAdminImageId || adminImages[0]?.id);
+      }
+      setAdminView(target);
+    });
+  });
+
+  adminSoonButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      showLoginToast("해당 관리자 메뉴는 준비 중입니다.", 1600);
+    });
+  });
+
+  adminUserSearchBtn?.addEventListener("click", () => {
+    adminUserKeyword = adminUserSearchInput?.value || "";
+    renderAdminUserTable();
+  });
+
+  adminUserSearchInput?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") return;
+    adminUserKeyword = adminUserSearchInput?.value || "";
+    renderAdminUserTable();
+  });
+
+  adminUserTableBody?.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const openButton = target.closest("[data-admin-open-user]");
+    if (!openButton) return;
+    const userId = openButton.getAttribute("data-admin-open-user");
+    if (!userId) return;
+    renderAdminUserDetail(userId);
+    setAdminView("userDetail");
+  });
+
+  adminBackToUsersBtn?.addEventListener("click", () => {
+    setAdminView("users");
+  });
+
+  adminImageSearchBtn?.addEventListener("click", () => {
+    adminImageKeyword = adminImageSearchInput?.value || "";
+    adminImageFilter = adminImageStatusFilter?.value || "all";
+    renderAdminImageTable();
+  });
+
+  adminImageSearchInput?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") return;
+    adminImageKeyword = adminImageSearchInput?.value || "";
+    adminImageFilter = adminImageStatusFilter?.value || "all";
+    renderAdminImageTable();
+  });
+
+  adminImageStatusFilter?.addEventListener("change", () => {
+    adminImageFilter = adminImageStatusFilter.value || "all";
+    renderAdminImageTable();
+  });
+
+  adminImageTableBody?.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const openButton = target.closest("[data-admin-open-image]");
+    if (!openButton) return;
+    const imageId = openButton.getAttribute("data-admin-open-image");
+    if (!imageId) return;
+    renderAdminImageDetail(imageId);
+    setAdminView("imageDetail");
+  });
+
+  adminBackToImagesBtn?.addEventListener("click", () => {
+    setAdminView("images");
+  });
+
+  const openSiteButton = document.querySelector("[data-admin-open-site]");
+  openSiteButton?.addEventListener("click", () => {
+    setActiveTab("home");
+  });
+}
+
 function formatFileSize(bytes) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -837,6 +1452,11 @@ function setWatermarkCardLayoutByRatio(ratio) {
     card.classList.remove("is-portrait", "is-landscape", "is-square");
     card.classList.add(`is-${mode}`);
   });
+
+  if (watermarkCompareLayout) {
+    watermarkCompareLayout.classList.remove("mode-portrait", "mode-landscape", "mode-square");
+    watermarkCompareLayout.classList.add(`mode-${mode}`);
+  }
 }
 
 function loadImageFromUrl(url) {
@@ -2171,5 +2791,13 @@ setLanguage(currentLanguage);
 setupHistoryEvents();
 renderHistoryList();
 closeHistoryDetail();
+renderAdminDashboard();
+renderAdminUserTable();
+renderAdminImageTable();
+renderAdminUserDetail(adminUsers[0]?.id);
+renderAdminImageDetail(adminImages[0]?.id);
+setupAdminEvents();
+setAdminView("dashboard");
 setResultMode("allow");
+setWatermarkCardLayoutByRatio(1);
 setActiveTab("home");
