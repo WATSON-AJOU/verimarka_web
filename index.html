@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VeriMarka | 디지털 자산 신뢰 시스템</title>
-    <link rel="stylesheet" href="./styles.css?v=202603181245" />
+    <link rel="stylesheet" href="./styles.css?v=202603142105" />
   </head>
   <body>
     <div class="aurora aurora-a"></div>
@@ -20,7 +20,6 @@
             <button class="tab" data-tab="add">저작물 등록</button>
             <button class="tab" data-tab="verify">저작물 검증</button>
             <button class="tab" data-tab="history">분석 기록</button>
-            <button class="tab" data-tab="admin">관리자</button>
           </nav>
           <div class="auth-slot">
             <div class="guest-actions" id="guestActions">
@@ -59,38 +58,58 @@
 
       <main>
         <section class="app-page is-active" id="page-home">
-          <section class="hero reveal">
-            <div class="hero-text">
-              <p class="headline-kicker">저작물 등록, 저작물 검증</p>
-              <h1>디지털 자산의 진위를 증명하세요.</h1>
-              <p class="hero-subtitle">
-                AI 유사도 분석과 블록체인 기반 신뢰 기록을 결합한 검증 시스템으로,
-                창작물의 출처와 신뢰도를 빠르게 확인합니다.
+          <div class="home-scroll">
+            <section class="home-panel home-hero-panel reveal">
+              <h1>디지털 자산 신뢰의 기준을 만듭니다.</h1>
+              <p>
+                비가시 워터마크, AI 유사도 분석, 블록체인 기록을 연결해
+                창작물 등록부터 검증까지 하나의 흐름으로 제공합니다.
               </p>
-              <div class="cta-row">
+              <div class="home-hero-actions">
                 <button class="btn btn-primary" type="button" data-go-tab="add">
                   저작물 등록하기
                 </button>
                 <button class="btn btn-secondary" type="button">저작물 검증하기</button>
               </div>
-            </div>
-            <div class="hero-art" aria-hidden="true">
-              <img src="./assets/veri.png" alt="" />
-            </div>
-          </section>
+            </section>
 
-          <section class="dashboard">
-            <section class="activity reveal">
-              <h2>최근 활동</h2>
-              <div class="card-grid">
-                <article class="asset-card">
+            <section class="home-panel home-system-panel reveal">
+              <header class="home-panel-header">
+                <h2>VeriMarka 신뢰 시스템</h2>
+                <p>기록 가능한 근거를 남기는 3중 검증 구조</p>
+              </header>
+              <div class="home-system-grid">
+                <article class="glass-feature">
+                  <span>AI</span>
+                  <h3>의미 기반 유사도 분석</h3>
+                  <p>문맥 특징을 임베딩으로 변환해 실질적 유사도를 판별합니다.</p>
+                </article>
+                <article class="glass-feature">
+                  <span>PX</span>
+                  <h3>픽셀 정밀 비교</h3>
+                  <p>미세 편집과 왜곡을 감지해 조작 징후를 정량적으로 확인합니다.</p>
+                </article>
+                <article class="glass-feature">
+                  <span>BC</span>
+                  <h3>블록체인 신뢰 기록</h3>
+                  <p>등록·검증 결과를 변경 불가능한 형태로 저장해 추적성을 확보합니다.</p>
+                </article>
+              </div>
+            </section>
+
+            <section class="home-panel home-activity-panel reveal">
+              <header class="home-panel-header">
+                <h2>최근 활동</h2>
+                <p>등록과 검토 상태를 빠르게 확인하세요.</p>
+              </header>
+              <div class="home-activity-grid">
+                <article class="glass-activity-card">
                   <span class="badge badge-allow">ALLOW</span>
                   <div class="thumb thumb-illustration"></div>
                   <h3>일러스트_final.jpg</h3>
                   <p>신규 등록 승인 완료 · 저작물 등록됨</p>
                 </article>
-
-                <article class="asset-card">
+                <article class="glass-activity-card">
                   <span class="badge badge-review">REVIEW</span>
                   <div class="thumb thumb-owl"></div>
                   <h3>캐릭터_A.png</h3>
@@ -99,8 +118,7 @@
                     <div class="bar" data-progress="82"></div>
                   </div>
                 </article>
-
-                <article class="asset-card">
+                <article class="glass-activity-card">
                   <span class="badge badge-block">BLOCK</span>
                   <div class="thumb thumb-window"></div>
                   <h3>배경이미지_B.png</h3>
@@ -108,34 +126,7 @@
                 </article>
               </div>
             </section>
-
-            <aside class="trust reveal">
-              <h2>VeriMarka 신뢰 시스템</h2>
-              <ul>
-                <li>
-                  <span class="icon">AI</span>
-                  <div>
-                    <strong>AI 의미 기반 유사도 분석</strong>
-                    <p>문맥 기반 특징 추출로 의미 유사도 측정</p>
-                  </div>
-                </li>
-                <li>
-                  <span class="icon">PX</span>
-                  <div>
-                    <strong>픽셀 수준 정밀 비교</strong>
-                    <p>픽셀 단위 변형 감지로 위조 탐지 강화</p>
-                  </div>
-                </li>
-                <li>
-                  <span class="icon">BC</span>
-                  <div>
-                    <strong>블록체인 기반 신뢰 기록</strong>
-                    <p>검증 이력의 불변성 보장 및 추적 가능</p>
-                  </div>
-                </li>
-              </ul>
-            </aside>
-          </section>
+          </div>
         </section>
 
         <section class="app-page" id="page-add" hidden>
@@ -372,193 +363,6 @@
                       </section>
                     </div>
                   </div>
-
-                  <div class="watermark-running-view" id="watermarkRunningView" hidden>
-                    <h3 class="watermark-running-title">워터마크를 삽입하고 있습니다.</h3>
-                    <p class="watermark-running-subtitle" id="watermarkStatusLine">
-                      해시 생성 및 토큰 발행 준비를 진행 중입니다.
-                    </p>
-
-                    <div class="watermark-running-layout">
-                      <article class="watermark-preview-card">
-                        <img id="watermarkRunningImage" alt="워터마크 처리 중 이미지" />
-                        <div class="watermark-progress-overlay">
-                          <div class="watermark-progress-ring" id="watermarkProgressRing" style="--progress: 0">
-                            <span id="watermarkProgressValue">0%</span>
-                          </div>
-                        </div>
-                      </article>
-
-                      <aside class="watermark-timeline-card">
-                        <ol class="watermark-step-list">
-                          <li class="watermark-step" data-stage="wm-embed">
-                            <span class="watermark-step-dot" aria-hidden="true"></span>
-                            <p class="watermark-step-title">
-                              <strong class="watermark-step-state">[대기]</strong>
-                              워터마크 삽입 완료
-                            </p>
-                          </li>
-                          <li class="watermark-step" data-stage="wm-hash">
-                            <span class="watermark-step-dot" aria-hidden="true"></span>
-                            <p class="watermark-step-title">
-                              <strong class="watermark-step-state">[대기]</strong>
-                              해시 생성
-                            </p>
-                          </li>
-                          <li class="watermark-step" data-stage="wm-token">
-                            <span class="watermark-step-dot" aria-hidden="true"></span>
-                            <p class="watermark-step-title">
-                              <strong class="watermark-step-state">[대기]</strong>
-                              토큰 발행 준비
-                            </p>
-                          </li>
-                        </ol>
-                        <p class="watermark-running-note">
-                          처리가 완료되면 결과 화면으로 자동 전환됩니다.
-                        </p>
-                      </aside>
-                    </div>
-                  </div>
-
-                  <div class="watermark-complete-view" id="watermarkCompleteView" hidden>
-                    <span class="watermark-complete-chip">COMPLETE</span>
-                    <h3 class="watermark-complete-title">워터마크 삽입이 완료되었습니다.</h3>
-                    <p class="watermark-complete-subtitle">원본과 삽입 결과를 좌우로 비교해보세요.</p>
-
-                    <div class="watermark-compare-layout" id="watermarkCompareLayout">
-                      <article class="watermark-compare-card" id="watermarkOriginalCard">
-                        <div class="watermark-compare-head">
-                          <h4>원본 이미지</h4>
-                          <span class="watermark-pill">Original</span>
-                        </div>
-                        <div class="watermark-compare-frame">
-                          <img id="watermarkCompleteOriginalImage" alt="원본 이미지" />
-                        </div>
-                      </article>
-
-                      <article class="watermark-compare-card is-result" id="watermarkResultCard">
-                        <div class="watermark-compare-head">
-                          <h4>워터마크 삽입 결과</h4>
-                          <span class="watermark-pill is-result">Watermarked</span>
-                        </div>
-                        <div class="watermark-compare-frame">
-                          <img id="watermarkCompleteResultImage" alt="워터마크 삽입 이미지" />
-                        </div>
-                      </article>
-                    </div>
-
-                    <div class="watermark-complete-meta">
-                      <strong id="watermarkCompleteFileName">sample.png</strong>
-                      <span id="watermarkCompleteFileMeta">0 KB · 준비 완료</span>
-                    </div>
-
-                    <div class="watermark-complete-actions">
-                      <button class="btn btn-primary" id="startMintBtn" type="button">
-                        NFT 토큰 발행하기
-                      </button>
-                      <button class="btn btn-primary" id="watermarkDownloadBtn" type="button">
-                        워터마크 이미지 다운로드
-                      </button>
-                      <button class="btn btn-secondary" id="watermarkCompleteHistoryBtn" type="button">
-                        분석 기록 보기
-                      </button>
-                      <button class="btn btn-secondary" id="watermarkCompleteUploadBtn" type="button">
-                        다른 이미지 업로드
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="mint-running-view" id="mintRunningView" hidden>
-                    <h3 class="mint-running-title">NFT 토큰 발행을 진행하고 있습니다.</h3>
-                    <p class="mint-running-subtitle" id="mintStatusLine">
-                      블록체인 네트워크에 기록을 저장하는 중입니다.
-                    </p>
-
-                    <div class="mint-running-layout">
-                      <article class="mint-preview-card">
-                        <img id="mintRunningImage" alt="토큰 발행 처리 중 이미지" />
-                        <div class="mint-progress-overlay">
-                          <div class="mint-progress-ring" id="mintProgressRing" style="--progress: 0">
-                            <span id="mintProgressValue">0%</span>
-                          </div>
-                        </div>
-                      </article>
-
-                      <aside class="mint-timeline-card">
-                        <ol class="mint-step-list">
-                          <li class="mint-step">
-                            <span class="mint-step-dot" aria-hidden="true"></span>
-                            <p class="mint-step-title">
-                              <strong class="mint-step-state">[대기]</strong>
-                              메타데이터 구성
-                            </p>
-                          </li>
-                          <li class="mint-step">
-                            <span class="mint-step-dot" aria-hidden="true"></span>
-                            <p class="mint-step-title">
-                              <strong class="mint-step-state">[대기]</strong>
-                              스마트컨트랙트 호출
-                            </p>
-                          </li>
-                          <li class="mint-step">
-                            <span class="mint-step-dot" aria-hidden="true"></span>
-                            <p class="mint-step-title">
-                              <strong class="mint-step-state">[대기]</strong>
-                              트랜잭션 확정 대기
-                            </p>
-                          </li>
-                        </ol>
-                        <p class="mint-running-note">
-                          네트워크 상태에 따라 소요 시간이 달라질 수 있습니다.
-                        </p>
-                      </aside>
-                    </div>
-                  </div>
-
-                  <div class="mint-complete-view" id="mintCompleteView" hidden>
-                    <span class="mint-complete-chip">MINTED</span>
-                    <h3 class="mint-complete-title">토큰 발행이 완료되었습니다.</h3>
-                    <p class="mint-complete-subtitle">콘텐츠가 블록체인에 안전하게 기록되었습니다.</p>
-
-                    <div class="mint-complete-grid">
-                      <article class="mint-complete-card">
-                        <h4>저작물 정보</h4>
-                        <div class="mint-image-frame">
-                          <img id="mintCompleteImage" alt="발행 완료 이미지" />
-                        </div>
-                        <div class="mint-meta-list">
-                          <div><span>파일명</span><strong id="mintFileName">sample.png</strong></div>
-                          <div><span>등록 일시</span><strong id="mintCreatedAt">2026.03.17 00:00</strong></div>
-                          <div><span>워터마크 모델</span><strong>WAM (Watson AI Model)</strong></div>
-                          <div><span>워터마크 버전</span><strong>v2.1.0</strong></div>
-                        </div>
-                      </article>
-
-                      <article class="mint-complete-card">
-                        <h4>블록체인 기록 데이터</h4>
-                        <div class="mint-meta-list">
-                          <div><span>네트워크명</span><strong id="mintNetwork">Polygon</strong></div>
-                          <div><span>Token ID</span><strong id="mintTokenId">#82401</strong></div>
-                          <div><span>Content Hash</span><strong id="mintContentHash">0x9a8b...7c6d</strong></div>
-                          <div><span>Transaction Hash</span><strong id="mintTxHash">0x1f2e...3d4c</strong></div>
-                          <div><span>지갑 주소</span><strong id="mintWallet">0xAb58...E12a</strong></div>
-                          <div><span>발행 일시</span><strong id="mintMintedAt">2026.03.17 00:00 UTC</strong></div>
-                        </div>
-
-                        <div class="mint-complete-actions">
-                          <button class="btn btn-primary" id="mintCopyUrlBtn" type="button">
-                            블록체인 URL 복사
-                          </button>
-                          <button class="btn btn-secondary" id="mintGoHistoryBtn" type="button">
-                            기록으로 돌아가기
-                          </button>
-                          <button class="btn btn-secondary" id="mintUploadAgainBtn" type="button">
-                            다른 이미지 업로드
-                          </button>
-                        </div>
-                      </article>
-                    </div>
-                  </div>
                 </div>
               </div>
             </section>
@@ -651,251 +455,6 @@
                 <button class="btn btn-secondary" id="historyBackToListBtn" type="button">
                   기록으로 돌아가기
                 </button>
-              </div>
-            </div>
-          </section>
-        </section>
-
-        <section class="app-page" id="page-admin" hidden>
-          <section class="admin-shell">
-            <aside class="admin-sidebar">
-              <a class="admin-brand" href="#" aria-label="VeriMarka 관리자 홈">
-                <span class="admin-brand-mark">V</span>
-                <div>
-                  <strong>VeriMarka</strong>
-                  <p>관리자 콘솔</p>
-                </div>
-              </a>
-
-              <nav class="admin-nav" aria-label="관리자 메뉴">
-                <button class="admin-nav-btn is-active" type="button" data-admin-view="dashboard">
-                  홈
-                </button>
-                <button class="admin-nav-btn" type="button" data-admin-view="users">유저</button>
-                <button class="admin-nav-btn" type="button" data-admin-view="images">이미지</button>
-                <button class="admin-nav-btn is-disabled" type="button" data-admin-soon>
-                  투표
-                </button>
-                <button class="admin-nav-btn is-disabled" type="button" data-admin-soon>
-                  소속 인증 신청
-                </button>
-              </nav>
-            </aside>
-
-            <div class="admin-content">
-              <header class="admin-topbar">
-                <h2 id="adminViewTitle">운영 현황</h2>
-                <div class="admin-top-actions">
-                  <button class="admin-top-link" type="button" data-admin-open-site>사이트 보기</button>
-                  <button class="admin-top-link" type="button">설정</button>
-                  <span class="admin-top-user">admin@verimarka.com</span>
-                </div>
-              </header>
-
-              <div class="admin-view is-active" id="admin-dashboard-view">
-                <section class="admin-stat-grid">
-                  <article class="admin-stat-card">
-                    <p>유저 통계</p>
-                    <strong id="adminTotalUsers">28,451</strong>
-                    <span>총 유저 수</span>
-                  </article>
-                  <article class="admin-stat-card">
-                    <p>유저 인증 현황</p>
-                    <ul>
-                      <li>ID 인증 완료: <strong id="adminVerifiedUsers">21,890명</strong></li>
-                      <li>투표 권한 보유: <strong id="adminEligibleUsers">12,300명</strong></li>
-                    </ul>
-                  </article>
-                  <article class="admin-stat-card">
-                    <p>이미지 현황</p>
-                    <strong id="adminTotalImages">1,250,911</strong>
-                    <span>누적 업로드 이미지</span>
-                  </article>
-                  <article class="admin-stat-card">
-                    <p>오늘 업로드</p>
-                    <strong id="adminTodayUploads">18,940장</strong>
-                    <span>최근 24시간 기준</span>
-                  </article>
-                  <article class="admin-stat-card">
-                    <p>투표 진행 상황</p>
-                    <ul>
-                      <li>진행 중: <strong id="adminVotingActive">21건</strong></li>
-                      <li>오늘 종료: <strong id="adminVotingClosed">5건</strong></li>
-                    </ul>
-                  </article>
-                  <article class="admin-stat-card warning">
-                    <p>처리 대기</p>
-                    <strong id="adminPendingReview">18건</strong>
-                    <span>빠른 확인이 필요합니다.</span>
-                  </article>
-                </section>
-
-                <section class="admin-feed-card">
-                  <header>
-                    <h3>최근 활동 피드</h3>
-                    <button class="admin-inline-link" type="button" data-admin-view="users">
-                      유저 관리 보기
-                    </button>
-                  </header>
-                  <ul class="admin-feed-list" id="adminActivityFeed"></ul>
-                </section>
-              </div>
-
-              <div class="admin-view" id="admin-users-view" hidden>
-                <section class="admin-block">
-                  <header class="admin-block-head">
-                    <h3>유저 관리</h3>
-                    <button class="admin-action-btn" type="button">+ ADD USER</button>
-                  </header>
-                  <div class="admin-toolbar">
-                    <input
-                      type="search"
-                      id="adminUserSearchInput"
-                      placeholder="ID, 이메일, 닉네임 검색..."
-                    />
-                    <button class="admin-search-btn" type="button" id="adminUserSearchBtn">검색</button>
-                  </div>
-                  <div class="admin-table-wrap">
-                    <table class="admin-table" aria-label="유저 목록">
-                      <thead>
-                        <tr>
-                          <th>ID</th>
-                          <th>이메일</th>
-                          <th>닉네임</th>
-                          <th>권한</th>
-                          <th>본인인증</th>
-                          <th>NFT</th>
-                          <th>가입일</th>
-                          <th>마지막 로그인</th>
-                          <th>상태</th>
-                          <th>액션</th>
-                        </tr>
-                      </thead>
-                      <tbody id="adminUserTableBody"></tbody>
-                    </table>
-                  </div>
-                </section>
-              </div>
-
-              <div class="admin-view" id="admin-user-detail-view" hidden>
-                <section class="admin-block">
-                  <header class="admin-block-head">
-                    <h3>유저 상세</h3>
-                    <button class="admin-outline-btn" type="button" id="adminBackToUsersBtn">
-                      목록으로
-                    </button>
-                  </header>
-
-                  <div class="admin-detail-summary">
-                    <strong id="adminUserDetailEmail">user@verimarka.com</strong>
-                    <span class="admin-pill success" id="adminUserDetailStatus">활성</span>
-                  </div>
-
-                  <div class="admin-detail-grid">
-                    <article class="admin-detail-card">
-                      <h4>기본 정보</h4>
-                      <dl id="adminUserBasicInfo"></dl>
-                    </article>
-                    <article class="admin-detail-card">
-                      <h4>인증/권한 정보</h4>
-                      <dl id="adminUserAuthInfo"></dl>
-                    </article>
-                    <article class="admin-detail-card">
-                      <h4>연결 지갑 정보</h4>
-                      <dl id="adminUserWalletInfo"></dl>
-                    </article>
-                    <article class="admin-detail-card">
-                      <h4>최근 활동 로그</h4>
-                      <div class="admin-mini-table" id="adminUserLogTable"></div>
-                    </article>
-                  </div>
-                </section>
-              </div>
-
-              <div class="admin-view" id="admin-images-view" hidden>
-                <section class="admin-block">
-                  <header class="admin-block-head">
-                    <h3>이미지 관리</h3>
-                    <button class="admin-action-btn" type="button">+ 이미지 추가</button>
-                  </header>
-                  <div class="admin-toolbar admin-toolbar-images">
-                    <input
-                      type="search"
-                      id="adminImageSearchInput"
-                      placeholder="파일명, 업로더 검색..."
-                    />
-                    <select id="adminImageStatusFilter">
-                      <option value="all">모든 상태</option>
-                      <option value="allow">ALLOW</option>
-                      <option value="review">REVIEW</option>
-                      <option value="block">BLOCK</option>
-                    </select>
-                    <button class="admin-search-btn" type="button" id="adminImageSearchBtn">검색</button>
-                  </div>
-                  <div class="admin-table-wrap">
-                    <table class="admin-table" aria-label="이미지 목록">
-                      <thead>
-                        <tr>
-                          <th>미리보기</th>
-                          <th>파일명</th>
-                          <th>업로더</th>
-                          <th>업로드일</th>
-                          <th>상태</th>
-                          <th>투표 상태</th>
-                          <th>액션</th>
-                        </tr>
-                      </thead>
-                      <tbody id="adminImageTableBody"></tbody>
-                    </table>
-                  </div>
-                </section>
-              </div>
-
-              <div class="admin-view" id="admin-image-detail-view" hidden>
-                <section class="admin-block">
-                  <header class="admin-block-head">
-                    <h3>이미지 상세</h3>
-                    <button class="admin-outline-btn" type="button" id="adminBackToImagesBtn">
-                      목록으로
-                    </button>
-                  </header>
-
-                  <div class="admin-detail-summary">
-                    <strong id="adminImageDetailName">풍경_최종.png</strong>
-                    <span class="admin-pill allow" id="adminImageDetailStatus">ALLOW</span>
-                  </div>
-
-                  <div class="admin-image-detail-grid">
-                    <article class="admin-detail-card">
-                      <h4>이미지 정보</h4>
-                      <div class="admin-compare">
-                        <div class="admin-compare-item">
-                          <p>원본</p>
-                          <div class="admin-thumb thumb-illustration" id="adminImageOriginalThumb"></div>
-                        </div>
-                        <div class="admin-compare-item">
-                          <p>워터마크 결과</p>
-                          <div class="admin-thumb thumb-window" id="adminImageWatermarkedThumb"></div>
-                        </div>
-                      </div>
-                    </article>
-
-                    <article class="admin-detail-card">
-                      <h4>AI 분석 결과</h4>
-                      <div class="admin-metric-list" id="adminImageMetrics"></div>
-                    </article>
-
-                    <article class="admin-detail-card">
-                      <h4>연결된 투표 정보</h4>
-                      <dl id="adminImageVoteInfo"></dl>
-                    </article>
-
-                    <article class="admin-detail-card">
-                      <h4>블록체인 정보</h4>
-                      <dl id="adminImageChainInfo"></dl>
-                    </article>
-                  </div>
-                </section>
               </div>
             </div>
           </section>
@@ -1029,7 +588,6 @@
         </button>
 
         <section class="auth-panel is-active" id="loginPanel" aria-labelledby="loginModalTitle">
-          <img class="login-modal-logo" src="./assets/veri.png" alt="VeriMarka 로고" />
           <h3 id="loginModalTitle">로그인</h3>
           <div class="login-actions">
             <button class="login-action login-google" type="button" data-provider="google">
@@ -1135,6 +693,6 @@
       </div>
     </div>
 
-    <script src="./app.js?v=202603181245"></script>
+    <script src="./app.js?v=202603141810"></script>
   </body>
 </html>
