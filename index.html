@@ -665,11 +665,8 @@
                 </button>
                 <button class="admin-nav-btn" type="button" data-admin-view="users">유저</button>
                 <button class="admin-nav-btn" type="button" data-admin-view="images">이미지</button>
-                <button class="admin-nav-btn is-disabled" type="button" data-admin-soon>
+                <button class="admin-nav-btn" type="button" data-admin-view="votes">
                   투표
-                </button>
-                <button class="admin-nav-btn is-disabled" type="button" data-admin-soon>
-                  소속 인증 신청
                 </button>
               </nav>
             </aside>
@@ -747,6 +744,17 @@
                     />
                     <button class="admin-search-btn" type="button" id="adminUserSearchBtn">검색</button>
                   </div>
+                  <div class="admin-filter-row">
+                    <select id="adminUserTypeFilter">
+                      <option value="all">전체 회원</option>
+                      <option value="verified">인증된 회원</option>
+                      <option value="unverified">미인증 회원</option>
+                      <option value="admin">관리자</option>
+                      <option value="active">정상 계정</option>
+                      <option value="suspended">정지 계정</option>
+                    </select>
+                    <button class="admin-search-btn" type="button" id="adminUserApplyBtn">적용</button>
+                  </div>
                   <div class="admin-table-wrap">
                     <table class="admin-table" aria-label="유저 목록">
                       <thead>
@@ -816,13 +824,20 @@
                       id="adminImageSearchInput"
                       placeholder="파일명, 업로더 검색..."
                     />
+                    <button class="admin-search-btn" type="button" id="adminImageSearchBtn">검색</button>
+                  </div>
+                  <div class="admin-filter-row">
                     <select id="adminImageStatusFilter">
                       <option value="all">모든 상태</option>
                       <option value="allow">ALLOW</option>
                       <option value="review">REVIEW</option>
                       <option value="block">BLOCK</option>
                     </select>
-                    <button class="admin-search-btn" type="button" id="adminImageSearchBtn">검색</button>
+                    <select id="adminImageSortFilter">
+                      <option value="latest">최신순</option>
+                      <option value="oldest">오래된순</option>
+                      <option value="name">파일명순</option>
+                    </select>
                   </div>
                   <div class="admin-table-wrap">
                     <table class="admin-table" aria-label="이미지 목록">
@@ -886,6 +901,113 @@
                       <h4>블록체인 정보</h4>
                       <dl id="adminImageChainInfo"></dl>
                     </article>
+                  </div>
+                </section>
+              </div>
+
+              <div class="admin-view" id="admin-votes-view" hidden>
+                <section class="admin-block">
+                  <header class="admin-block-head">
+                    <h3>투표 관리</h3>
+                    <button class="admin-action-btn" type="button" id="adminVoteForceCloseBtn">강제 종료</button>
+                  </header>
+                  <div class="admin-toolbar admin-toolbar-votes">
+                    <input
+                      type="search"
+                      id="adminVoteSearchInput"
+                      placeholder="투표ID, 파일명, 업로더 검색..."
+                    />
+                    <button class="admin-search-btn" type="button" id="adminVoteSearchBtn">검색</button>
+                  </div>
+                  <div class="admin-filter-row">
+                    <select id="adminVoteStatusFilter">
+                      <option value="all">모든 상태</option>
+                      <option value="in-progress">진행중</option>
+                      <option value="ended">종료</option>
+                    </select>
+                    <select id="adminVoteSortFilter">
+                      <option value="latest">최신순</option>
+                      <option value="oldest">오래된순</option>
+                      <option value="participants-desc">참여수 많은순</option>
+                      <option value="approval-desc">찬성률 높은순</option>
+                    </select>
+                  </div>
+                  <div class="admin-table-wrap">
+                    <table class="admin-table" aria-label="투표 목록">
+                      <thead>
+                        <tr>
+                          <th>투표ID</th>
+                          <th>이미지</th>
+                          <th>상태</th>
+                          <th>시작일</th>
+                          <th>종료일</th>
+                          <th>찬성%</th>
+                          <th>반대%</th>
+                          <th>참여수</th>
+                          <th>최종 판정</th>
+                          <th>액션</th>
+                        </tr>
+                      </thead>
+                      <tbody id="adminVoteTableBody"></tbody>
+                    </table>
+                  </div>
+                </section>
+              </div>
+
+              <div class="admin-view" id="admin-vote-detail-view" hidden>
+                <section class="admin-block">
+                  <header class="admin-block-head">
+                    <h3>투표 상세</h3>
+                    <button class="admin-outline-btn" type="button" id="adminBackToVotesBtn">
+                      목록으로
+                    </button>
+                  </header>
+                  <div class="admin-detail-summary">
+                    <strong id="adminVoteDetailId">VOTE-82401</strong>
+                    <span class="admin-pill allow" id="adminVoteDetailStatus">진행중</span>
+                  </div>
+                  <div class="admin-vote-detail-layout">
+                    <article class="admin-detail-card">
+                      <h4>이미지 정보</h4>
+                      <div class="admin-vote-image-wrap">
+                        <div class="admin-thumb thumb-illustration" id="adminVoteDetailThumb"></div>
+                        <dl id="adminVoteImageInfo"></dl>
+                      </div>
+                    </article>
+                    <article class="admin-detail-card">
+                      <h4>투표 진행 정보</h4>
+                      <dl id="adminVoteInfo"></dl>
+                      <div class="admin-vote-progress-set">
+                        <div class="admin-vote-progress-row">
+                          <span>찬성</span>
+                          <div class="admin-metric-track"><i id="adminVoteYesBar" style="--value:60%"></i></div>
+                          <strong id="adminVoteYesText">60%</strong>
+                        </div>
+                        <div class="admin-vote-progress-row">
+                          <span>반대</span>
+                          <div class="admin-metric-track threshold"><i id="adminVoteNoBar" style="--value:40%"></i></div>
+                          <strong id="adminVoteNoText">40%</strong>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                  <div class="admin-table-wrap admin-vote-related-table">
+                    <table class="admin-table" aria-label="투표 관련 목록">
+                      <thead>
+                        <tr>
+                          <th>투표ID</th>
+                          <th>이미지</th>
+                          <th>상태</th>
+                          <th>시작일</th>
+                          <th>종료일</th>
+                          <th>찬성%</th>
+                          <th>반대%</th>
+                          <th>참여수</th>
+                          <th>최종 판정</th>
+                        </tr>
+                      </thead>
+                      <tbody id="adminVoteRelatedTableBody"></tbody>
+                    </table>
                   </div>
                 </section>
               </div>

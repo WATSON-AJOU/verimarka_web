@@ -335,7 +335,11 @@ body.admin-mode .site-footer {
 }
 
 .admin-toolbar-images {
-  grid-template-columns: minmax(0, 1fr) 170px auto;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.admin-toolbar-votes {
+  grid-template-columns: minmax(0, 1fr) auto;
 }
 
 .admin-toolbar input,
@@ -360,6 +364,26 @@ body.admin-mode .site-footer {
   font-size: 0.9rem;
   font-weight: 800;
   cursor: pointer;
+}
+
+.admin-filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.admin-filter-row select {
+  min-width: 180px;
+  height: 40px;
+  border: 1px solid #cfdbef;
+  border-radius: 8px;
+  background: #fff;
+  color: #253a62;
+  font-size: 0.9rem;
+  padding: 0 12px;
 }
 
 .admin-table-wrap {
@@ -404,6 +428,35 @@ body.admin-mode .site-footer {
   font-weight: 800;
   padding: 0 10px;
   cursor: pointer;
+}
+
+.admin-link-btn {
+  border: 0;
+  background: transparent;
+  color: #2f67c2;
+  font-size: 1rem;
+  font-weight: 900;
+  cursor: pointer;
+  padding: 0;
+}
+
+.admin-list-media {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.admin-list-text strong {
+  display: block;
+  color: #223754;
+  font-size: 0.92rem;
+}
+
+.admin-list-text span {
+  display: block;
+  color: #6b7d9d;
+  font-size: 0.84rem;
 }
 
 .admin-thumb {
@@ -510,6 +563,11 @@ body.admin-mode .site-footer {
   background: #ffe1e1;
 }
 
+.admin-pill.pending {
+  color: #64758f;
+  background: #e9effa;
+}
+
 .admin-detail-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -592,6 +650,54 @@ body.admin-mode .site-footer {
   gap: 12px;
 }
 
+.admin-vote-detail-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.admin-vote-image-wrap {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px;
+}
+
+.admin-vote-image-wrap .admin-thumb {
+  width: 100%;
+  height: 200px;
+}
+
+.admin-vote-progress-set {
+  padding: 2px 12px 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.admin-vote-progress-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 48px;
+  gap: 8px;
+  align-items: center;
+}
+
+.admin-vote-progress-row span {
+  color: #2e4368;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.admin-vote-progress-row strong {
+  color: #556b90;
+  font-size: 0.9rem;
+  text-align: right;
+}
+
+.admin-vote-related-table {
+  margin-top: 4px;
+}
+
 .admin-compare {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -663,6 +769,14 @@ body.admin-mode .site-footer {
   .admin-image-detail-grid {
     grid-template-columns: 1fr;
   }
+
+  .admin-vote-detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-vote-image-wrap {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 1080px) {
@@ -686,6 +800,15 @@ body.admin-mode .site-footer {
 
   .admin-toolbar-images {
     grid-template-columns: 1fr;
+  }
+
+  .admin-toolbar-votes {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-filter-row select {
+    min-width: 0;
+    width: 100%;
   }
 
   .admin-topbar {

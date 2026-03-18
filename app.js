@@ -204,16 +204,19 @@ const historyDetailPrimaryBtn = document.getElementById("historyDetailPrimaryBtn
 const historyBackToListBtn = document.getElementById("historyBackToListBtn");
 const adminViewTitle = document.getElementById("adminViewTitle");
 const adminViewButtons = document.querySelectorAll("[data-admin-view]");
-const adminSoonButtons = document.querySelectorAll("[data-admin-soon]");
 const adminViews = {
   dashboard: document.getElementById("admin-dashboard-view"),
   users: document.getElementById("admin-users-view"),
   userDetail: document.getElementById("admin-user-detail-view"),
   images: document.getElementById("admin-images-view"),
-  imageDetail: document.getElementById("admin-image-detail-view")
+  imageDetail: document.getElementById("admin-image-detail-view"),
+  votes: document.getElementById("admin-votes-view"),
+  voteDetail: document.getElementById("admin-vote-detail-view")
 };
 const adminUserSearchInput = document.getElementById("adminUserSearchInput");
 const adminUserSearchBtn = document.getElementById("adminUserSearchBtn");
+const adminUserTypeFilter = document.getElementById("adminUserTypeFilter");
+const adminUserApplyBtn = document.getElementById("adminUserApplyBtn");
 const adminUserTableBody = document.getElementById("adminUserTableBody");
 const adminBackToUsersBtn = document.getElementById("adminBackToUsersBtn");
 const adminUserDetailEmail = document.getElementById("adminUserDetailEmail");
@@ -224,6 +227,7 @@ const adminUserWalletInfo = document.getElementById("adminUserWalletInfo");
 const adminUserLogTable = document.getElementById("adminUserLogTable");
 const adminImageSearchInput = document.getElementById("adminImageSearchInput");
 const adminImageStatusFilter = document.getElementById("adminImageStatusFilter");
+const adminImageSortFilter = document.getElementById("adminImageSortFilter");
 const adminImageSearchBtn = document.getElementById("adminImageSearchBtn");
 const adminImageTableBody = document.getElementById("adminImageTableBody");
 const adminBackToImagesBtn = document.getElementById("adminBackToImagesBtn");
@@ -234,6 +238,23 @@ const adminImageWatermarkedThumb = document.getElementById("adminImageWatermarke
 const adminImageMetrics = document.getElementById("adminImageMetrics");
 const adminImageVoteInfo = document.getElementById("adminImageVoteInfo");
 const adminImageChainInfo = document.getElementById("adminImageChainInfo");
+const adminVoteSearchInput = document.getElementById("adminVoteSearchInput");
+const adminVoteSearchBtn = document.getElementById("adminVoteSearchBtn");
+const adminVoteStatusFilter = document.getElementById("adminVoteStatusFilter");
+const adminVoteSortFilter = document.getElementById("adminVoteSortFilter");
+const adminVoteTableBody = document.getElementById("adminVoteTableBody");
+const adminVoteForceCloseBtn = document.getElementById("adminVoteForceCloseBtn");
+const adminBackToVotesBtn = document.getElementById("adminBackToVotesBtn");
+const adminVoteDetailId = document.getElementById("adminVoteDetailId");
+const adminVoteDetailStatus = document.getElementById("adminVoteDetailStatus");
+const adminVoteDetailThumb = document.getElementById("adminVoteDetailThumb");
+const adminVoteImageInfo = document.getElementById("adminVoteImageInfo");
+const adminVoteInfo = document.getElementById("adminVoteInfo");
+const adminVoteYesBar = document.getElementById("adminVoteYesBar");
+const adminVoteNoBar = document.getElementById("adminVoteNoBar");
+const adminVoteYesText = document.getElementById("adminVoteYesText");
+const adminVoteNoText = document.getElementById("adminVoteNoText");
+const adminVoteRelatedTableBody = document.getElementById("adminVoteRelatedTableBody");
 const adminActivityFeed = document.getElementById("adminActivityFeed");
 const adminTotalUsers = document.getElementById("adminTotalUsers");
 const adminVerifiedUsers = document.getElementById("adminVerifiedUsers");
@@ -278,9 +299,15 @@ let currentHistoryDetailId = null;
 let currentAdminView = "dashboard";
 let selectedAdminUserId = null;
 let selectedAdminImageId = null;
+let selectedAdminVoteId = null;
 let adminUserKeyword = "";
+let adminUserFilter = "all";
 let adminImageKeyword = "";
 let adminImageFilter = "all";
+let adminImageSort = "latest";
+let adminVoteKeyword = "";
+let adminVoteFilter = "all";
+let adminVoteSort = "latest";
 const defaultMypagePhone = "010-1234-5678";
 const defaultMypageEmail = "user@verimarka.com";
 const defaultMypageNickname = "VeriMarka 사용자";
@@ -649,6 +676,110 @@ const adminImages = [
       blockNumber: "18401291",
       mintedAt: "2026-02-22 13:18"
     }
+  }
+];
+const adminVotes = [
+  {
+    id: "VOTE-82401",
+    imageId: "82401",
+    fileName: "풍경_최종.png",
+    uploader: "test@watson.com",
+    thumbClass: "thumb-illustration",
+    status: "in-progress",
+    startDate: "2026-02-26",
+    endDate: "2026-02-29",
+    yes: 60,
+    no: 40,
+    participants: 1204,
+    finalDecision: "미정",
+    finalDecisionClass: "pending",
+    topSimilarity: "82%",
+    note: "이미지 등록 심사가 진행 중입니다."
+  },
+  {
+    id: "VOTE-82338",
+    imageId: "82338",
+    fileName: "케다터_A.png",
+    uploader: "user@example.com",
+    thumbClass: "thumb-owl",
+    status: "ended",
+    startDate: "2026-02-20",
+    endDate: "2026-02-23",
+    yes: 35,
+    no: 65,
+    participants: 982,
+    finalDecision: "등록 거절",
+    finalDecisionClass: "block",
+    topSimilarity: "91%",
+    note: "유사도 임계값 초과로 등록이 거절되었습니다."
+  },
+  {
+    id: "VOTE-82387",
+    imageId: "82387",
+    fileName: "배경이미지_시안.png",
+    uploader: "test@watson.com",
+    thumbClass: "thumb-window",
+    status: "ended",
+    startDate: "2026-02-23",
+    endDate: "2026-02-24",
+    yes: 60,
+    no: 40,
+    participants: 339,
+    finalDecision: "등록 가능",
+    finalDecisionClass: "success",
+    topSimilarity: "64%",
+    note: "검토 종료 후 등록 가능으로 확정되었습니다."
+  },
+  {
+    id: "VOTE-82376",
+    imageId: "82376",
+    fileName: "배경이미지C.png",
+    uploader: "admin@watson.com",
+    thumbClass: "thumb-window",
+    status: "ended",
+    startDate: "2026-02-11",
+    endDate: "2026-02-13",
+    yes: 64,
+    no: 36,
+    participants: 1327,
+    finalDecision: "등록 가능",
+    finalDecisionClass: "success",
+    topSimilarity: "54%",
+    note: "찬성률 우세로 등록 승인되었습니다."
+  },
+  {
+    id: "VOTE-82372",
+    imageId: "82372",
+    fileName: "숲의_장면_리파인.png",
+    uploader: "artist@watson.com",
+    thumbClass: "thumb-illustration",
+    status: "in-progress",
+    startDate: "2026-02-27",
+    endDate: "2026-03-01",
+    yes: 48,
+    no: 52,
+    participants: 768,
+    finalDecision: "미정",
+    finalDecisionClass: "pending",
+    topSimilarity: "78%",
+    note: "찬반이 근접해 추가 투표가 필요합니다."
+  },
+  {
+    id: "VOTE-82366",
+    imageId: "82366",
+    fileName: "카드뉴스_타이틀.png",
+    uploader: "review@watson.com",
+    thumbClass: "thumb-owl",
+    status: "ended",
+    startDate: "2026-02-15",
+    endDate: "2026-02-17",
+    yes: 42,
+    no: 58,
+    participants: 421,
+    finalDecision: "등록 거절",
+    finalDecisionClass: "block",
+    topSimilarity: "88%",
+    note: "유사 콘텐츠 다수 탐지로 거절되었습니다."
   }
 ];
 const adminFeedRecords = [
@@ -1060,13 +1191,38 @@ function renderAdminDashboard() {
   }
 }
 
+function parseDateToTime(value = "") {
+  const normalized = String(value || "").trim().replaceAll(".", "-");
+  const time = new Date(normalized).getTime();
+  return Number.isNaN(time) ? 0 : time;
+}
+
+function formatDateOnly(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function getFilteredAdminUsers() {
   const keyword = adminUserKeyword.trim().toLowerCase();
-  if (!keyword) return adminUsers;
+  const filter = adminUserFilter || "all";
+
   return adminUsers.filter((user) => {
-    return [user.id, user.email, user.nickname, user.role].some((value) =>
-      String(value).toLowerCase().includes(keyword)
-    );
+    const matchKeyword = !keyword
+      ? true
+      : [user.id, user.email, user.nickname, user.role].some((value) =>
+          String(value).toLowerCase().includes(keyword)
+        );
+
+    let matchFilter = true;
+    if (filter === "verified") matchFilter = Boolean(user.verified);
+    else if (filter === "unverified") matchFilter = !user.verified;
+    else if (filter === "admin") matchFilter = user.role === "관리자";
+    else if (filter === "active") matchFilter = user.status === "정상";
+    else if (filter === "suspended") matchFilter = user.status === "정지";
+
+    return matchKeyword && matchFilter;
   });
 }
 
@@ -1175,12 +1331,24 @@ function renderAdminUserDetail(userId) {
 
 function getFilteredAdminImages() {
   const keyword = adminImageKeyword.trim().toLowerCase();
-  return adminImages.filter((image) => {
+  const filtered = adminImages.filter((image) => {
     const matchKeyword = !keyword
       ? true
-      : [image.fileName, image.uploader].some((value) => String(value).toLowerCase().includes(keyword));
+      : [image.fileName, image.uploader].some((value) =>
+          String(value).toLowerCase().includes(keyword)
+        );
     const matchFilter = adminImageFilter === "all" ? true : image.status === adminImageFilter;
     return matchKeyword && matchFilter;
+  });
+
+  return filtered.sort((a, b) => {
+    if (adminImageSort === "oldest") {
+      return parseDateToTime(a.uploadedAt) - parseDateToTime(b.uploadedAt);
+    }
+    if (adminImageSort === "name") {
+      return a.fileName.localeCompare(b.fileName, "ko");
+    }
+    return parseDateToTime(b.uploadedAt) - parseDateToTime(a.uploadedAt);
   });
 }
 
@@ -1266,13 +1434,146 @@ function renderAdminImageDetail(imageId) {
   ]);
 }
 
+function getAdminVoteStatusLabel(status = "") {
+  return status === "in-progress" ? "진행중" : "종료";
+}
+
+function getAdminVoteStatusClass(status = "") {
+  return status === "in-progress" ? "allow" : "pending";
+}
+
+function getFilteredAdminVotes() {
+  const keyword = adminVoteKeyword.trim().toLowerCase();
+  const filtered = adminVotes.filter((vote) => {
+    const matchKeyword = !keyword
+      ? true
+      : [vote.id, vote.fileName, vote.uploader].some((value) =>
+          String(value).toLowerCase().includes(keyword)
+        );
+    const matchFilter = adminVoteFilter === "all" ? true : vote.status === adminVoteFilter;
+    return matchKeyword && matchFilter;
+  });
+
+  return filtered.sort((a, b) => {
+    if (adminVoteSort === "oldest") {
+      return parseDateToTime(a.startDate) - parseDateToTime(b.startDate);
+    }
+    if (adminVoteSort === "participants-desc") {
+      return b.participants - a.participants;
+    }
+    if (adminVoteSort === "approval-desc") {
+      return b.yes - a.yes;
+    }
+    return parseDateToTime(b.startDate) - parseDateToTime(a.startDate);
+  });
+}
+
+function renderAdminVoteTable() {
+  if (!adminVoteTableBody) return;
+  const rows = getFilteredAdminVotes();
+
+  if (!rows.length) {
+    adminVoteTableBody.innerHTML =
+      '<tr><td colspan="10" style="text-align:center;color:#6b7d9d;">검색 결과가 없습니다.</td></tr>';
+    return;
+  }
+
+  adminVoteTableBody.innerHTML = rows
+    .map(
+      (vote) => `
+        <tr>
+          <td>
+            <button class="admin-link-btn" type="button" data-admin-open-vote="${escapeHtml(vote.id)}">
+              ${escapeHtml(vote.id)}
+            </button>
+          </td>
+          <td>
+            <div class="admin-list-media">
+              <div class="admin-thumb ${escapeHtml(vote.thumbClass)}" aria-hidden="true"></div>
+              <div class="admin-list-text">
+                <strong>${escapeHtml(vote.fileName)}</strong>
+                <span>${escapeHtml(vote.uploader)}</span>
+              </div>
+            </div>
+          </td>
+          <td><span class="admin-status-pill ${getAdminVoteStatusClass(vote.status)}">${getAdminVoteStatusLabel(vote.status)}</span></td>
+          <td>${escapeHtml(vote.startDate)}</td>
+          <td>${escapeHtml(vote.endDate)}</td>
+          <td>${escapeHtml(String(vote.yes))}%</td>
+          <td>${escapeHtml(String(vote.no))}%</td>
+          <td>${escapeHtml(formatCount(vote.participants))}명</td>
+          <td><span class="admin-status-pill ${escapeHtml(vote.finalDecisionClass || "pending")}">${escapeHtml(vote.finalDecision)}</span></td>
+          <td><button class="admin-row-btn" type="button" data-admin-open-vote="${escapeHtml(vote.id)}">보기</button></td>
+        </tr>
+      `
+    )
+    .join("");
+}
+
+function renderAdminVoteDetail(voteId) {
+  const vote = adminVotes.find((item) => item.id === String(voteId)) || adminVotes[0];
+  if (!vote) return;
+  selectedAdminVoteId = vote.id;
+
+  if (adminVoteDetailId) adminVoteDetailId.textContent = vote.id;
+  if (adminVoteDetailStatus) {
+    adminVoteDetailStatus.textContent = getAdminVoteStatusLabel(vote.status);
+    adminVoteDetailStatus.classList.remove("allow", "review", "block", "success", "pending");
+    adminVoteDetailStatus.classList.add(getAdminVoteStatusClass(vote.status));
+  }
+
+  applyThumbClass(adminVoteDetailThumb, vote.thumbClass);
+
+  renderDefinitionList(adminVoteImageInfo, [
+    { label: "파일명", value: vote.fileName },
+    { label: "이미지 ID", value: vote.imageId },
+    { label: "업로더", value: vote.uploader },
+    { label: "유사도 최고값", value: vote.topSimilarity }
+  ]);
+
+  renderDefinitionList(adminVoteInfo, [
+    { label: "진행상태", value: getAdminVoteStatusLabel(vote.status) },
+    { label: "시작일", value: vote.startDate },
+    { label: "종료일", value: vote.endDate },
+    { label: "참여수", value: `${formatCount(vote.participants)}명` },
+    { label: "최종 판정", value: vote.finalDecision }
+  ]);
+
+  if (adminVoteYesBar) adminVoteYesBar.style.setProperty("--value", `${vote.yes}%`);
+  if (adminVoteNoBar) adminVoteNoBar.style.setProperty("--value", `${vote.no}%`);
+  if (adminVoteYesText) adminVoteYesText.textContent = `${vote.yes}%`;
+  if (adminVoteNoText) adminVoteNoText.textContent = `${vote.no}%`;
+
+  if (adminVoteRelatedTableBody) {
+    adminVoteRelatedTableBody.innerHTML = adminVotes
+      .map(
+        (item) => `
+          <tr>
+            <td>${escapeHtml(item.id)}</td>
+            <td>${escapeHtml(item.fileName)}</td>
+            <td><span class="admin-status-pill ${getAdminVoteStatusClass(item.status)}">${getAdminVoteStatusLabel(item.status)}</span></td>
+            <td>${escapeHtml(item.startDate)}</td>
+            <td>${escapeHtml(item.endDate)}</td>
+            <td>${escapeHtml(String(item.yes))}%</td>
+            <td>${escapeHtml(String(item.no))}%</td>
+            <td>${escapeHtml(formatCount(item.participants))}명</td>
+            <td><span class="admin-status-pill ${escapeHtml(item.finalDecisionClass || "pending")}">${escapeHtml(item.finalDecision)}</span></td>
+          </tr>
+        `
+      )
+      .join("");
+  }
+}
+
 function setAdminView(view) {
   const viewMap = {
     dashboard: "dashboard",
     users: "users",
     userDetail: "userDetail",
     images: "images",
-    imageDetail: "imageDetail"
+    imageDetail: "imageDetail",
+    votes: "votes",
+    voteDetail: "voteDetail"
   };
   const safeView = viewMap[view] ? view : "dashboard";
   currentAdminView = safeView;
@@ -1284,7 +1585,12 @@ function setAdminView(view) {
     node.classList.toggle("is-active", isTarget);
   });
 
-  const navFocus = safeView === "userDetail" ? "users" : safeView === "imageDetail" ? "images" : safeView;
+  const navFocusMap = {
+    userDetail: "users",
+    imageDetail: "images",
+    voteDetail: "votes"
+  };
+  const navFocus = navFocusMap[safeView] || safeView;
   adminViewButtons.forEach((button) => {
     if (!button.classList.contains("admin-nav-btn")) return;
     button.classList.toggle("is-active", button.dataset.adminView === navFocus);
@@ -1295,7 +1601,9 @@ function setAdminView(view) {
     users: "유저 관리",
     userDetail: "유저 상세",
     images: "이미지 관리",
-    imageDetail: "이미지 상세"
+    imageDetail: "이미지 상세",
+    votes: "투표 관리",
+    voteDetail: "투표 상세"
   };
   if (adminViewTitle) adminViewTitle.textContent = titleMap[safeView] || "관리자";
 }
@@ -1310,24 +1618,36 @@ function setupAdminEvents() {
       if (target === "imageDetail") {
         renderAdminImageDetail(selectedAdminImageId || adminImages[0]?.id);
       }
+      if (target === "voteDetail") {
+        renderAdminVoteDetail(selectedAdminVoteId || adminVotes[0]?.id);
+      }
+      if (target === "votes") {
+        renderAdminVoteTable();
+      }
       setAdminView(target);
-    });
-  });
-
-  adminSoonButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      showLoginToast("해당 관리자 메뉴는 준비 중입니다.", 1600);
     });
   });
 
   adminUserSearchBtn?.addEventListener("click", () => {
     adminUserKeyword = adminUserSearchInput?.value || "";
+    adminUserFilter = adminUserTypeFilter?.value || "all";
     renderAdminUserTable();
   });
 
   adminUserSearchInput?.addEventListener("keydown", (event) => {
     if (event.key !== "Enter") return;
     adminUserKeyword = adminUserSearchInput?.value || "";
+    adminUserFilter = adminUserTypeFilter?.value || "all";
+    renderAdminUserTable();
+  });
+
+  adminUserApplyBtn?.addEventListener("click", () => {
+    adminUserFilter = adminUserTypeFilter?.value || "all";
+    renderAdminUserTable();
+  });
+
+  adminUserTypeFilter?.addEventListener("change", () => {
+    adminUserFilter = adminUserTypeFilter.value || "all";
     renderAdminUserTable();
   });
 
@@ -1349,6 +1669,7 @@ function setupAdminEvents() {
   adminImageSearchBtn?.addEventListener("click", () => {
     adminImageKeyword = adminImageSearchInput?.value || "";
     adminImageFilter = adminImageStatusFilter?.value || "all";
+    adminImageSort = adminImageSortFilter?.value || "latest";
     renderAdminImageTable();
   });
 
@@ -1356,11 +1677,17 @@ function setupAdminEvents() {
     if (event.key !== "Enter") return;
     adminImageKeyword = adminImageSearchInput?.value || "";
     adminImageFilter = adminImageStatusFilter?.value || "all";
+    adminImageSort = adminImageSortFilter?.value || "latest";
     renderAdminImageTable();
   });
 
   adminImageStatusFilter?.addEventListener("change", () => {
     adminImageFilter = adminImageStatusFilter.value || "all";
+    renderAdminImageTable();
+  });
+
+  adminImageSortFilter?.addEventListener("change", () => {
+    adminImageSort = adminImageSortFilter.value || "latest";
     renderAdminImageTable();
   });
 
@@ -1377,6 +1704,74 @@ function setupAdminEvents() {
 
   adminBackToImagesBtn?.addEventListener("click", () => {
     setAdminView("images");
+  });
+
+  adminVoteSearchBtn?.addEventListener("click", () => {
+    adminVoteKeyword = adminVoteSearchInput?.value || "";
+    adminVoteFilter = adminVoteStatusFilter?.value || "all";
+    adminVoteSort = adminVoteSortFilter?.value || "latest";
+    renderAdminVoteTable();
+  });
+
+  adminVoteSearchInput?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") return;
+    adminVoteKeyword = adminVoteSearchInput?.value || "";
+    adminVoteFilter = adminVoteStatusFilter?.value || "all";
+    adminVoteSort = adminVoteSortFilter?.value || "latest";
+    renderAdminVoteTable();
+  });
+
+  adminVoteStatusFilter?.addEventListener("change", () => {
+    adminVoteFilter = adminVoteStatusFilter.value || "all";
+    renderAdminVoteTable();
+  });
+
+  adminVoteSortFilter?.addEventListener("change", () => {
+    adminVoteSort = adminVoteSortFilter.value || "latest";
+    renderAdminVoteTable();
+  });
+
+  adminVoteTableBody?.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const openButton = target.closest("[data-admin-open-vote]");
+    if (!openButton) return;
+    const voteId = openButton.getAttribute("data-admin-open-vote");
+    if (!voteId) return;
+    renderAdminVoteDetail(voteId);
+    setAdminView("voteDetail");
+  });
+
+  adminBackToVotesBtn?.addEventListener("click", () => {
+    setAdminView("votes");
+  });
+
+  adminVoteForceCloseBtn?.addEventListener("click", () => {
+    const inProgressVotes = adminVotes.filter((vote) => vote.status === "in-progress");
+    const targetVote =
+      adminVotes.find((vote) => vote.id === selectedAdminVoteId && vote.status === "in-progress") ||
+      inProgressVotes[0];
+
+    if (!targetVote) {
+      showLoginToast("강제 종료 가능한 투표가 없습니다.", 1600);
+      return;
+    }
+
+    targetVote.status = "ended";
+    targetVote.endDate = formatDateOnly(new Date());
+    if (targetVote.yes >= targetVote.no) {
+      targetVote.finalDecision = "등록 가능";
+      targetVote.finalDecisionClass = "success";
+    } else {
+      targetVote.finalDecision = "등록 거절";
+      targetVote.finalDecisionClass = "block";
+    }
+
+    renderAdminVoteTable();
+    if (selectedAdminVoteId === targetVote.id) {
+      renderAdminVoteDetail(targetVote.id);
+    }
+    showLoginToast(`${targetVote.id} 투표가 종료되었습니다.`, 1800);
   });
 
   const openSiteButton = document.querySelector("[data-admin-open-site]");
@@ -2794,8 +3189,10 @@ closeHistoryDetail();
 renderAdminDashboard();
 renderAdminUserTable();
 renderAdminImageTable();
+renderAdminVoteTable();
 renderAdminUserDetail(adminUsers[0]?.id);
 renderAdminImageDetail(adminImages[0]?.id);
+renderAdminVoteDetail(adminVotes[0]?.id);
 setupAdminEvents();
 setAdminView("dashboard");
 setResultMode("allow");
