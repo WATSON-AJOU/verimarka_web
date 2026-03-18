@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VeriMarka | 디지털 자산 신뢰 시스템</title>
-    <link rel="stylesheet" href="./styles.css?v=202603181245" />
+    <link rel="stylesheet" href="./styles.css?v=202603181315" />
   </head>
   <body>
     <div class="aurora aurora-a"></div>
@@ -59,38 +59,58 @@
 
       <main>
         <section class="app-page is-active" id="page-home">
-          <section class="hero reveal">
-            <div class="hero-text">
-              <p class="headline-kicker">저작물 등록, 저작물 검증</p>
-              <h1>디지털 자산의 진위를 증명하세요.</h1>
-              <p class="hero-subtitle">
-                AI 유사도 분석과 블록체인 기반 신뢰 기록을 결합한 검증 시스템으로,
-                창작물의 출처와 신뢰도를 빠르게 확인합니다.
+          <div class="home-scroll">
+            <section class="home-panel home-hero-panel reveal">
+              <h1>디지털 자산 신뢰의 기준을 만듭니다.</h1>
+              <p>
+                비가시 워터마크, AI 유사도 분석, 블록체인 기록을 연결해
+                창작물 등록부터 검증까지 하나의 흐름으로 제공합니다.
               </p>
-              <div class="cta-row">
+              <div class="home-hero-actions">
                 <button class="btn btn-primary" type="button" data-go-tab="add">
                   저작물 등록하기
                 </button>
                 <button class="btn btn-secondary" type="button">저작물 검증하기</button>
               </div>
-            </div>
-            <div class="hero-art" aria-hidden="true">
-              <img src="./assets/veri.png" alt="" />
-            </div>
-          </section>
+            </section>
 
-          <section class="dashboard">
-            <section class="activity reveal">
-              <h2>최근 활동</h2>
-              <div class="card-grid">
-                <article class="asset-card">
+            <section class="home-panel home-system-panel reveal">
+              <header class="home-panel-header">
+                <h2>VeriMarka 신뢰 시스템</h2>
+                <p>기록 가능한 근거를 남기는 3중 검증 구조</p>
+              </header>
+              <div class="home-system-grid">
+                <article class="glass-feature">
+                  <span>AI</span>
+                  <h3>의미 기반 유사도 분석</h3>
+                  <p>문맥 특징을 임베딩으로 변환해 실질적 유사도를 판별합니다.</p>
+                </article>
+                <article class="glass-feature">
+                  <span>PX</span>
+                  <h3>픽셀 정밀 비교</h3>
+                  <p>미세 편집과 왜곡을 감지해 조작 징후를 정량적으로 확인합니다.</p>
+                </article>
+                <article class="glass-feature">
+                  <span>BC</span>
+                  <h3>블록체인 신뢰 기록</h3>
+                  <p>등록·검증 결과를 변경 불가능한 형태로 저장해 추적성을 확보합니다.</p>
+                </article>
+              </div>
+            </section>
+
+            <section class="home-panel home-activity-panel reveal">
+              <header class="home-panel-header">
+                <h2>최근 활동</h2>
+                <p>등록과 검토 상태를 빠르게 확인하세요.</p>
+              </header>
+              <div class="home-activity-grid">
+                <article class="glass-activity-card">
                   <span class="badge badge-allow">ALLOW</span>
                   <div class="thumb thumb-illustration"></div>
                   <h3>일러스트_final.jpg</h3>
                   <p>신규 등록 승인 완료 · 저작물 등록됨</p>
                 </article>
-
-                <article class="asset-card">
+                <article class="glass-activity-card">
                   <span class="badge badge-review">REVIEW</span>
                   <div class="thumb thumb-owl"></div>
                   <h3>캐릭터_A.png</h3>
@@ -99,8 +119,7 @@
                     <div class="bar" data-progress="82"></div>
                   </div>
                 </article>
-
-                <article class="asset-card">
+                <article class="glass-activity-card">
                   <span class="badge badge-block">BLOCK</span>
                   <div class="thumb thumb-window"></div>
                   <h3>배경이미지_B.png</h3>
@@ -108,34 +127,7 @@
                 </article>
               </div>
             </section>
-
-            <aside class="trust reveal">
-              <h2>VeriMarka 신뢰 시스템</h2>
-              <ul>
-                <li>
-                  <span class="icon">AI</span>
-                  <div>
-                    <strong>AI 의미 기반 유사도 분석</strong>
-                    <p>문맥 기반 특징 추출로 의미 유사도 측정</p>
-                  </div>
-                </li>
-                <li>
-                  <span class="icon">PX</span>
-                  <div>
-                    <strong>픽셀 수준 정밀 비교</strong>
-                    <p>픽셀 단위 변형 감지로 위조 탐지 강화</p>
-                  </div>
-                </li>
-                <li>
-                  <span class="icon">BC</span>
-                  <div>
-                    <strong>블록체인 기반 신뢰 기록</strong>
-                    <p>검증 이력의 불변성 보장 및 추적 가능</p>
-                  </div>
-                </li>
-              </ul>
-            </aside>
-          </section>
+          </div>
         </section>
 
         <section class="app-page" id="page-add" hidden>
@@ -1135,6 +1127,6 @@
       </div>
     </div>
 
-    <script src="./app.js?v=202603181245"></script>
+    <script src="./app.js?v=202603181315"></script>
   </body>
 </html>

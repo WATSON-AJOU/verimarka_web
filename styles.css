@@ -3588,6 +3588,13 @@ body.modal-open {
   cursor: pointer;
 }
 
+.login-modal-logo {
+  display: block;
+  width: 76px;
+  height: auto;
+  margin: 10px auto 10px;
+}
+
 .login-modal h3 {
   margin: 8px 0 16px;
   text-align: center;
