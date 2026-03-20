@@ -39,14 +39,16 @@ function setActiveTab(tabName) {
 
   if (normalizedTab === "history") {
     closeHistoryDetail();
-    if (selectedHistoryRecordId) {
-      selectedHistoryRecordId = null;
-      renderHistoryList();
-    }
+    if (selectedHistoryRecordId) selectedHistoryRecordId = null;
+    renderHistoryList();
+  }
+  if (voteModal && !voteModal.hidden) {
+    closeVoteModal();
   }
 
   if (normalizedTab !== "add") {
     stopAnalysisSimulation();
+    stopReviewVoteSimulation();
     stopWatermarkSimulation();
     stopMintSimulation();
   }
@@ -102,6 +104,8 @@ const openIdentityModalBtn = document.getElementById("openIdentityModalBtn");
 const mypageTokenCount = document.getElementById("mypageTokenCount");
 const mypageVoteStatusChip = document.getElementById("mypageVoteStatusChip");
 const mypageVoteStatusText = document.getElementById("mypageVoteStatusText");
+const mypageActiveVoteCount = document.getElementById("mypageActiveVoteCount");
+const mypageVoteOpenHistoryBtn = document.getElementById("mypageVoteOpenHistoryBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const identityModal = document.getElementById("identityModal");
 const identityModalCloseBtn = document.getElementById("identityModalCloseBtn");
@@ -120,6 +124,8 @@ const uploadPreview = document.getElementById("uploadPreview");
 const uploadReadyView = document.getElementById("uploadReadyView");
 const analysisRunningView = document.getElementById("analysisRunningView");
 const analysisResultView = document.getElementById("analysisResultView");
+const reviewVoteRunningView = document.getElementById("reviewVoteRunningView");
+const reviewVoteReadyView = document.getElementById("reviewVoteReadyView");
 const watermarkRunningView = document.getElementById("watermarkRunningView");
 const watermarkCompleteView = document.getElementById("watermarkCompleteView");
 const mintRunningView = document.getElementById("mintRunningView");
@@ -169,6 +175,23 @@ const analysisResultNote = document.getElementById("analysisResultNote");
 const resultModeButtons = document.querySelectorAll(".result-mode-btn[data-result-mode]");
 const resultPrimaryBtn = document.getElementById("resultPrimaryBtn");
 const resultSecondaryBtn = document.getElementById("resultSecondaryBtn");
+const reviewVoteSourceImage = document.getElementById("reviewVoteSourceImage");
+const reviewVoteCandidateImage = document.getElementById("reviewVoteCandidateImage");
+const reviewVoteProgressRing = document.getElementById("reviewVoteProgressRing");
+const reviewVoteProgressValue = document.getElementById("reviewVoteProgressValue");
+const reviewVoteStatusLine = document.getElementById("reviewVoteStatusLine");
+const reviewVoteStepItems = Array.from(document.querySelectorAll(".review-vote-step"));
+const reviewVoteSourceImageFinal = document.getElementById("reviewVoteSourceImageFinal");
+const reviewVoteCandidateImageFinal = document.getElementById("reviewVoteCandidateImageFinal");
+const reviewVoteSimilarityFinal = document.getElementById("reviewVoteSimilarityFinal");
+const reviewVoteId = document.getElementById("reviewVoteId");
+const reviewVoteDue = document.getElementById("reviewVoteDue");
+const reviewVoteParticipants = document.getElementById("reviewVoteParticipants");
+const reviewVoteYesBar = document.getElementById("reviewVoteYesBar");
+const reviewVoteNoBar = document.getElementById("reviewVoteNoBar");
+const reviewVoteParticipateBtn = document.getElementById("reviewVoteParticipateBtn");
+const reviewVoteOpenHistoryBtn = document.getElementById("reviewVoteOpenHistoryBtn");
+const reviewVoteBackUploadBtn = document.getElementById("reviewVoteBackUploadBtn");
 const uploadFileName = document.getElementById("uploadFileName");
 const uploadFileMeta = document.getElementById("uploadFileMeta");
 const changeFileBtn = document.getElementById("changeFileBtn");
@@ -237,6 +260,22 @@ const historyDetailSubtitle = document.getElementById("historyDetailSubtitle");
 const historyDetailGrid = document.getElementById("historyDetailGrid");
 const historyDetailPrimaryBtn = document.getElementById("historyDetailPrimaryBtn");
 const historyBackToListBtn = document.getElementById("historyBackToListBtn");
+const voteModal = document.getElementById("voteModal");
+const voteModalCloseBtn = document.getElementById("voteModalCloseBtn");
+const voteModalSubtitle = document.getElementById("voteModalSubtitle");
+const voteModalSourceThumb = document.getElementById("voteModalSourceThumb");
+const voteModalCandidateThumb = document.getElementById("voteModalCandidateThumb");
+const voteModalSourceName = document.getElementById("voteModalSourceName");
+const voteModalCandidateName = document.getElementById("voteModalCandidateName");
+const voteModalSimilarity = document.getElementById("voteModalSimilarity");
+const voteModalVoteId = document.getElementById("voteModalVoteId");
+const voteModalDue = document.getElementById("voteModalDue");
+const voteModalParticipants = document.getElementById("voteModalParticipants");
+const voteModalYesBar = document.getElementById("voteModalYesBar");
+const voteModalNoBar = document.getElementById("voteModalNoBar");
+const voteModalYesBtn = document.getElementById("voteModalYesBtn");
+const voteModalNoBtn = document.getElementById("voteModalNoBtn");
+const voteModalNote = document.getElementById("voteModalNote");
 const adminViewTitle = document.getElementById("adminViewTitle");
 const adminViewButtons = document.querySelectorAll("[data-admin-view]");
 const adminViews = {
@@ -315,6 +354,8 @@ let toastHideTimer = null;
 let uploadPreviewUrl = null;
 let analysisTimer = null;
 let analysisProgressValueInternal = 0;
+let reviewVoteTimer = null;
+let reviewVoteProgressValueInternal = 0;
 let watermarkTimer = null;
 let watermarkProgressValueInternal = 0;
 let mintTimer = null;
@@ -327,6 +368,7 @@ let watermarkRenderedUrl = "";
 let watermarkDownloadName = "sample_watermarked.png";
 let watermarkBuildToken = 0;
 let currentMintRecord = null;
+let currentReviewVoteRecord = null;
 let currentLanguage = "ko";
 let currentResultMode = "allow";
 let mockCandidateImageUrl = "";
@@ -343,6 +385,7 @@ let identityCountdownTimer = null;
 let currentHistoryFilter = "all";
 let selectedHistoryRecordId = null;
 let currentHistoryDetailId = null;
+let currentVoteRecordId = null;
 let currentAdminView = "dashboard";
 let selectedAdminUserId = null;
 let selectedAdminImageId = null;
@@ -359,7 +402,8 @@ const defaultMypagePhone = "010-1234-5678";
 const defaultMypageEmail = "user@verimarka.com";
 const defaultMypageNickname = "VeriMarka 사용자";
 const minimumVoteTokenCount = 3;
-let currentTokenCount = 2;
+const demoLoginTokenCount = 5;
+let currentTokenCount = 5;
 const providerNicknameMap = {
   google: "구글사용자",
   apple: "애플사용자",
@@ -858,6 +902,11 @@ const verifyStageConfig = [
   { key: "similar", label: "유사 이미지 탐색", start: 65, end: 90 },
   { key: "decision", label: "최종 검증 결과 생성", start: 90, end: 100 }
 ];
+const reviewVoteStageConfig = [
+  { key: "analysis", label: "AI 유사도 분석 완료", start: 0, end: 18 },
+  { key: "create", label: "블록체인 투표 생성", start: 18, end: 86 },
+  { key: "open", label: "커뮤니티 검증 시작", start: 86, end: 100 }
+];
 const resultModeConfig = {
   allow: {
     badge: "ALLOW",
@@ -878,7 +927,7 @@ const resultModeConfig = {
   pending: {
     badge: "REVIEW",
     title: "보류 판정입니다.",
-    subtitle: "유사 후보가 감지되어 수동 검토가 필요합니다.",
+    subtitle: "유사 후보가 감지되어 커뮤니티 투표 생성이 필요합니다.",
     similarity: "0.7421",
     similarityPercent: "74.2%",
     threshold: "0.7500",
@@ -888,12 +937,12 @@ const resultModeConfig = {
     checklist: [
       "의미 기반 임베딩 비교 완료",
       "픽셀 정밀 비교 완료",
-      "유사 후보 검토 큐 등록됨"
+      "유사 후보 탐지로 커뮤니티 검증 필요"
     ],
-    primaryLabel: "수동 검토 요청하기",
-    secondaryLabel: "업로드 화면으로 돌아가기",
-    note: "검토 담당자 승인 후 등록 가능 여부가 확정됩니다.",
-    primaryToast: "수동 검토 요청이 접수되었습니다."
+    primaryLabel: "투표 생성 동의하기",
+    secondaryLabel: "등록 취소하기",
+    note: "동의 시 블록체인 투표를 생성하고, 취소 시 현재 등록 절차가 종료됩니다.",
+    primaryToast: "커뮤니티 검증용 투표 생성을 시작합니다."
   },
   reject: {
     badge: "BLOCK",
@@ -931,7 +980,185 @@ function getHistoryRecordById(id) {
 
 function getFilteredHistoryRecords(filter = "all") {
   if (filter === "all") return historyRecords;
+  if (filter === "vote") {
+    return historyRecords.filter((record) => record.type === "review");
+  }
   return historyRecords.filter((record) => record.type === filter);
+}
+
+function getActiveVoteRecords() {
+  return historyRecords.filter((record) => record.type === "review");
+}
+
+function getReviewActionState(record) {
+  const isReviewRecord = record?.type === "review";
+  if (!isReviewRecord) {
+    return { label: "검토 현황 새로고침", enabled: true, reason: "" };
+  }
+  if (!isLoggedIn) {
+    return { label: "로그인 후 투표 참여", enabled: true, reason: "로그인 후 투표에 참여할 수 있습니다." };
+  }
+  if (currentTokenCount < minimumVoteTokenCount) {
+    return {
+      label: `NFT ${minimumVoteTokenCount}개 이상 필요`,
+      enabled: true,
+      reason: `투표 권한 조건 미충족: NFT ${minimumVoteTokenCount}개 이상 필요`
+    };
+  }
+  return { label: "투표 참여하기", enabled: true, reason: "" };
+}
+
+function parseReviewVotes(votesLabel = "") {
+  const yesMatch = String(votesLabel).match(/찬성\s*(\d+)/);
+  const noMatch = String(votesLabel).match(/반대\s*(\d+)/);
+  const yes = yesMatch ? Number(yesMatch[1]) : 0;
+  const no = noMatch ? Number(noMatch[1]) : 0;
+  return {
+    yes: Number.isFinite(yes) ? yes : 0,
+    no: Number.isFinite(no) ? no : 0
+  };
+}
+
+function updateReviewRecordVoteStats(record, yesCount, noCount) {
+  if (!record?.review) return;
+  const total = Math.max(yesCount + noCount, 0);
+  const yesPercent = total > 0 ? Math.round((yesCount / total) * 100) : 50;
+  const noPercent = total > 0 ? Math.max(0, 100 - yesPercent) : 50;
+  record.review.votes = `찬성 ${yesCount} · 반대 ${noCount}`;
+  record.review.participants = `참여자 ${total}명`;
+  record.review.yesPercent = yesPercent;
+  record.review.noPercent = noPercent;
+  record.review.progress = Math.min(100, Math.max(0, total * 3));
+}
+
+function pickCandidateThumbClass(baseThumbClass = "") {
+  const map = {
+    "history-thumb-landscape": "history-thumb-character",
+    "history-thumb-character": "history-thumb-city",
+    "history-thumb-city": "history-thumb-landscape"
+  };
+  return map[baseThumbClass] || "history-thumb-character";
+}
+
+function openVoteModal(record) {
+  if (!voteModal || !record || record.type !== "review") return;
+  currentVoteRecordId = record.id;
+  const vote = record.review || {};
+  const similarityText = record.analysis?.cosine || "0.0000 (0.0%)";
+  const percentMatch = similarityText.match(/(\d+(?:\.\d+)?)\s*%\)?/);
+  const similarity = percentMatch ? `${percentMatch[1]}%` : similarityText;
+  const candidateName = vote.candidateName || resultModeConfig.pending?.candidateName || "유사 후보 이미지";
+  const actionState = getReviewActionState(record);
+  const canCastVote = isLoggedIn && currentTokenCount >= minimumVoteTokenCount;
+
+  if (voteModalSourceThumb) {
+    voteModalSourceThumb.className = `vote-modal-image ${record.thumbClass || "history-thumb-landscape"}`;
+  }
+  if (voteModalCandidateThumb) {
+    voteModalCandidateThumb.className = `vote-modal-image ${pickCandidateThumbClass(record.thumbClass)}`;
+  }
+  if (voteModalSourceName) voteModalSourceName.textContent = record.fileName || "sample.png";
+  if (voteModalCandidateName) voteModalCandidateName.textContent = candidateName;
+  if (voteModalSimilarity) voteModalSimilarity.textContent = similarity;
+  if (voteModalVoteId) voteModalVoteId.textContent = vote.voteId || `VOTE-${record.id}`;
+  if (voteModalDue) voteModalDue.textContent = vote.due || "-";
+  if (voteModalParticipants) {
+    voteModalParticipants.textContent = String(vote.participants || "참여자 0명").replace(/^참여자\s*/, "");
+  }
+
+  const yesPercent = Number(vote.yesPercent ?? 50);
+  const noPercent = Number(vote.noPercent ?? 50);
+  if (voteModalYesBar) {
+    voteModalYesBar.style.width = `${yesPercent}%`;
+    voteModalYesBar.textContent = `찬성 ${yesPercent}%`;
+  }
+  if (voteModalNoBar) {
+    voteModalNoBar.style.width = `${noPercent}%`;
+    voteModalNoBar.textContent = `반대 ${noPercent}%`;
+  }
+  if (voteModalSubtitle) {
+    voteModalSubtitle.textContent = canCastVote
+      ? "진행 중인 커뮤니티 검증 투표에 바로 참여할 수 있습니다."
+      : actionState.reason || "투표 참여 조건을 확인해주세요.";
+  }
+  if (voteModalYesBtn) voteModalYesBtn.disabled = !canCastVote;
+  if (voteModalNoBtn) voteModalNoBtn.disabled = !canCastVote;
+  if (voteModalNote) {
+    voteModalNote.textContent = canCastVote
+      ? "투표 결과는 데모 상태이며 실제 서비스에서는 블록체인에 기록됩니다."
+      : actionState.reason || "투표 조건이 충족되지 않았습니다.";
+  }
+
+  lastFocusedElement = document.activeElement;
+  voteModal.hidden = false;
+  syncBodyModalLock();
+  voteModalCloseBtn?.focus();
+}
+
+function closeVoteModal() {
+  if (!voteModal) return;
+  voteModal.hidden = true;
+  currentVoteRecordId = null;
+  syncBodyModalLock();
+  if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
+    lastFocusedElement.focus();
+  }
+}
+
+function attemptOpenReviewVote(record) {
+  if (!record || record.type !== "review") return;
+  const actionState = getReviewActionState(record);
+  if (!isLoggedIn) {
+    showLoginToast(actionState.reason || "로그인 후 이용 가능합니다.", 1700);
+    openLoginModal();
+    return;
+  }
+  if (currentTokenCount < minimumVoteTokenCount) {
+    showLoginToast(actionState.reason || "투표 조건을 충족해주세요.", 1800);
+    setActiveTab("mypage");
+    return;
+  }
+  openVoteModal(record);
+}
+
+function applyVoteToCurrentRecord(pick = "yes") {
+  const record = getHistoryRecordById(currentVoteRecordId);
+  if (!record || record.type !== "review") return;
+  const currentVotes = parseReviewVotes(record.review?.votes);
+  const nextYes = pick === "yes" ? currentVotes.yes + 1 : currentVotes.yes;
+  const nextNo = pick === "no" ? currentVotes.no + 1 : currentVotes.no;
+  updateReviewRecordVoteStats(record, nextYes, nextNo);
+
+  if (currentHistoryFilter === "all" || currentHistoryFilter === "review" || currentHistoryFilter === "vote") {
+    renderHistoryList();
+  }
+  if (currentHistoryDetailId === record.id) {
+    renderHistoryDetail(record);
+  }
+  openVoteModal(record);
+  showLoginToast(pick === "yes" ? "찬성 투표가 반영되었습니다." : "반대 투표가 반영되었습니다.", 1700);
+}
+
+function updateMypageVoteSummary() {
+  if (mypageActiveVoteCount) {
+    mypageActiveVoteCount.textContent = String(getActiveVoteRecords().length);
+  }
+}
+
+function setHistoryFilter(filter = "all") {
+  const normalized = ["all", "allow", "review", "vote"].includes(filter) ? filter : "all";
+  currentHistoryFilter = normalized;
+  historyFilterButtons.forEach((node) => {
+    node.classList.toggle("is-active", node.dataset.historyFilter === normalized);
+  });
+  selectedHistoryRecordId = null;
+  renderHistoryList();
+}
+
+function openVoteRecordsView() {
+  setActiveTab("history");
+  closeHistoryDetail();
+  setHistoryFilter("vote");
 }
 
 function buildAllowExpandHtml(record) {
@@ -961,6 +1188,7 @@ function buildAllowExpandHtml(record) {
 }
 
 function buildReviewExpandHtml(record) {
+  const actionState = getReviewActionState(record);
   return `
     <div class="history-expand-card">
       <h4>AI 분석 결과</h4>
@@ -982,8 +1210,11 @@ function buildReviewExpandHtml(record) {
         <div class="line" style="--review-progress:${record.review.progress}%"></div>
       </div>
       <div class="history-expand-actions">
-        <button class="btn btn-primary" type="button" data-history-open-detail="${record.id}">
-          검토 상세 보기
+        <button class="btn btn-primary" type="button" data-history-open-vote="${record.id}">
+          ${actionState.label}
+        </button>
+        <button class="btn btn-secondary" type="button" data-history-open-detail="${record.id}">
+          투표 상세 보기
         </button>
       </div>
     </div>
@@ -1111,7 +1342,14 @@ function renderHistoryDetail(record) {
   historyDetailGrid.innerHTML = isAllow ? buildAllowDetailHtml(record) : buildReviewDetailHtml(record);
 
   if (historyDetailPrimaryBtn) {
-    historyDetailPrimaryBtn.textContent = isAllow ? "블록체인 URL 복사" : "검토 현황 새로고침";
+    if (isAllow) {
+      historyDetailPrimaryBtn.textContent = "블록체인 URL 복사";
+      historyDetailPrimaryBtn.disabled = false;
+      return;
+    }
+    const actionState = getReviewActionState(record);
+    historyDetailPrimaryBtn.textContent = actionState.label;
+    historyDetailPrimaryBtn.disabled = false;
   }
 }
 
@@ -1142,19 +1380,13 @@ function handleHistoryPrimaryAction() {
     showLoginToast("블록체인 URL을 복사했습니다.", 1600);
     return;
   }
-
-  showLoginToast("검토 현황을 새로고침했습니다.", 1600);
+  attemptOpenReviewVote(record);
 }
 
 function setupHistoryEvents() {
   historyFilterButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      currentHistoryFilter = button.dataset.historyFilter || "all";
-      historyFilterButtons.forEach((node) => {
-        node.classList.toggle("is-active", node === button);
-      });
-      selectedHistoryRecordId = null;
-      renderHistoryList();
+      setHistoryFilter(button.dataset.historyFilter || "all");
     });
   });
 
@@ -1166,6 +1398,14 @@ function setupHistoryEvents() {
     if (detailButton) {
       const recordId = detailButton.getAttribute("data-history-open-detail");
       if (recordId) openHistoryDetail(recordId);
+      return;
+    }
+
+    const voteButton = target.closest("[data-history-open-vote]");
+    if (voteButton) {
+      const recordId = voteButton.getAttribute("data-history-open-vote");
+      const record = recordId ? getHistoryRecordById(recordId) : null;
+      if (record) attemptOpenReviewVote(record);
       return;
     }
 
@@ -2031,6 +2271,8 @@ function setUploadPreviewMode(mode = "ready") {
   if (uploadReadyView) uploadReadyView.hidden = mode !== "ready";
   if (analysisRunningView) analysisRunningView.hidden = mode !== "running";
   if (analysisResultView) analysisResultView.hidden = mode !== "result";
+  if (reviewVoteRunningView) reviewVoteRunningView.hidden = mode !== "review-vote-running";
+  if (reviewVoteReadyView) reviewVoteReadyView.hidden = mode !== "review-vote-ready";
   if (watermarkRunningView) watermarkRunningView.hidden = mode !== "wm-running";
   if (watermarkCompleteView) watermarkCompleteView.hidden = mode !== "wm-complete";
   if (mintRunningView) mintRunningView.hidden = mode !== "mint-running";
@@ -2674,6 +2916,7 @@ function renderAnalysisState(progress, forcedStatusMap = null) {
 function startAnalysisSimulation() {
   if (!uploadDropzone?.classList.contains("has-file")) return;
   stopAnalysisSimulation();
+  stopReviewVoteSimulation();
   setResultMode("allow");
   setUploadPreviewMode("running");
   renderAnalysisState(0);
@@ -2692,6 +2935,205 @@ function startAnalysisSimulation() {
       stopAnalysisSimulation();
       showLoginToast("분석이 완료되었습니다.", 1900);
       showAnalysisResult("allow");
+    }
+  }, tickMs);
+}
+
+function stopReviewVoteSimulation() {
+  if (!reviewVoteTimer) return;
+  clearInterval(reviewVoteTimer);
+  reviewVoteTimer = null;
+}
+
+function pickHistoryThumbClass(fileName = "") {
+  const options = ["history-thumb-landscape", "history-thumb-character", "history-thumb-city"];
+  const source = String(fileName || "sample");
+  const sum = Array.from(source).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return options[sum % options.length];
+}
+
+function createReviewVoteRecordFromCurrentFile() {
+  const now = new Date();
+  const dueDate = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+  const fileName = analysisResultFileName?.textContent || uploadFileName?.textContent || "sample.png";
+  const similarityPercent = Number(
+    String(resultModeConfig.pending?.similarityPercent || "74.2%").replace(/[^\d.]/g, "")
+  );
+  const similarityValue = Number(resultModeConfig.pending?.similarity || 0.7421);
+  const phashDistance = Number(resultModeConfig.pending?.phashDistance || 8);
+  const phashThreshold = Number(resultModeConfig.pending?.phashThreshold || 8);
+  const numericId = Math.floor(82400 + Math.random() * 800);
+
+  return {
+    id: String(numericId),
+    type: "review",
+    fileName,
+    summary: "투표 진행 중 · D-3",
+    timestamp: formatKoreanDateTime(now),
+    thumbClass: pickHistoryThumbClass(fileName),
+    analysis: {
+      cosine: `${similarityValue.toFixed(4)} (${similarityPercent.toFixed(1)}%)`,
+      phash: `Distance ${phashDistance} / Threshold ${phashThreshold}`,
+      decision: "유사 후보 탐지 · 커뮤니티 검증 진행"
+    },
+    review: {
+      voteId: `VOTE-${numericId}`,
+      progress: 0,
+      due: formatKoreanDateTime(dueDate),
+      votes: "찬성 0 · 반대 0",
+      participants: "참여자 0명",
+      candidateName: resultModeConfig.pending?.candidateName || "concept_scene.jpg",
+      yesPercent: 50,
+      noPercent: 50
+    }
+  };
+}
+
+function syncReviewVoteImages() {
+  const sourceImage = uploadPreviewImage?.src || analysisResultOriginImage?.src || "";
+  const candidateImage = mockCandidateImageUrl || analysisResultCandidateImage?.src || sourceImage;
+
+  if (reviewVoteSourceImage) reviewVoteSourceImage.src = sourceImage;
+  if (reviewVoteCandidateImage) reviewVoteCandidateImage.src = candidateImage;
+  if (reviewVoteSourceImageFinal) reviewVoteSourceImageFinal.src = sourceImage;
+  if (reviewVoteCandidateImageFinal) reviewVoteCandidateImageFinal.src = candidateImage;
+}
+
+function renderReviewVoteState(progress, forcedStatusMap = null) {
+  const clampedProgress = Math.max(0, Math.min(100, Number(progress) || 0));
+  reviewVoteProgressValueInternal = clampedProgress;
+
+  if (reviewVoteProgressRing) {
+    reviewVoteProgressRing.style.setProperty("--progress", clampedProgress.toFixed(2));
+  }
+  if (reviewVoteProgressValue) {
+    reviewVoteProgressValue.textContent = `${Math.round(clampedProgress)}%`;
+  }
+
+  let currentStageLabel = "블록체인 기반 투표를 준비하고 있습니다.";
+
+  reviewVoteStepItems.forEach((step, index) => {
+    const stage = reviewVoteStageConfig[index];
+    if (!stage) return;
+
+    const forcedStatus = forcedStatusMap?.[stage.key];
+    const status = forcedStatus || getStageStatus(clampedProgress, stage);
+
+    step.classList.toggle("is-done", status === "done");
+    step.classList.toggle("is-running", status === "running");
+    step.classList.toggle("is-pending", status === "pending");
+
+    const stateNode = step.querySelector(".review-vote-step-state");
+    if (stateNode) stateNode.textContent = `[${getStageStatusLabel(status)}]`;
+
+    if (status === "running") currentStageLabel = `${stage.label}을(를) 진행 중입니다.`;
+  });
+
+  if (clampedProgress >= 100) {
+    currentStageLabel = "커뮤니티 검증이 시작되었습니다.";
+  }
+  if (reviewVoteStatusLine) reviewVoteStatusLine.textContent = currentStageLabel;
+}
+
+function updateReviewVoteReadyCta() {
+  if (!reviewVoteParticipateBtn || !currentReviewVoteRecord) return;
+  const actionState = getReviewActionState(currentReviewVoteRecord);
+  reviewVoteParticipateBtn.textContent = actionState.label;
+  reviewVoteParticipateBtn.disabled = !actionState.enabled;
+}
+
+function renderReviewVoteReadySummary() {
+  if (!currentReviewVoteRecord) return;
+
+  const similarityPercent = Number(
+    String(resultModeConfig.pending?.similarityPercent || "74.2%").replace(/[^\d.]/g, "")
+  );
+  const yesPercent = Number(currentReviewVoteRecord.review?.yesPercent ?? 50);
+  const noPercent = Number(currentReviewVoteRecord.review?.noPercent ?? 50);
+
+  if (reviewVoteSimilarityFinal) {
+    reviewVoteSimilarityFinal.textContent = `${similarityPercent.toFixed(1)}%`;
+  }
+  if (reviewVoteId) {
+    reviewVoteId.textContent = currentReviewVoteRecord.review?.voteId || `VOTE-${currentReviewVoteRecord.id}`;
+  }
+  if (reviewVoteDue) {
+    reviewVoteDue.textContent = currentReviewVoteRecord.review?.due || "-";
+  }
+  if (reviewVoteParticipants) {
+    const participantsLabel = currentReviewVoteRecord.review?.participants || "참여자 0명";
+    reviewVoteParticipants.textContent = participantsLabel.replace(/^참여자\s*/, "");
+  }
+  if (reviewVoteYesBar) {
+    reviewVoteYesBar.textContent = `찬성 ${yesPercent}%`;
+    reviewVoteYesBar.style.width = `${yesPercent}%`;
+  }
+  if (reviewVoteNoBar) {
+    reviewVoteNoBar.textContent = `반대 ${noPercent}%`;
+    reviewVoteNoBar.style.width = `${noPercent}%`;
+  }
+  updateReviewVoteReadyCta();
+}
+
+function showReviewVoteReadyView() {
+  if (!currentReviewVoteRecord) return;
+  setUploadPreviewMode("review-vote-ready");
+  syncReviewVoteImages();
+
+  const review = currentReviewVoteRecord.review || {};
+  currentReviewVoteRecord.summary = "투표 진행 중 · D-3";
+  currentReviewVoteRecord.timestamp = formatKoreanDateTime(new Date());
+  currentReviewVoteRecord.review = {
+    ...review,
+    progress: Number(review.progress || 0),
+    votes: review.votes || "찬성 0 · 반대 0",
+    participants: review.participants || "참여자 0명",
+    yesPercent: Number(review.yesPercent ?? 50),
+    noPercent: Number(review.noPercent ?? 50)
+  };
+
+  renderReviewVoteReadySummary();
+  updateMypageVoteSummary();
+  if (currentHistoryFilter === "all" || currentHistoryFilter === "review" || currentHistoryFilter === "vote") {
+    renderHistoryList();
+  }
+}
+
+function startReviewVoteSimulation() {
+  if (!uploadDropzone?.classList.contains("has-file")) return;
+  stopAnalysisSimulation();
+  stopWatermarkSimulation();
+  stopMintSimulation();
+  stopReviewVoteSimulation();
+
+  currentReviewVoteRecord = createReviewVoteRecordFromCurrentFile();
+  historyRecords.unshift(currentReviewVoteRecord);
+  updateMypageVoteSummary();
+  syncReviewVoteImages();
+  setUploadPreviewMode("review-vote-running");
+  renderReviewVoteState(18, {
+    analysis: "done",
+    create: "running",
+    open: "pending"
+  });
+
+  const totalDurationMs = 5000;
+  const tickMs = 140;
+  const baseStep = 100 / (totalDurationMs / tickMs);
+  reviewVoteProgressValueInternal = 18;
+
+  reviewVoteTimer = setInterval(() => {
+    const jitter = Math.random() * 1.4;
+    reviewVoteProgressValueInternal = Math.min(
+      100,
+      reviewVoteProgressValueInternal + baseStep + jitter
+    );
+    renderReviewVoteState(reviewVoteProgressValueInternal);
+
+    if (reviewVoteProgressValueInternal >= 100) {
+      stopReviewVoteSimulation();
+      showReviewVoteReadyView();
+      showLoginToast("커뮤니티 검증이 시작되었습니다.", 1900);
     }
   }, tickMs);
 }
@@ -2716,6 +3158,45 @@ function applyAnalysisProgress(payload) {
 window.applyRegistrationAnalysis = applyAnalysisProgress;
 window.applyRegistrationResult = (mode) => {
   showAnalysisResult(mode);
+};
+
+window.applyReviewVoteProgress = (payload) => {
+  const progress = Number(payload?.progress);
+  if (!Number.isFinite(progress)) return;
+  stopReviewVoteSimulation();
+  setUploadPreviewMode("review-vote-running");
+  syncReviewVoteImages();
+  renderReviewVoteState(progress, payload?.stageStatus ?? null);
+};
+
+window.applyReviewVoteCreated = (payload = {}) => {
+  stopReviewVoteSimulation();
+  if (!currentReviewVoteRecord) {
+    currentReviewVoteRecord = createReviewVoteRecordFromCurrentFile();
+    historyRecords.unshift(currentReviewVoteRecord);
+  }
+
+  const review = currentReviewVoteRecord.review || {};
+  const yesPercent = Number(payload?.yesPercent ?? review.yesPercent ?? 50);
+  const noPercent = Number(payload?.noPercent ?? review.noPercent ?? 50);
+  const participantsValue = Number(payload?.participants ?? 0);
+  const participantsLabel = Number.isFinite(participantsValue)
+    ? `참여자 ${participantsValue}명`
+    : review.participants || "참여자 0명";
+
+  currentReviewVoteRecord.review = {
+    ...review,
+    voteId: payload?.voteId || review.voteId || `VOTE-${currentReviewVoteRecord.id}`,
+    due: payload?.due || review.due || formatKoreanDateTime(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)),
+    votes: payload?.votes || review.votes || "찬성 0 · 반대 0",
+    participants: participantsLabel,
+    candidateName: payload?.candidateName || review.candidateName || resultModeConfig.pending?.candidateName || "concept_scene.jpg",
+    progress: Number(payload?.progress ?? review.progress ?? 0),
+    yesPercent: Number.isFinite(yesPercent) ? yesPercent : 50,
+    noPercent: Number.isFinite(noPercent) ? noPercent : 50
+  };
+
+  showReviewVoteReadyView();
 };
 
 window.applyWatermarkProgress = (payload) => {
@@ -2878,12 +3359,14 @@ function setUploadState(file) {
   if (!uploadDropzone || !uploadPreview || !uploadEmpty) return;
   if (!file) {
     stopAnalysisSimulation();
+    stopReviewVoteSimulation();
     stopWatermarkSimulation();
     stopMintSimulation();
     watermarkBuildToken += 1;
     revokeWatermarkRenderedUrl();
     watermarkDownloadName = "sample_watermarked.png";
     currentMintRecord = null;
+    currentReviewVoteRecord = null;
     uploadDropzone.classList.remove("has-file");
     uploadEmpty.hidden = false;
     uploadPreview.hidden = true;
@@ -2895,6 +3378,10 @@ function setUploadState(file) {
     if (analysisResultImage) analysisResultImage.removeAttribute("src");
     if (analysisResultOriginImage) analysisResultOriginImage.removeAttribute("src");
     if (analysisResultCandidateImage) analysisResultCandidateImage.removeAttribute("src");
+    if (reviewVoteSourceImage) reviewVoteSourceImage.removeAttribute("src");
+    if (reviewVoteCandidateImage) reviewVoteCandidateImage.removeAttribute("src");
+    if (reviewVoteSourceImageFinal) reviewVoteSourceImageFinal.removeAttribute("src");
+    if (reviewVoteCandidateImageFinal) reviewVoteCandidateImageFinal.removeAttribute("src");
     if (watermarkRunningImage) watermarkRunningImage.removeAttribute("src");
     if (watermarkCompleteOriginalImage) watermarkCompleteOriginalImage.removeAttribute("src");
     if (watermarkCompleteResultImage) watermarkCompleteResultImage.removeAttribute("src");
@@ -2918,11 +3405,25 @@ function setUploadState(file) {
     if (analysisRejectCandidateLabel) {
       analysisRejectCandidateLabel.textContent = "유사 후보 · concept_scene.jpg";
     }
+    if (reviewVoteSimilarityFinal) reviewVoteSimilarityFinal.textContent = "74.2%";
+    if (reviewVoteId) reviewVoteId.textContent = "VOTE-82401";
+    if (reviewVoteDue) reviewVoteDue.textContent = "2026.03.23 18:00";
+    if (reviewVoteParticipants) reviewVoteParticipants.textContent = "0명";
+    if (reviewVoteYesBar) {
+      reviewVoteYesBar.textContent = "찬성 46%";
+      reviewVoteYesBar.style.width = "46%";
+    }
+    if (reviewVoteNoBar) {
+      reviewVoteNoBar.textContent = "반대 54%";
+      reviewVoteNoBar.style.width = "54%";
+    }
     if (resultModeConfig.reject) resultModeConfig.reject.candidateName = "concept_scene.jpg";
     renderWatermarkState(0);
     renderMintState(0);
+    renderReviewVoteState(0);
     setWatermarkCardLayoutByRatio(1);
     mockCandidateImageUrl = "";
+    updateMypageVoteSummary();
     return;
   }
 
@@ -2947,9 +3448,11 @@ function setUploadState(file) {
   revokeWatermarkRenderedUrl();
   watermarkDownloadName = toWatermarkedFileName(file.name);
   stopAnalysisSimulation();
+  stopReviewVoteSimulation();
   stopWatermarkSimulation();
   stopMintSimulation();
   currentMintRecord = null;
+  currentReviewVoteRecord = null;
   if (uploadPreviewImage) uploadPreviewImage.src = uploadPreviewUrl;
   if (analysisPreviewImage) analysisPreviewImage.src = uploadPreviewUrl;
   if (analysisResultImage) analysisResultImage.src = uploadPreviewUrl;
@@ -2961,6 +3464,14 @@ function setUploadState(file) {
   if (mintCompleteImage) mintCompleteImage.src = uploadPreviewUrl;
   if (analysisResultCandidateImage) {
     analysisResultCandidateImage.src = mockCandidateImageUrl || uploadPreviewUrl;
+  }
+  if (reviewVoteSourceImage) reviewVoteSourceImage.src = uploadPreviewUrl;
+  if (reviewVoteSourceImageFinal) reviewVoteSourceImageFinal.src = uploadPreviewUrl;
+  if (reviewVoteCandidateImage) {
+    reviewVoteCandidateImage.src = mockCandidateImageUrl || uploadPreviewUrl;
+  }
+  if (reviewVoteCandidateImageFinal) {
+    reviewVoteCandidateImageFinal.src = mockCandidateImageUrl || uploadPreviewUrl;
   }
   if (uploadFileName) uploadFileName.textContent = file.name;
   if (uploadFileMeta) {
@@ -2985,6 +3496,7 @@ function setUploadState(file) {
   setResultMode("allow");
   setUploadPreviewMode("ready");
   renderAnalysisState(0);
+  renderReviewVoteState(0);
   renderWatermarkState(0);
   renderMintState(0);
   buildWatermarkedAsset(uploadPreviewUrl, file.name);
@@ -3090,7 +3602,9 @@ function startIdentityTimer(seconds = 180) {
 
 function syncBodyModalLock() {
   const hasOpenModal = Boolean(
-    (loginModal && !loginModal.hidden) || (identityModal && !identityModal.hidden)
+    (loginModal && !loginModal.hidden)
+      || (identityModal && !identityModal.hidden)
+      || (voteModal && !voteModal.hidden)
   );
   document.body.classList.toggle("modal-open", hasOpenModal);
 }
@@ -3115,6 +3629,8 @@ function updateTokenGate(tokenCount = 0) {
       mypageVoteStatusText.textContent = `현재 ${gap} NFT 부족하여 투표 권한이 활성화되지 않았습니다.`;
     }
   }
+  updateMypageVoteSummary();
+  updateReviewVoteReadyCta();
 }
 
 function closeAllLanguageMenus() {
@@ -3145,6 +3661,10 @@ function setLoggedInUI(nickname, profile = {}) {
   const generatedAlias = toEmailAlias(safeNickname) || "user";
   const safeEmail = profile.email?.trim() || `${generatedAlias}@verimarka.com`;
   const safePhone = profile.phone?.trim() || defaultMypagePhone;
+  const requestedTokenCount = Number(profile.tokenCount);
+  const nextTokenCount = Number.isFinite(requestedTokenCount)
+    ? Math.max(0, requestedTokenCount)
+    : demoLoginTokenCount;
 
   isLoggedIn = true;
   if (userNickname) userNickname.textContent = `${safeNickname}님`;
@@ -3161,7 +3681,7 @@ function setLoggedInUI(nickname, profile = {}) {
     phone: safePhone
   });
   updateIdentityStatus(false);
-  updateTokenGate(currentTokenCount);
+  updateTokenGate(nextTokenCount);
 }
 
 function setLoggedOutUI() {
@@ -3440,6 +3960,7 @@ verifyFailRetryBtn?.addEventListener("click", () => {
 
 changeFileBtn?.addEventListener("click", () => {
   stopAnalysisSimulation();
+  stopReviewVoteSimulation();
   stopWatermarkSimulation();
   stopMintSimulation();
   uploadInput?.click();
@@ -3447,6 +3968,7 @@ changeFileBtn?.addEventListener("click", () => {
 
 pickAnotherFileBtn?.addEventListener("click", () => {
   stopAnalysisSimulation();
+  stopReviewVoteSimulation();
   stopWatermarkSimulation();
   stopMintSimulation();
   uploadInput?.click();
@@ -3457,6 +3979,7 @@ startRegisterBtn?.addEventListener("click", () => {
     alert("먼저 업로드할 이미지를 선택해주세요.");
     return;
   }
+  stopReviewVoteSimulation();
   stopWatermarkSimulation();
   stopMintSimulation();
   showLoginToast("저작물 등록 요청이 접수되었습니다.", 2200);
@@ -3465,6 +3988,7 @@ startRegisterBtn?.addEventListener("click", () => {
 
 cancelAnalysisBtn?.addEventListener("click", () => {
   stopAnalysisSimulation();
+  stopReviewVoteSimulation();
   stopWatermarkSimulation();
   stopMintSimulation();
   setUploadPreviewMode("ready");
@@ -3473,6 +3997,7 @@ cancelAnalysisBtn?.addEventListener("click", () => {
 
 goHomeBtn?.addEventListener("click", () => {
   stopAnalysisSimulation();
+  stopReviewVoteSimulation();
   stopWatermarkSimulation();
   stopMintSimulation();
   setActiveTab("home");
@@ -3487,11 +4012,13 @@ resultModeButtons.forEach((button) => {
 resultPrimaryBtn?.addEventListener("click", () => {
   const config = resultModeConfig[currentResultMode] || resultModeConfig.allow;
   if (currentResultMode === "allow") {
+    stopReviewVoteSimulation();
     showLoginToast(config.primaryToast, 1500);
     startWatermarkSimulation();
     return;
   }
   if (currentResultMode === "reject") {
+    stopReviewVoteSimulation();
     stopWatermarkSimulation();
     setUploadPreviewMode("ready");
     uploadInput?.click();
@@ -3499,11 +4026,19 @@ resultPrimaryBtn?.addEventListener("click", () => {
     return;
   }
   showLoginToast(config.primaryToast, 1800);
+  startReviewVoteSimulation();
 });
 
 resultSecondaryBtn?.addEventListener("click", () => {
+  stopReviewVoteSimulation();
   stopWatermarkSimulation();
   stopMintSimulation();
+  if (currentResultMode === "pending") {
+    if (uploadInput) uploadInput.value = "";
+    setUploadState(null);
+    showLoginToast("등록 요청이 취소되었습니다.", 1700);
+    return;
+  }
   setUploadPreviewMode("ready");
 });
 
@@ -3563,9 +4098,42 @@ mintGoHistoryBtn?.addEventListener("click", () => {
 });
 
 mintUploadAgainBtn?.addEventListener("click", () => {
+  stopReviewVoteSimulation();
   stopMintSimulation();
   setUploadPreviewMode("ready");
   uploadInput?.click();
+});
+
+reviewVoteOpenHistoryBtn?.addEventListener("click", () => {
+  openVoteRecordsView();
+});
+
+reviewVoteParticipateBtn?.addEventListener("click", () => {
+  if (!currentReviewVoteRecord) return;
+  attemptOpenReviewVote(currentReviewVoteRecord);
+});
+
+reviewVoteBackUploadBtn?.addEventListener("click", () => {
+  stopReviewVoteSimulation();
+  setUploadPreviewMode("ready");
+  uploadInput?.click();
+});
+
+voteModalCloseBtn?.addEventListener("click", closeVoteModal);
+voteModalYesBtn?.addEventListener("click", () => {
+  applyVoteToCurrentRecord("yes");
+});
+voteModalNoBtn?.addEventListener("click", () => {
+  applyVoteToCurrentRecord("no");
+});
+
+mypageVoteOpenHistoryBtn?.addEventListener("click", () => {
+  if (!isLoggedIn) {
+    showLoginToast("로그인 후 이용 가능합니다.", 1600);
+    openLoginModal();
+    return;
+  }
+  openVoteRecordsView();
 });
 
 langSwitches.forEach(({ root, trigger, menu }) => {
@@ -3667,6 +4235,12 @@ identityModal?.addEventListener("click", (event) => {
   }
 });
 
+voteModal?.addEventListener("click", (event) => {
+  if (event.target === voteModal) {
+    closeVoteModal();
+  }
+});
+
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     if (loginModal && !loginModal.hidden) {
@@ -3674,6 +4248,9 @@ document.addEventListener("keydown", (event) => {
     }
     if (identityModal && !identityModal.hidden) {
       closeIdentityModal();
+    }
+    if (voteModal && !voteModal.hidden) {
+      closeVoteModal();
     }
     closeAllLanguageMenus();
   }
@@ -3691,6 +4268,7 @@ document.addEventListener("click", (event) => {
 
 window.addEventListener("beforeunload", () => {
   stopAnalysisSimulation();
+  stopReviewVoteSimulation();
   stopWatermarkSimulation();
   stopMintSimulation();
   stopVerifySimulation();
@@ -3708,8 +4286,9 @@ window.addEventListener("beforeunload", () => {
 setLoggedOutUI();
 setLanguage(currentLanguage);
 setupHistoryEvents();
-renderHistoryList();
+setHistoryFilter("all");
 closeHistoryDetail();
+updateMypageVoteSummary();
 renderAdminDashboard();
 renderAdminUserTable();
 renderAdminImageTable();

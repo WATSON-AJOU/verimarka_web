@@ -367,6 +367,92 @@
                     </div>
                   </div>
 
+                  <div class="review-vote-running-view" id="reviewVoteRunningView" hidden>
+                    <span class="result-badge">REVIEW</span>
+                    <h3 class="review-vote-running-title">커뮤니티 검증을 준비하고 있습니다.</h3>
+                    <p class="review-vote-running-subtitle" id="reviewVoteStatusLine">
+                      블록체인 기반 투표 생성 중입니다.
+                    </p>
+
+                    <div class="review-vote-running-layout">
+                      <article class="review-vote-preview-card">
+                        <img id="reviewVoteSourceImage" alt="투표 생성 중 업로드 이미지" />
+                        <img id="reviewVoteCandidateImage" alt="유사 후보 이미지" />
+                        <div class="review-vote-progress-overlay">
+                          <div class="analysis-progress-ring review-vote-progress-ring" id="reviewVoteProgressRing" style="--progress: 0">
+                            <span id="reviewVoteProgressValue">0%</span>
+                          </div>
+                        </div>
+                      </article>
+
+                      <aside class="review-vote-timeline-card">
+                        <ol class="review-vote-step-list" id="reviewVoteStepList">
+                          <li class="review-vote-step" data-vote-stage="analysis">
+                            <span class="review-vote-step-dot" aria-hidden="true"></span>
+                            <p><strong class="review-vote-step-state">[대기]</strong> AI 유사도 분석 완료</p>
+                          </li>
+                          <li class="review-vote-step" data-vote-stage="create">
+                            <span class="review-vote-step-dot" aria-hidden="true"></span>
+                            <p><strong class="review-vote-step-state">[대기]</strong> 블록체인 투표 생성</p>
+                          </li>
+                          <li class="review-vote-step" data-vote-stage="open">
+                            <span class="review-vote-step-dot" aria-hidden="true"></span>
+                            <p><strong class="review-vote-step-state">[대기]</strong> 커뮤니티 검증 시작</p>
+                          </li>
+                        </ol>
+                        <p class="review-vote-running-note">완료되면 투표 참여 화면으로 자동 전환됩니다.</p>
+                      </aside>
+                    </div>
+                  </div>
+
+                  <div class="review-vote-ready-view" id="reviewVoteReadyView" hidden>
+                    <span class="result-badge">REVIEW</span>
+                    <h3 class="review-vote-ready-title">커뮤니티 검증이 시작되었습니다.</h3>
+                    <p class="review-vote-ready-subtitle">가장 먼저 투표에 참여하여 의견을 남겨보세요.</p>
+
+                    <div class="review-vote-ready-compare">
+                      <article class="review-vote-compare-card">
+                        <h4>업로드 이미지</h4>
+                        <div class="review-vote-compare-frame">
+                          <img id="reviewVoteSourceImageFinal" alt="투표 업로드 이미지" />
+                        </div>
+                      </article>
+                      <div class="review-vote-similarity-badge">
+                        <span>유사도</span>
+                        <strong id="reviewVoteSimilarityFinal">74.2%</strong>
+                      </div>
+                      <article class="review-vote-compare-card">
+                        <h4>유사 콘텐츠</h4>
+                        <div class="review-vote-compare-frame">
+                          <img id="reviewVoteCandidateImageFinal" alt="투표 유사 후보 이미지" />
+                        </div>
+                      </article>
+                    </div>
+
+                    <div class="review-vote-ready-panel">
+                      <div class="review-vote-votebar">
+                        <div class="review-vote-votebar-item yes" id="reviewVoteYesBar">찬성 46%</div>
+                        <div class="review-vote-votebar-item no" id="reviewVoteNoBar">반대 54%</div>
+                      </div>
+                      <div class="review-vote-meta">
+                        <p><span>투표 ID</span><strong id="reviewVoteId">VOTE-82401</strong></p>
+                        <p><span>마감 예정</span><strong id="reviewVoteDue">2026.03.23 18:00</strong></p>
+                        <p><span>참여 인원</span><strong id="reviewVoteParticipants">0명</strong></p>
+                      </div>
+                      <div class="review-vote-ready-actions">
+                        <button class="btn btn-primary" id="reviewVoteParticipateBtn" type="button">
+                          투표 참여하기
+                        </button>
+                        <button class="btn btn-secondary" id="reviewVoteOpenHistoryBtn" type="button">
+                          투표 현황 보기
+                        </button>
+                        <button class="btn btn-secondary" id="reviewVoteBackUploadBtn" type="button">
+                          업로드 화면으로 돌아가기
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
                   <div class="watermark-running-view" id="watermarkRunningView" hidden>
                     <h3 class="watermark-running-title">워터마크를 삽입하고 있습니다.</h3>
                     <p class="watermark-running-subtitle" id="watermarkStatusLine">
@@ -798,6 +884,9 @@
                   </button>
                   <button class="history-filter-btn" type="button" data-history-filter="review">
                     REVIEW
+                  </button>
+                  <button class="history-filter-btn" type="button" data-history-filter="vote">
+                    투표
                   </button>
                 </div>
               </header>
@@ -1265,6 +1354,17 @@
                   <p class="token-status-note" id="mypageVoteStatusText">
                     현재 1 NFT 부족하여 투표 권한이 활성화되지 않았습니다.
                   </p>
+                  <div class="token-status-row token-status-row-vote">
+                    <div class="token-count-box token-count-box-wide">
+                      <span>내 진행 투표</span>
+                      <strong><em id="mypageActiveVoteCount">0</em>건</strong>
+                    </div>
+                  </div>
+                  <div class="mypage-actions">
+                    <button class="btn btn-secondary" id="mypageVoteOpenHistoryBtn" type="button">
+                      투표 현황 보기
+                    </button>
+                  </div>
                 </article>
 
                 <article class="mypage-card">
@@ -1391,6 +1491,63 @@
     </div>
 
     <div
+      class="vote-modal-overlay"
+      id="voteModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="voteModalTitle"
+      hidden
+    >
+      <div class="vote-modal">
+        <button class="vote-modal-close" id="voteModalCloseBtn" type="button" aria-label="투표 팝업 닫기">
+          닫기
+        </button>
+
+        <span class="result-badge">REVIEW</span>
+        <h3 id="voteModalTitle">커뮤니티 검증 투표</h3>
+        <p class="vote-modal-subtitle" id="voteModalSubtitle">
+          유사 콘텐츠 검토를 위해 커뮤니티 의견을 받는 단계입니다.
+        </p>
+
+        <div class="vote-modal-compare">
+          <article class="vote-modal-card">
+            <h4>업로드 이미지</h4>
+            <div class="vote-modal-image history-thumb-landscape" id="voteModalSourceThumb" aria-hidden="true"></div>
+            <p id="voteModalSourceName">sample.png</p>
+          </article>
+          <div class="vote-modal-similarity">
+            <span>유사도</span>
+            <strong id="voteModalSimilarity">74.2%</strong>
+          </div>
+          <article class="vote-modal-card">
+            <h4>유사 후보</h4>
+            <div class="vote-modal-image history-thumb-character" id="voteModalCandidateThumb" aria-hidden="true"></div>
+            <p id="voteModalCandidateName">concept_scene.jpg</p>
+          </article>
+        </div>
+
+        <div class="vote-modal-meta">
+          <p><span>투표 ID</span><strong id="voteModalVoteId">VOTE-82401</strong></p>
+          <p><span>마감 예정</span><strong id="voteModalDue">2026.03.23 18:00</strong></p>
+          <p><span>참여 인원</span><strong id="voteModalParticipants">20명</strong></p>
+        </div>
+
+        <div class="vote-modal-votebar" aria-hidden="true">
+          <div class="vote-modal-votebar-item yes" id="voteModalYesBar">찬성 50%</div>
+          <div class="vote-modal-votebar-item no" id="voteModalNoBar">반대 50%</div>
+        </div>
+
+        <div class="vote-modal-actions">
+          <button class="btn btn-primary" id="voteModalYesBtn" type="button">찬성</button>
+          <button class="btn btn-secondary vote-modal-no-btn" id="voteModalNoBtn" type="button">반대</button>
+        </div>
+        <p class="vote-modal-note" id="voteModalNote">
+          NFT 3개 이상 보유한 인증 회원만 투표에 참여할 수 있습니다.
+        </p>
+      </div>
+    </div>
+
+    <div
       class="identity-modal-overlay"
       id="identityModal"
       role="dialog"
@@ -1446,6 +1603,6 @@
       </div>
     </div>
 
-    <script src="./app.js?v=202603181315"></script>
+    <script src="./app.js?v=202603202230"></script>
   </body>
 </html>
