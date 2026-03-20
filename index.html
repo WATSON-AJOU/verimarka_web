@@ -70,7 +70,9 @@
                 <button class="btn btn-primary" type="button" data-go-tab="add">
                   저작물 등록하기
                 </button>
-                <button class="btn btn-secondary" type="button">저작물 검증하기</button>
+                <button class="btn btn-secondary" type="button" data-go-tab="verify">
+                  저작물 검증하기
+                </button>
               </div>
             </section>
 
@@ -605,6 +607,182 @@
           </div>
         </section>
 
+        <section class="app-page" id="page-verify" hidden>
+          <div class="verify-layout">
+            <section class="verify-card">
+              <header class="verify-header">
+                <h2>저작물 검증</h2>
+                <p>워터마크 검출을 우선 수행하고, 실패 시 유사 이미지 탐색으로 검증을 이어갑니다.</p>
+              </header>
+
+              <div class="verify-dropzone" id="verifyDropzone" role="button" tabindex="0" aria-label="검증 이미지 업로드">
+                <input
+                  class="verify-input"
+                  id="verifyInput"
+                  type="file"
+                  accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                />
+
+                <div class="verify-empty" id="verifyEmpty">
+                  <div class="verify-empty-icon">✓</div>
+                  <p class="verify-empty-title">검증할 이미지를 드래그하거나 클릭하여 업로드하세요.</p>
+                  <p class="verify-empty-desc">지원 포맷: JPG, PNG / 최대 20MB</p>
+                </div>
+
+                <div class="verify-content" id="verifyContent" hidden>
+                  <div class="verify-ready-view" id="verifyReadyView">
+                    <article class="verify-preview-card">
+                      <div class="verify-preview-frame">
+                        <img id="verifyPreviewImage" alt="검증 이미지 미리보기" />
+                      </div>
+                      <div class="verify-preview-meta">
+                        <strong id="verifyFileName">sample.png</strong>
+                        <span id="verifyFileMeta">0 KB · 준비 완료</span>
+                      </div>
+                      <div class="verify-preview-info">
+                        <p><span>검증자</span><strong id="verifyUploaderName">게스트</strong></p>
+                        <p><span>검증 시각</span><strong id="verifyRegisteredAt">-</strong></p>
+                      </div>
+                    </article>
+
+                    <aside class="verify-ready-panel">
+                      <h3>검증 시나리오</h3>
+                      <p>백엔드/AI 연결 전 화면 테스트를 위한 더미 모드입니다.</p>
+                      <div class="verify-guide-box">
+                        <h4>검증 안내</h4>
+                        <ul>
+                          <li>워터마크 검출을 우선 시도합니다.</li>
+                          <li>검출 성공 시 토큰 연계 정보를 조회합니다.</li>
+                          <li>검출 실패 시 서비스 DB 유사 이미지를 탐색합니다.</li>
+                        </ul>
+                      </div>
+                      <div class="verify-scenario-switch" role="tablist" aria-label="검증 시나리오 선택">
+                        <button class="verify-scenario-btn is-active" type="button" data-verify-scenario="success">
+                          검증 성공
+                        </button>
+                        <button class="verify-scenario-btn" type="button" data-verify-scenario="fail">
+                          검증 실패
+                        </button>
+                      </div>
+                      <button class="btn btn-primary verify-start-btn" id="startVerifyBtn" type="button">
+                        검증 시작
+                      </button>
+                      <button class="btn btn-secondary verify-start-btn" id="changeVerifyFileBtn" type="button">
+                        파일 변경
+                      </button>
+                    </aside>
+                  </div>
+
+                  <div class="verify-running-view" id="verifyRunningView" hidden>
+                    <article class="verify-running-visual">
+                      <img id="verifyRunningImage" alt="검증 진행 이미지" />
+                      <div class="verify-progress-overlay">
+                        <div class="analysis-progress-ring verify-progress-ring" id="verifyProgressRing" style="--progress: 0">
+                          <span id="verifyProgressValue">0%</span>
+                        </div>
+                      </div>
+                    </article>
+
+                    <aside class="verify-running-panel">
+                      <h3>검증을 진행하고 있습니다.</h3>
+                      <p id="verifyStatusLine">워터마크 검출 시도를 진행 중입니다.</p>
+                      <ol class="verify-step-list">
+                        <li class="verify-step" data-verify-stage="detect">
+                          <span class="verify-step-dot" aria-hidden="true"></span>
+                          <p><strong class="verify-step-state">[대기]</strong> 워터마크 검출 시도</p>
+                        </li>
+                        <li class="verify-step" data-verify-stage="token">
+                          <span class="verify-step-dot" aria-hidden="true"></span>
+                          <p><strong class="verify-step-state">[대기]</strong> 토큰 연계 정보 확인 (검출 성공 시)</p>
+                        </li>
+                        <li class="verify-step" data-verify-stage="similar">
+                          <span class="verify-step-dot" aria-hidden="true"></span>
+                          <p><strong class="verify-step-state">[대기]</strong> 유사 이미지 탐색 (검출 실패 시)</p>
+                        </li>
+                        <li class="verify-step" data-verify-stage="decision">
+                          <span class="verify-step-dot" aria-hidden="true"></span>
+                          <p><strong class="verify-step-state">[대기]</strong> 최종 검증 결과 생성</p>
+                        </li>
+                      </ol>
+                    </aside>
+                  </div>
+
+                  <div class="verify-success-view" id="verifySuccessView" hidden>
+                    <span class="verify-result-chip is-success">VERIFIED</span>
+                    <h3>워터마크 검증에 성공했습니다.</h3>
+                    <p>검출된 워터마크와 블록체인 토큰을 연결했습니다.</p>
+                    <div class="verify-result-grid">
+                      <article class="verify-result-card">
+                        <h4>검증 이미지</h4>
+                        <div class="verify-preview-frame"><img id="verifySuccessImage" alt="검증 성공 이미지" /></div>
+                      </article>
+                      <article class="verify-result-card">
+                        <h4>연결된 토큰 정보</h4>
+                        <dl id="verifySuccessTokenInfo"></dl>
+                      </article>
+                    </div>
+                    <div class="verify-result-actions">
+                      <button class="btn btn-primary" id="verifyAgainBtn" type="button">다른 이미지 검증</button>
+                    </div>
+                  </div>
+
+                  <div class="verify-fail-view" id="verifyFailView" hidden>
+                    <span class="verify-result-chip is-fail">FAILED</span>
+                    <h3>워터마크 검출에 실패했습니다.</h3>
+                    <p>서비스 내 유사 이미지 후보를 탐색한 결과를 확인하세요.</p>
+                    <div class="verify-result-grid verify-fail-grid">
+                      <article class="verify-result-card">
+                        <h4>업로드 이미지</h4>
+                        <div class="verify-preview-frame"><img id="verifyFailSourceImage" alt="검증 실패 원본 이미지" /></div>
+                      </article>
+                      <article class="verify-result-card">
+                        <h4>유사 이미지 후보</h4>
+                        <div class="verify-preview-frame"><img id="verifyFailCandidateImage" alt="유사 후보 이미지" /></div>
+                        <div class="verify-candidate-meta">
+                          <p><span>파일명</span><strong id="verifyCandidateFileName">concept_scene.jpg</strong></p>
+                          <p><span>등록자</span><strong id="verifyCandidateOwner">artist@verimarka.com</strong></p>
+                          <p><span>등록일</span><strong id="verifyCandidateDate">2026.03.18 16:05</strong></p>
+                        </div>
+                      </article>
+                    </div>
+                    <div class="verify-fail-metrics" id="verifyFailMetrics"></div>
+                    <div class="verify-result-actions">
+                      <button class="btn btn-secondary" id="verifyFailRetryBtn" type="button">다른 이미지 검증</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <aside class="verify-history">
+              <h3>최근 검증 기록</h3>
+              <div class="history-scroll">
+                <article class="history-item">
+                  <div class="history-thumb thumb-window"></div>
+                  <div class="history-meta">
+                    <p>검증_도시A.png</p>
+                    <span>검증 성공 · Token #82401</span>
+                  </div>
+                </article>
+                <article class="history-item">
+                  <div class="history-thumb thumb-owl"></div>
+                  <div class="history-meta">
+                    <p>검증_캐릭터B.png</p>
+                    <span>검증 실패 · 유사 후보 1건</span>
+                  </div>
+                </article>
+                <article class="history-item">
+                  <div class="history-thumb thumb-illustration"></div>
+                  <div class="history-meta">
+                    <p>검증_풍경C.jpg</p>
+                    <span>검증 성공 · Token #82374</span>
+                  </div>
+                </article>
+              </div>
+            </aside>
+          </div>
+        </section>
+
         <section class="app-page" id="page-history" hidden>
           <section class="history-shell">
             <div class="history-list-view" id="historyListView">
@@ -734,7 +912,6 @@
                 <section class="admin-block">
                   <header class="admin-block-head">
                     <h3>유저 관리</h3>
-                    <button class="admin-action-btn" type="button">+ ADD USER</button>
                   </header>
                   <div class="admin-toolbar">
                     <input
@@ -790,6 +967,28 @@
                     <strong id="adminUserDetailEmail">user@verimarka.com</strong>
                     <span class="admin-pill success" id="adminUserDetailStatus">활성</span>
                   </div>
+                  <div class="admin-user-editor-grid">
+                    <div class="admin-user-role-editor">
+                      <label for="adminUserRoleSelect">권한 변경</label>
+                      <select id="adminUserRoleSelect">
+                        <option value="일반회원">일반회원</option>
+                        <option value="관리자">관리자</option>
+                      </select>
+                      <button class="admin-search-btn" type="button" id="adminUserRoleUpdateBtn">
+                        권한 저장
+                      </button>
+                    </div>
+                    <div class="admin-user-role-editor">
+                      <label for="adminUserStatusSelect">계정 상태 변경</label>
+                      <select id="adminUserStatusSelect">
+                        <option value="정상">정상</option>
+                        <option value="정지">정지</option>
+                      </select>
+                      <button class="admin-search-btn" type="button" id="adminUserStatusUpdateBtn">
+                        상태 저장
+                      </button>
+                    </div>
+                  </div>
 
                   <div class="admin-detail-grid">
                     <article class="admin-detail-card">
@@ -816,7 +1015,6 @@
                 <section class="admin-block">
                   <header class="admin-block-head">
                     <h3>이미지 관리</h3>
-                    <button class="admin-action-btn" type="button">+ 이미지 추가</button>
                   </header>
                   <div class="admin-toolbar admin-toolbar-images">
                     <input
@@ -909,7 +1107,6 @@
                 <section class="admin-block">
                   <header class="admin-block-head">
                     <h3>투표 관리</h3>
-                    <button class="admin-action-btn" type="button" id="adminVoteForceCloseBtn">강제 종료</button>
                   </header>
                   <div class="admin-toolbar admin-toolbar-votes">
                     <input

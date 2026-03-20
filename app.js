@@ -3,13 +3,14 @@ const pageByTab = {
   home: "page-home",
   add: "page-add",
   mypage: "page-mypage",
-  verify: "page-home",
+  verify: "page-verify",
   history: "page-history",
   admin: "page-admin"
 };
 const appPages = {
   home: document.getElementById("page-home"),
   add: document.getElementById("page-add"),
+  verify: document.getElementById("page-verify"),
   history: document.getElementById("page-history"),
   mypage: document.getElementById("page-mypage"),
   admin: document.getElementById("page-admin")
@@ -48,6 +49,9 @@ function setActiveTab(tabName) {
     stopAnalysisSimulation();
     stopWatermarkSimulation();
     stopMintSimulation();
+  }
+  if (normalizedTab !== "verify") {
+    stopVerifySimulation();
   }
 
   document.body.classList.toggle("admin-mode", normalizedTab === "admin");
@@ -192,6 +196,37 @@ const mintMintedAt = document.getElementById("mintMintedAt");
 const mintCopyUrlBtn = document.getElementById("mintCopyUrlBtn");
 const mintGoHistoryBtn = document.getElementById("mintGoHistoryBtn");
 const mintUploadAgainBtn = document.getElementById("mintUploadAgainBtn");
+const verifyDropzone = document.getElementById("verifyDropzone");
+const verifyInput = document.getElementById("verifyInput");
+const verifyEmpty = document.getElementById("verifyEmpty");
+const verifyContent = document.getElementById("verifyContent");
+const verifyReadyView = document.getElementById("verifyReadyView");
+const verifyRunningView = document.getElementById("verifyRunningView");
+const verifySuccessView = document.getElementById("verifySuccessView");
+const verifyFailView = document.getElementById("verifyFailView");
+const verifyPreviewImage = document.getElementById("verifyPreviewImage");
+const verifyRunningImage = document.getElementById("verifyRunningImage");
+const verifySuccessImage = document.getElementById("verifySuccessImage");
+const verifyFailSourceImage = document.getElementById("verifyFailSourceImage");
+const verifyFailCandidateImage = document.getElementById("verifyFailCandidateImage");
+const verifyFileName = document.getElementById("verifyFileName");
+const verifyFileMeta = document.getElementById("verifyFileMeta");
+const startVerifyBtn = document.getElementById("startVerifyBtn");
+const changeVerifyFileBtn = document.getElementById("changeVerifyFileBtn");
+const verifyAgainBtn = document.getElementById("verifyAgainBtn");
+const verifyFailRetryBtn = document.getElementById("verifyFailRetryBtn");
+const verifyProgressRing = document.getElementById("verifyProgressRing");
+const verifyProgressValue = document.getElementById("verifyProgressValue");
+const verifyStatusLine = document.getElementById("verifyStatusLine");
+const verifySuccessTokenInfo = document.getElementById("verifySuccessTokenInfo");
+const verifyFailMetrics = document.getElementById("verifyFailMetrics");
+const verifyStepItems = Array.from(document.querySelectorAll(".verify-step"));
+const verifyScenarioButtons = document.querySelectorAll(".verify-scenario-btn[data-verify-scenario]");
+const verifyUploaderName = document.getElementById("verifyUploaderName");
+const verifyRegisteredAt = document.getElementById("verifyRegisteredAt");
+const verifyCandidateFileName = document.getElementById("verifyCandidateFileName");
+const verifyCandidateOwner = document.getElementById("verifyCandidateOwner");
+const verifyCandidateDate = document.getElementById("verifyCandidateDate");
 const historyListView = document.getElementById("historyListView");
 const historyDetailView = document.getElementById("historyDetailView");
 const historyList = document.getElementById("historyList");
@@ -221,6 +256,10 @@ const adminUserTableBody = document.getElementById("adminUserTableBody");
 const adminBackToUsersBtn = document.getElementById("adminBackToUsersBtn");
 const adminUserDetailEmail = document.getElementById("adminUserDetailEmail");
 const adminUserDetailStatus = document.getElementById("adminUserDetailStatus");
+const adminUserRoleSelect = document.getElementById("adminUserRoleSelect");
+const adminUserRoleUpdateBtn = document.getElementById("adminUserRoleUpdateBtn");
+const adminUserStatusSelect = document.getElementById("adminUserStatusSelect");
+const adminUserStatusUpdateBtn = document.getElementById("adminUserStatusUpdateBtn");
 const adminUserBasicInfo = document.getElementById("adminUserBasicInfo");
 const adminUserAuthInfo = document.getElementById("adminUserAuthInfo");
 const adminUserWalletInfo = document.getElementById("adminUserWalletInfo");
@@ -243,7 +282,6 @@ const adminVoteSearchBtn = document.getElementById("adminVoteSearchBtn");
 const adminVoteStatusFilter = document.getElementById("adminVoteStatusFilter");
 const adminVoteSortFilter = document.getElementById("adminVoteSortFilter");
 const adminVoteTableBody = document.getElementById("adminVoteTableBody");
-const adminVoteForceCloseBtn = document.getElementById("adminVoteForceCloseBtn");
 const adminBackToVotesBtn = document.getElementById("adminBackToVotesBtn");
 const adminVoteDetailId = document.getElementById("adminVoteDetailId");
 const adminVoteDetailStatus = document.getElementById("adminVoteDetailStatus");
@@ -281,6 +319,10 @@ let watermarkTimer = null;
 let watermarkProgressValueInternal = 0;
 let mintTimer = null;
 let mintProgressValueInternal = 0;
+let verifyPreviewUrl = null;
+let verifyTimer = null;
+let verifyProgressValueInternal = 0;
+let verifyScenario = "success";
 let watermarkRenderedUrl = "";
 let watermarkDownloadName = "sample_watermarked.png";
 let watermarkBuildToken = 0;
@@ -288,6 +330,11 @@ let currentMintRecord = null;
 let currentLanguage = "ko";
 let currentResultMode = "allow";
 let mockCandidateImageUrl = "";
+let verifyCandidateMeta = {
+  fileName: "concept_scene.jpg",
+  owner: "artist@verimarka.com",
+  registeredAt: "2026.03.18 16:05"
+};
 let isLoggedIn = false;
 let isIdentityVerified = false;
 let hasIdentityCodeSent = false;
@@ -805,6 +852,12 @@ const mintStageConfig = [
   { key: "mint-contract", label: "스마트컨트랙트 호출", start: 30, end: 74 },
   { key: "mint-confirm", label: "트랜잭션 확정 대기", start: 74, end: 100 }
 ];
+const verifyStageConfig = [
+  { key: "detect", label: "워터마크 검출 시도", start: 0, end: 35 },
+  { key: "token", label: "토큰 연계 정보 확인", start: 35, end: 65 },
+  { key: "similar", label: "유사 이미지 탐색", start: 65, end: 90 },
+  { key: "decision", label: "최종 검증 결과 생성", start: 90, end: 100 }
+];
 const resultModeConfig = {
   allow: {
     badge: "ALLOW",
@@ -1197,13 +1250,6 @@ function parseDateToTime(value = "") {
   return Number.isNaN(time) ? 0 : time;
 }
 
-function formatDateOnly(date = new Date()) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
 function getFilteredAdminUsers() {
   const keyword = adminUserKeyword.trim().toLowerCase();
   const filter = adminUserFilter || "all";
@@ -1273,13 +1319,20 @@ function renderAdminUserDetail(userId) {
 
   renderDefinitionList(adminUserBasicInfo, [
     { label: "이메일", value: user.email },
-    { label: "표시명", value: user.nickname },
+    { label: "닉네임", value: user.nickname },
     { label: "권한", value: user.role || "일반회원" },
     { label: "유저 ID", value: user.id },
     { label: "가입일", value: user.joinedAt },
     { label: "마지막 로그인", value: user.lastLogin },
     { label: "최근 로그인 IP", value: user.ip }
   ]);
+
+  if (adminUserRoleSelect) {
+    adminUserRoleSelect.value = user.role === "관리자" ? "관리자" : "일반회원";
+  }
+  if (adminUserStatusSelect) {
+    adminUserStatusSelect.value = user.status === "정지" ? "정지" : "정상";
+  }
 
   renderDefinitionList(adminUserAuthInfo, [
     { label: "본인인증", value: user.verified ? "완료" : "미인증" },
@@ -1565,6 +1618,46 @@ function renderAdminVoteDetail(voteId) {
   }
 }
 
+function updateAdminUserRole() {
+  if (!adminUserRoleSelect) return;
+  const user = adminUsers.find((item) => item.id === String(selectedAdminUserId));
+  if (!user) return;
+
+  const nextRole = adminUserRoleSelect.value === "관리자" ? "관리자" : "일반회원";
+  if (user.role === nextRole) {
+    showLoginToast("현재 권한과 동일합니다.", 1500);
+    return;
+  }
+
+  user.role = nextRole;
+  renderAdminUserDetail(user.id);
+  renderAdminUserTable();
+  showLoginToast(`권한이 ${nextRole}(으)로 변경되었습니다.`, 1700);
+}
+
+function updateAdminUserStatus() {
+  if (!adminUserStatusSelect) return;
+  const user = adminUsers.find((item) => item.id === String(selectedAdminUserId));
+  if (!user) return;
+
+  const nextStatus = adminUserStatusSelect.value === "정지" ? "정지" : "정상";
+  if (user.status === nextStatus) {
+    showLoginToast("현재 상태와 동일합니다.", 1500);
+    return;
+  }
+
+  user.status = nextStatus;
+  if (nextStatus === "정지") {
+    user.voteEligible = false;
+  } else {
+    user.voteEligible = Boolean(user.verified && user.nftCount >= minimumVoteTokenCount);
+  }
+
+  renderAdminUserDetail(user.id);
+  renderAdminUserTable();
+  showLoginToast(`계정 상태가 ${nextStatus}(으)로 변경되었습니다.`, 1700);
+}
+
 function setAdminView(view) {
   const viewMap = {
     dashboard: "dashboard",
@@ -1666,6 +1759,21 @@ function setupAdminEvents() {
     setAdminView("users");
   });
 
+  adminUserRoleUpdateBtn?.addEventListener("click", updateAdminUserRole);
+  adminUserRoleSelect?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      updateAdminUserRole();
+    }
+  });
+  adminUserStatusUpdateBtn?.addEventListener("click", updateAdminUserStatus);
+  adminUserStatusSelect?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      updateAdminUserStatus();
+    }
+  });
+
   adminImageSearchBtn?.addEventListener("click", () => {
     adminImageKeyword = adminImageSearchInput?.value || "";
     adminImageFilter = adminImageStatusFilter?.value || "all";
@@ -1744,34 +1852,6 @@ function setupAdminEvents() {
 
   adminBackToVotesBtn?.addEventListener("click", () => {
     setAdminView("votes");
-  });
-
-  adminVoteForceCloseBtn?.addEventListener("click", () => {
-    const inProgressVotes = adminVotes.filter((vote) => vote.status === "in-progress");
-    const targetVote =
-      adminVotes.find((vote) => vote.id === selectedAdminVoteId && vote.status === "in-progress") ||
-      inProgressVotes[0];
-
-    if (!targetVote) {
-      showLoginToast("강제 종료 가능한 투표가 없습니다.", 1600);
-      return;
-    }
-
-    targetVote.status = "ended";
-    targetVote.endDate = formatDateOnly(new Date());
-    if (targetVote.yes >= targetVote.no) {
-      targetVote.finalDecision = "등록 가능";
-      targetVote.finalDecisionClass = "success";
-    } else {
-      targetVote.finalDecision = "등록 거절";
-      targetVote.finalDecisionClass = "block";
-    }
-
-    renderAdminVoteTable();
-    if (selectedAdminVoteId === targetVote.id) {
-      renderAdminVoteDetail(targetVote.id);
-    }
-    showLoginToast(`${targetVote.id} 투표가 종료되었습니다.`, 1800);
   });
 
   const openSiteButton = document.querySelector("[data-admin-open-site]");
@@ -2236,6 +2316,322 @@ function startMintSimulation() {
   }, tickMs);
 }
 
+function stopVerifySimulation() {
+  if (!verifyTimer) return;
+  clearInterval(verifyTimer);
+  verifyTimer = null;
+}
+
+function setVerifyView(mode = "ready") {
+  if (verifyReadyView) verifyReadyView.hidden = mode !== "ready";
+  if (verifyRunningView) verifyRunningView.hidden = mode !== "running";
+  if (verifySuccessView) verifySuccessView.hidden = mode !== "success";
+  if (verifyFailView) verifyFailView.hidden = mode !== "fail";
+}
+
+function getVerifyStageStatusByScenario(progress, stageKey, scenario = "success") {
+  const clampedProgress = Math.max(0, Math.min(100, Number(progress) || 0));
+  const mode = scenario === "fail" ? "fail" : "success";
+
+  if (mode === "success") {
+    if (clampedProgress < 35) {
+      if (stageKey === "detect") return "running";
+      return "pending";
+    }
+    if (clampedProgress < 75) {
+      if (stageKey === "detect") return "done";
+      if (stageKey === "token") return "running";
+      if (stageKey === "similar") return "skipped";
+      return "pending";
+    }
+    if (clampedProgress < 100) {
+      if (stageKey === "detect" || stageKey === "token") return "done";
+      if (stageKey === "decision") return "running";
+      if (stageKey === "similar") return "skipped";
+    }
+    if (clampedProgress >= 100) {
+      if (stageKey === "similar") return "skipped";
+      return "done";
+    }
+  }
+
+  if (clampedProgress < 30) {
+    if (stageKey === "detect") return "running";
+    return "pending";
+  }
+  if (clampedProgress < 55) {
+    if (stageKey === "detect") return "failed";
+    if (stageKey === "token") return "skipped";
+    if (stageKey === "similar") return "running";
+    return "pending";
+  }
+  if (clampedProgress < 100) {
+    if (stageKey === "detect") return "failed";
+    if (stageKey === "token") return "skipped";
+    if (stageKey === "similar") return "done";
+    if (stageKey === "decision") return "running";
+  }
+  if (clampedProgress >= 100) {
+    if (stageKey === "detect") return "failed";
+    if (stageKey === "token") return "skipped";
+    return "done";
+  }
+
+  return "pending";
+}
+
+function getVerifyStageStatusLabel(status) {
+  if (status === "done") return "완료";
+  if (status === "running") return "진행 중";
+  if (status === "failed") return "실패";
+  if (status === "skipped") return "건너뜀";
+  return "대기";
+}
+
+function setVerifyScenario(mode = "success") {
+  verifyScenario = mode === "fail" ? "fail" : "success";
+  verifyScenarioButtons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.verifyScenario === verifyScenario);
+  });
+}
+
+function renderVerifyState(progress, forcedStatusMap = null) {
+  const clampedProgress = Math.max(0, Math.min(100, Number(progress) || 0));
+  verifyProgressValueInternal = clampedProgress;
+
+  if (verifyProgressRing) {
+    verifyProgressRing.style.setProperty("--progress", clampedProgress.toFixed(2));
+  }
+  if (verifyProgressValue) {
+    verifyProgressValue.textContent = `${Math.round(clampedProgress)}%`;
+  }
+
+  let stageText = "워터마크 검출 시도를 진행 중입니다.";
+
+  verifyStepItems.forEach((item, index) => {
+    const stage = verifyStageConfig[index];
+    if (!stage) return;
+    let status =
+      forcedStatusMap?.[stage.key] || getVerifyStageStatusByScenario(clampedProgress, stage.key, verifyScenario);
+
+    item.classList.toggle("is-done", status === "done");
+    item.classList.toggle("is-running", status === "running");
+    item.classList.toggle("is-pending", status === "pending");
+    item.classList.toggle("is-failed", status === "failed");
+    item.classList.toggle("is-skipped", status === "skipped");
+
+    const stateNode = item.querySelector(".verify-step-state");
+    if (stateNode) stateNode.textContent = `[${getVerifyStageStatusLabel(status)}]`;
+
+    if (status === "running") stageText = `${stage.label}을(를) 진행 중입니다.`;
+    if (status === "failed" && stage.key === "detect") {
+      stageText = "워터마크 검출 실패. 유사 이미지 탐색 단계로 전환했습니다.";
+    }
+  });
+
+  if (!forcedStatusMap && verifyScenario === "success") {
+    if (clampedProgress >= 35 && clampedProgress < 75) {
+      stageText = "워터마크 검출 성공. 토큰 연계 정보를 확인 중입니다.";
+    } else if (clampedProgress >= 75 && clampedProgress < 100) {
+      stageText = "검증 결과를 정리하고 있습니다.";
+    }
+  }
+
+  if (!forcedStatusMap && verifyScenario === "fail") {
+    if (clampedProgress >= 30 && clampedProgress < 55) {
+      stageText = "워터마크 검출 실패. 유사 이미지 탐색을 진행 중입니다.";
+    } else if (clampedProgress >= 55 && clampedProgress < 100) {
+      stageText = "유사도 분석 결과를 바탕으로 최종 검증 결과를 생성 중입니다.";
+    }
+  }
+
+  if (clampedProgress >= 100 && !forcedStatusMap) {
+    stageText =
+      verifyScenario === "success"
+        ? "워터마크 검출 및 토큰 연계 확인이 완료되었습니다."
+        : "워터마크 검출 실패 후 유사 이미지 탐색이 완료되었습니다.";
+  }
+
+  if (verifyStatusLine) verifyStatusLine.textContent = stageText;
+}
+
+function getCurrentUploaderDisplayName() {
+  if (isLoggedIn && userNickname?.textContent) {
+    return userNickname.textContent.trim();
+  }
+  return "게스트";
+}
+
+function renderVerifyCandidateMeta() {
+  if (verifyCandidateFileName) verifyCandidateFileName.textContent = verifyCandidateMeta.fileName;
+  if (verifyCandidateOwner) verifyCandidateOwner.textContent = verifyCandidateMeta.owner;
+  if (verifyCandidateDate) verifyCandidateDate.textContent = verifyCandidateMeta.registeredAt;
+}
+
+function renderVerifySuccessToken(record) {
+  if (!verifySuccessTokenInfo) return;
+  const uploader = verifyUploaderName?.textContent?.trim() || getCurrentUploaderDisplayName();
+  const registeredAt = verifyRegisteredAt?.textContent?.trim() || formatKoreanDateTime(new Date());
+  const rows = [
+    { label: "검증자", value: uploader },
+    { label: "검증 시각", value: registeredAt },
+    { label: "Token ID", value: record.tokenId },
+    { label: "네트워크", value: record.network },
+    { label: "Content Hash", value: record.contentHash },
+    { label: "Transaction Hash", value: record.txHash },
+    { label: "체인 기록 시각", value: record.mintedAt }
+  ];
+
+  verifySuccessTokenInfo.innerHTML = rows
+    .map(
+      (row) => `
+        <div>
+          <dt>${escapeHtml(row.label)}</dt>
+          <dd>${escapeHtml(row.value)}</dd>
+        </div>
+      `
+    )
+    .join("");
+}
+
+function renderVerifyFailInfo() {
+  if (!verifyFailMetrics) return;
+  verifyFailMetrics.innerHTML = `
+    <div class="verify-fail-metric">
+      <span>워터마크 검출</span>
+      <strong>실패</strong>
+    </div>
+    <div class="verify-fail-metric">
+      <span>유사도(코사인)</span>
+      <strong>0.8124 (81.2%)</strong>
+    </div>
+    <div class="verify-fail-metric">
+      <span>pHash Distance</span>
+      <strong>5 / Threshold 8</strong>
+    </div>
+    <div class="verify-fail-metric">
+      <span>최종 판단</span>
+      <strong>서비스 DB 유사 이미지 후보 1건 발견</strong>
+    </div>
+  `;
+}
+
+function showVerifyResult(mode = verifyScenario) {
+  const finalMode = mode === "fail" ? "fail" : "success";
+  setVerifyScenario(finalMode);
+  const imageSrc = verifyPreviewImage?.src || "";
+
+  if (finalMode === "success") {
+    setVerifyView("success");
+    if (verifySuccessImage) verifySuccessImage.src = imageSrc;
+    const fileName = verifyFileName?.textContent || "verify_sample.png";
+    const tokenRecord = createMockMintRecord(fileName);
+    renderVerifySuccessToken(tokenRecord);
+    showLoginToast("저작물 검증이 완료되었습니다.", 1800);
+    return;
+  }
+
+  setVerifyView("fail");
+  if (verifyFailSourceImage) verifyFailSourceImage.src = imageSrc;
+  if (verifyFailCandidateImage) {
+    verifyFailCandidateImage.src = mockCandidateImageUrl || imageSrc;
+  }
+  renderVerifyCandidateMeta();
+  renderVerifyFailInfo();
+  showLoginToast("워터마크 검출 실패. 유사 이미지 탐색 결과를 확인하세요.", 2100);
+}
+
+function startVerifySimulation() {
+  if (!verifyDropzone?.classList.contains("has-file")) return;
+  stopVerifySimulation();
+  setVerifyView("running");
+  renderVerifyState(0);
+
+  const totalDurationMs = 7200;
+  const tickMs = 160;
+  const baseStep = 100 / (totalDurationMs / tickMs);
+  verifyProgressValueInternal = 0;
+
+  verifyTimer = setInterval(() => {
+    const jitter = Math.random() * 1.05;
+    verifyProgressValueInternal = Math.min(100, verifyProgressValueInternal + baseStep + jitter);
+    renderVerifyState(verifyProgressValueInternal);
+
+    if (verifyProgressValueInternal >= 100) {
+      stopVerifySimulation();
+      showVerifyResult(verifyScenario);
+    }
+  }, tickMs);
+}
+
+function setVerifyState(file) {
+  if (!verifyDropzone || !verifyEmpty || !verifyContent) return;
+  if (!file) {
+    stopVerifySimulation();
+    verifyDropzone.classList.remove("has-file");
+    verifyEmpty.hidden = false;
+    verifyContent.hidden = true;
+    setVerifyView("ready");
+    renderVerifyState(0);
+    if (verifyPreviewImage) verifyPreviewImage.removeAttribute("src");
+    if (verifyRunningImage) verifyRunningImage.removeAttribute("src");
+    if (verifySuccessImage) verifySuccessImage.removeAttribute("src");
+    if (verifyFailSourceImage) verifyFailSourceImage.removeAttribute("src");
+    if (verifyFailCandidateImage) verifyFailCandidateImage.removeAttribute("src");
+    if (verifyFileName) verifyFileName.textContent = "sample.png";
+    if (verifyFileMeta) verifyFileMeta.textContent = "0 KB · 준비 완료";
+    if (verifyUploaderName) verifyUploaderName.textContent = getCurrentUploaderDisplayName();
+    if (verifyRegisteredAt) verifyRegisteredAt.textContent = "-";
+    verifyCandidateMeta = {
+      fileName: "concept_scene.jpg",
+      owner: "artist@verimarka.com",
+      registeredAt: "2026.03.18 16:05"
+    };
+    renderVerifyCandidateMeta();
+    return;
+  }
+
+  if (!/^image\/(jpeg|png)$/i.test(file.type)) {
+    alert("JPG 또는 PNG 파일만 업로드할 수 있습니다.");
+    return;
+  }
+
+  const maxBytes = 20 * 1024 * 1024;
+  if (file.size > maxBytes) {
+    alert("파일 크기는 20MB 이하만 가능합니다.");
+    return;
+  }
+
+  if (verifyPreviewUrl) {
+    URL.revokeObjectURL(verifyPreviewUrl);
+    verifyPreviewUrl = null;
+  }
+
+  verifyPreviewUrl = URL.createObjectURL(file);
+  verifyDropzone.classList.add("has-file");
+  verifyEmpty.hidden = true;
+  verifyContent.hidden = false;
+  setVerifyView("ready");
+  renderVerifyState(0);
+
+  if (verifyPreviewImage) verifyPreviewImage.src = verifyPreviewUrl;
+  if (verifyRunningImage) verifyRunningImage.src = verifyPreviewUrl;
+  if (verifySuccessImage) verifySuccessImage.src = verifyPreviewUrl;
+  if (verifyFailSourceImage) verifyFailSourceImage.src = verifyPreviewUrl;
+  if (verifyFailCandidateImage) verifyFailCandidateImage.src = mockCandidateImageUrl || verifyPreviewUrl;
+  const uploadedAt = formatKoreanDateTime(new Date());
+  const uploader = getCurrentUploaderDisplayName();
+
+  if (verifyFileName) verifyFileName.textContent = file.name;
+  if (verifyFileMeta) {
+    verifyFileMeta.textContent = `${formatFileSize(file.size)} · 준비 완료`;
+  }
+  if (verifyUploaderName) verifyUploaderName.textContent = uploader;
+  if (verifyRegisteredAt) verifyRegisteredAt.textContent = uploadedAt;
+  renderVerifyCandidateMeta();
+  showLoginToast("검증 이미지 업로드가 완료되었습니다.", 1500);
+}
+
 function renderAnalysisState(progress, forcedStatusMap = null) {
   const clampedProgress = Math.max(0, Math.min(100, Number(progress) || 0));
   analysisProgressValueInternal = clampedProgress;
@@ -2371,6 +2767,53 @@ window.applyMintResult = (record = null) => {
   }
   renderMintState(100);
   showMintCompleteView();
+};
+
+window.applyVerificationProgress = (payload) => {
+  const progress = Number(payload?.progress);
+  if (!Number.isFinite(progress)) return;
+  stopVerifySimulation();
+  const isFinished = progress >= 100 || payload?.phase === "result";
+  const payloadMode = payload?.resultMode === "fail" ? "fail" : "success";
+  setVerifyScenario(payloadMode);
+
+  if (isFinished) {
+    renderVerifyState(100, payload?.stageStatus ?? null);
+    showVerifyResult(payloadMode);
+    return;
+  }
+
+  setVerifyView("running");
+  renderVerifyState(progress, payload?.stageStatus ?? null);
+};
+
+window.applyVerificationResult = (mode = "success") => {
+  stopVerifySimulation();
+  const normalizedMode = mode === "fail" ? "fail" : "success";
+  setVerifyScenario(normalizedMode);
+  renderVerifyState(100);
+  showVerifyResult(normalizedMode);
+};
+
+window.applyVerificationCandidate = (candidate) => {
+  if (!candidate) return;
+  const candidateUrl = candidate.imageUrl || candidate.url || "";
+  const candidateName = candidate.fileName || candidate.name || verifyCandidateMeta.fileName;
+  const candidateOwner = candidate.owner || candidate.uploader || candidate.registeredBy || verifyCandidateMeta.owner;
+  const candidateDate =
+    candidate.registeredAt || candidate.createdAt || candidate.uploadedAt || verifyCandidateMeta.registeredAt;
+
+  verifyCandidateMeta = {
+    fileName: candidateName,
+    owner: candidateOwner,
+    registeredAt: candidateDate
+  };
+  renderVerifyCandidateMeta();
+
+  if (candidateUrl) {
+    mockCandidateImageUrl = candidateUrl;
+    if (verifyFailCandidateImage) verifyFailCandidateImage.src = candidateUrl;
+  }
 };
 window.applyRegistrationCandidate = (candidate) => {
   if (!candidate) return;
@@ -2919,6 +3362,82 @@ uploadInput?.addEventListener("change", () => {
   if (file) setUploadState(file);
 });
 
+verifyDropzone?.addEventListener("click", (event) => {
+  const isActionButton = event.target instanceof Element
+    ? Boolean(event.target.closest("button"))
+    : false;
+  const isFileSelected = verifyDropzone.classList.contains("has-file");
+  if (!isActionButton && !isFileSelected) {
+    verifyInput?.click();
+  }
+});
+
+verifyDropzone?.addEventListener("keydown", (event) => {
+  const isFileSelected = verifyDropzone.classList.contains("has-file");
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    if (!isFileSelected) verifyInput?.click();
+  }
+});
+
+verifyDropzone?.addEventListener("dragover", (event) => {
+  event.preventDefault();
+  verifyDropzone.classList.add("is-dragover");
+});
+
+verifyDropzone?.addEventListener("dragleave", () => {
+  verifyDropzone.classList.remove("is-dragover");
+});
+
+verifyDropzone?.addEventListener("drop", (event) => {
+  event.preventDefault();
+  verifyDropzone.classList.remove("is-dragover");
+  const file = event.dataTransfer?.files?.[0];
+  if (file) setVerifyState(file);
+});
+
+verifyInput?.addEventListener("change", () => {
+  const file = verifyInput.files?.[0];
+  if (file) setVerifyState(file);
+});
+
+changeVerifyFileBtn?.addEventListener("click", () => {
+  stopVerifySimulation();
+  if (verifyInput) verifyInput.value = "";
+  verifyInput?.click();
+});
+
+startVerifyBtn?.addEventListener("click", () => {
+  if (!verifyDropzone?.classList.contains("has-file")) {
+    alert("먼저 검증할 이미지를 업로드해주세요.");
+    return;
+  }
+  if (verifyRegisteredAt) verifyRegisteredAt.textContent = formatKoreanDateTime(new Date());
+  if (verifyUploaderName) verifyUploaderName.textContent = getCurrentUploaderDisplayName();
+  showLoginToast("저작물 검증을 시작합니다.", 1500);
+  startVerifySimulation();
+});
+
+verifyScenarioButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    setVerifyScenario(button.dataset.verifyScenario || "success");
+  });
+});
+
+verifyAgainBtn?.addEventListener("click", () => {
+  stopVerifySimulation();
+  setVerifyView("ready");
+  if (verifyInput) verifyInput.value = "";
+  verifyInput?.click();
+});
+
+verifyFailRetryBtn?.addEventListener("click", () => {
+  stopVerifySimulation();
+  setVerifyView("ready");
+  if (verifyInput) verifyInput.value = "";
+  verifyInput?.click();
+});
+
 changeFileBtn?.addEventListener("click", () => {
   stopAnalysisSimulation();
   stopWatermarkSimulation();
@@ -3174,9 +3693,14 @@ window.addEventListener("beforeunload", () => {
   stopAnalysisSimulation();
   stopWatermarkSimulation();
   stopMintSimulation();
+  stopVerifySimulation();
   if (uploadPreviewUrl) {
     URL.revokeObjectURL(uploadPreviewUrl);
     uploadPreviewUrl = null;
+  }
+  if (verifyPreviewUrl) {
+    URL.revokeObjectURL(verifyPreviewUrl);
+    verifyPreviewUrl = null;
   }
   revokeWatermarkRenderedUrl();
 });
@@ -3195,6 +3719,9 @@ renderAdminImageDetail(adminImages[0]?.id);
 renderAdminVoteDetail(adminVotes[0]?.id);
 setupAdminEvents();
 setAdminView("dashboard");
+setUploadState(null);
 setResultMode("allow");
+setVerifyScenario("success");
+setVerifyState(null);
 setWatermarkCardLayoutByRatio(1);
 setActiveTab("home");
